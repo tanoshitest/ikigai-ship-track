@@ -1,0 +1,84 @@
+import { create } from 'zustand';
+import { Lead, Employee, Customer, LeadStatus, initialLeads, initialCustomers, initialEmployees, generateCode, calcShippingFee } from '@/data/mockData';
+
+interface AppState {
+  leads: Lead[];
+  customers: Customer[];
+  employees: Employee[];
+  leadCounter: number;
+  settings: {
+    priceMain: number;
+    priceSub: number;
+    surchargePerPkg: number;
+    maxKgPerPkg: number;
+    boxFees: { min: number; max: number; fee: number }[];
+  };
+  addLead: (lead: Omit<Lead, 'id' | 'code' | 'status' | 'totalFee' | 'createdAt' | 'statusHistory'> & { source: Lead['source'] }) => void;
+  updateLeadStatus: (id: string, newStatus: LeadStatus, note?: string) => void;
+  moveLead: (id: string, newStatus: LeadStatus) => void;
+  updateLead: (id: string, updates: Partial<Lead>) => void;
+  addEmployee: (emp: Omit<Employee, 'id' | 'ordersHandled'>) => void;
+}
+
+export const useStore = create<AppState>((set, get) => ({
+  leads: initialLeads,
+  customers: initialCustomers,
+  employees: initialEmployees,
+  leadCounter: 17,
+  settings: {
+    priceMain: 115000,
+    priceSub: 125000,
+    surchargePerPkg: 40000,
+    maxKgPerPkg: 30,
+    boxFees: [
+      { min: 5, max: 14, fee: 15000 },
+      { min: 15, max: 24, fee: 20000 },
+      { min: 25, max: 30, fee: 30000 },
+    ],
+  },
+  addLead: (data) => {
+    const state = get();
+    const counter = state.leadCounter;
+    const code = generateCode(data.source, counter);
+    const fee = calcShippingFee(data.weightKg, data.dimL, data.dimW, data.dimH, state.settings.priceMain, state.settings.priceSub, state.settings.surchargePerPkg, state.settings.maxKgPerPkg);
+    const now = new Date().toISOString().slice(0, 10);
+    const newLead: Lead = {
+      ...data,
+      id: String(counter),
+      code,
+      status: 'lead_moi',
+      totalFee: fee.total,
+      createdAt: now,
+      statusHistory: [{ status: 'lead_moi', date: now }],
+    };
+    set({ leads: [...state.leads, newLead], leadCounter: counter + 1 });
+  },
+  updateLeadStatus: (id, newStatus, note) => {
+    set((s) => ({
+      leads: s.leads.map((l) =>
+        l.id === id
+          ? { ...l, status: newStatus, statusHistory: [...l.statusHistory, { status: newStatus, date: new Date().toISOString().slice(0, 10), note }] }
+          : l
+      ),
+    }));
+  },
+  moveLead: (id, newStatus) => {
+    set((s) => ({
+      leads: s.leads.map((l) =>
+        l.id === id
+          ? { ...l, status: newStatus, statusHistory: [...l.statusHistory, { status: newStatus, date: new Date().toISOString().slice(0, 10), note: 'Kéo thả' }] }
+          : l
+      ),
+    }));
+  },
+  updateLead: (id, updates) => {
+    set((s) => ({
+      leads: s.leads.map((l) => (l.id === id ? { ...l, ...updates } : l)),
+    }));
+  },
+  addEmployee: (emp) => {
+    set((s) => ({
+      employees: [...s.employees, { ...emp, id: `e${s.employees.length + 1}`, ordersHandled: 0 }],
+    }));
+  },
+}));
