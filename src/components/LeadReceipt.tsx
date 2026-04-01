@@ -10,152 +10,177 @@ export const LeadReceipt = React.forwardRef<HTMLDivElement, LeadReceiptProps>(({
   const totalWeight = lead.packages?.reduce((sum, p) => sum + p.chargeWeight, 0) || 0;
   
   return (
-    <div ref={ref} className="bg-white p-6 w-[740px] mx-auto text-slate-900 font-sans origin-top text-[13px]" id="printable-receipt">
+    <div ref={ref} className="bg-white p-[10mm] w-[210mm] min-h-[297mm] mx-auto text-slate-900 font-sans text-sm" id="printable-receipt">
       {/* Header */}
-      <div className="flex justify-between items-start border-b-2 border-slate-900 pb-4 mb-5">
-        <div>
-          <h1 className="text-3xl font-black tracking-tighter text-slate-900">IKIGAI LOGISTICS</h1>
-          <p className="text-xs uppercase tracking-widest font-bold text-slate-500 mt-1">Dịch vụ vận chuyển Nhật - Việt chuyên nghiệp</p>
-          <div className="mt-4 space-y-0.5 text-sm">
-            <p><strong>Hotline:</strong> 090.xxxx.xxxx</p>
-            <p><strong>Website:</strong> www.ikigai.vn</p>
+      <div className="flex justify-between items-start mb-8 border-b-2 border-slate-900 pb-6">
+        <div className="flex flex-col">
+          <h1 className="text-3xl font-black tracking-tighter text-slate-900 mb-1">IKIGAI LOGISTICS</h1>
+          <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-slate-500 mb-4">Professional Japan - Vietnam Logistics</p>
+          <div className="space-y-1 text-xs">
+            <p className="flex items-center gap-2"><span className="font-bold w-12">Hotline:</span> 090.xxxx.xxxx</p>
+            <p className="flex items-center gap-2"><span className="font-bold w-12">Website:</span> www.ikigai.vn</p>
           </div>
         </div>
-        <div className="text-right">
-          <h2 className="text-xl font-bold bg-slate-900 text-white px-4 py-1 inline-block mb-3">PHIẾU THU TIỀN</h2>
-          <p className="text-sm font-mono"><strong>Mã đơn:</strong> {lead.code}</p>
-          <p className="text-sm"><strong>Ngày lập:</strong> {new Date().toLocaleDateString('vi-VN')}</p>
+        <div className="flex flex-col items-end">
+          <div className="bg-slate-900 text-white px-6 py-2 font-black text-xl mb-4 tracking-wider">
+            PHIẾU THU TIỀN
+          </div>
+          <div className="text-right space-y-1 font-medium">
+            <p className="text-xs text-slate-500 uppercase tracking-wider">Mã vận đơn nội bộ</p>
+            <p className="text-base font-bold font-mono uppercase">{lead.code}</p>
+            <div className="h-px bg-slate-200 w-32 ml-auto my-2" />
+            <p className="text-sm">Ngày lập: <span className="font-bold">{new Date().toLocaleDateString('vi-VN')}</span></p>
+          </div>
         </div>
       </div>
 
-      {/* Customer Info */}
-      <div className="grid grid-cols-2 gap-8 mb-6">
-        <div className="space-y-2">
-          <h3 className="text-xs font-black uppercase text-slate-400 tracking-wider border-b pb-1">NGƯỜI GỬI</h3>
-          <p className="font-bold text-lg">{lead.senderName}</p>
-          <p className="text-sm leading-relaxed">{lead.senderAddress || 'N/A'}</p>
-          <p className="text-sm"><strong>SĐT:</strong> {lead.senderPhone}</p>
+      {/* Info Sections */}
+      <div className="grid grid-cols-2 gap-8 mb-10">
+        <div className="relative pl-4 border-l-2 border-slate-200">
+          <h3 className="text-[10px] font-black tracking-widest text-slate-400 uppercase mb-3">Thông tin người gửi</h3>
+          <div className="space-y-1">
+            <p className="text-lg font-black text-slate-900">{lead.senderName}</p>
+            <p className="text-xs text-slate-600 leading-relaxed max-w-[280px]">{lead.senderAddress || '—'}</p>
+            <p className="text-xs font-bold text-slate-900 mt-2">SĐT: {lead.senderPhone}</p>
+          </div>
         </div>
-        <div className="space-y-2">
-          <h3 className="text-xs font-black uppercase text-slate-400 tracking-wider border-b pb-1">NGƯỜI NHẬN</h3>
-          <p className="font-bold text-lg">{lead.receiverName}</p>
-          <p className="text-sm leading-relaxed">{lead.receiverAddress}</p>
-          <p className="text-sm"><strong>SĐT:</strong> {lead.receiverPhone}</p>
+        <div className="relative pl-4 border-l-2 border-slate-200">
+          <h3 className="text-[10px] font-black tracking-widest text-slate-400 uppercase mb-3">Thông tin người nhận</h3>
+          <div className="space-y-1">
+            <p className="text-lg font-black text-slate-900">{lead.receiverName}</p>
+            <p className="text-xs text-slate-600 leading-relaxed max-w-[280px]">{lead.receiverAddress}</p>
+            <p className="text-xs font-bold text-slate-900 mt-2">SĐT: {lead.receiverPhone}</p>
+          </div>
         </div>
       </div>
 
-      {/* Details Table */}
-      <div className="mb-6">
+      {/* Main Breakdown Area */}
+      <div className="mb-10 min-h-[300px]">
         <table className="w-full border-collapse">
           <thead>
-            <tr className="bg-slate-100 border-y-2 border-slate-900">
-              <th className="py-2 px-2 text-left text-[11px] font-black uppercase w-[5%]">STT</th>
-              <th className="py-2 px-2 text-left text-[11px] font-black uppercase w-[40%]">CHI TIẾT KIỆN HÀNG</th>
-              <th className="py-2 px-2 text-center text-[11px] font-black uppercase w-[15%]">TRỌNG LƯỢNG</th>
-              <th className="py-2 px-2 text-right text-[11px] font-black uppercase w-[20%]">ĐƠN GIÁ</th>
-              <th className="py-2 px-2 text-right text-[11px] font-black uppercase w-[20%]">THÀNH TIỀN</th>
+            <tr className="bg-slate-900 text-white border-b-2 border-slate-900">
+              <th className="p-3 text-center text-[10px] font-black uppercase tracking-wider w-12">STT</th>
+              <th className="p-3 text-left text-[10px] font-black uppercase tracking-wider">Nội dung chi tiết</th>
+              <th className="p-3 text-center text-[10px] font-black uppercase tracking-wider w-32">Trọng lượng</th>
+              <th className="p-3 text-right text-[10px] font-black uppercase tracking-wider w-32">Đơn giá</th>
+              <th className="p-3 text-right text-[10px] font-black uppercase tracking-wider w-40">Thành tiền</th>
             </tr>
           </thead>
-          <tbody className="divide-y border-b-2 border-slate-900">
+          <tbody>
             {lead.packages?.map((pkg, idx) => {
               const price = getTierPrice(pkg.chargeWeight);
+              const formattedPrice = new Intl.NumberFormat('vi-VN').format(price);
+              const formattedShipping = new Intl.NumberFormat('vi-VN').format(pkg.shippingFee);
+              
               return (
                 <React.Fragment key={idx}>
-                  {/* Shipping line */}
-                  <tr>
-                    <td className="py-2.5 px-2 align-top font-bold">{idx + 1}</td>
-                    <td className="py-2.5 px-2">
-                      <p className="font-bold whitespace-nowrap">Phí vận chuyển kiện #{idx + 1}</p>
+                  <tr className="border-b border-slate-100 group">
+                    <td className="p-4 text-center font-bold text-slate-800">{idx + 1}</td>
+                    <td className="p-4">
+                      <span className="font-black text-slate-800">Phí vận chuyển kiện #{idx + 1}</span>
                       {pkg.dimL > 0 && (
-                        <p className="text-[10px] text-slate-500 italic mt-0.5">
-                          Kích thước: {pkg.dimL}x{pkg.dimW}x{pkg.dimH} cm
-                        </p>
+                        <div className="text-[9px] text-slate-400 font-mono mt-1 flex gap-2">
+                          <span>KÍCH THƯỚC: {pkg.dimL}x{pkg.dimW}x{pkg.dimH} CM</span>
+                          <span>|</span>
+                          <span>QUY ĐỔI: {pkg.volWeight} KG</span>
+                        </div>
                       )}
                     </td>
-                    <td className="py-2.5 px-2 text-center font-medium whitespace-nowrap">{pkg.chargeWeight} kg</td>
-                    <td className="py-2.5 px-2 text-right whitespace-nowrap">{new Intl.NumberFormat('vi-VN').format(price)}</td>
-                    <td className="py-2.5 px-2 text-right font-bold whitespace-nowrap">{new Intl.NumberFormat('vi-VN').format(pkg.shippingFee)}</td>
+                    <td className="p-4 text-center font-black tabular-nums">{pkg.chargeWeight} kg</td>
+                    <td className="p-4 text-right font-medium tabular-nums text-slate-500">{formattedPrice}</td>
+                    <td className="p-4 text-right font-black tabular-nums">{formattedShipping}</td>
                   </tr>
-                  {/* Fees lines */}
+                  
                   {pkg.hasPackingFee && (
-                    <tr className="text-xs text-slate-600 bg-slate-50/50">
+                    <tr className="bg-slate-50 border-b border-white text-[11px] text-slate-600">
                       <td />
-                      <td className="py-1.5 px-2" colSpan={3}>+ Phí đóng gói (vật dụng, thùng carton)</td>
-                      <td className="py-1.5 px-2 text-right whitespace-nowrap">{new Intl.NumberFormat('vi-VN').format(getBoxFee(pkg.chargeWeight))}</td>
+                      <td className="p-2 px-4 italic" colSpan={3}>+ Phí đóng gói tiêu chuẩn (Thùng carton, vật dụng bảo quản)</td>
+                      <td className="p-2 px-4 text-right font-bold tabular-nums">
+                        {new Intl.NumberFormat('vi-VN').format(getBoxFee(pkg.chargeWeight))}
+                      </td>
                     </tr>
                   )}
+                  
                   {pkg.surcharge > 0 && (
-                    <tr className="text-xs text-slate-600 bg-slate-50/50">
+                    <tr className="bg-slate-50 border-b border-white text-[11px] text-slate-600">
                       <td />
-                      <td className="py-1.5 px-2" colSpan={3}>+ Phí tách kiện / Surcharge</td>
-                      <td className="py-1.5 px-2 text-right whitespace-nowrap">{new Intl.NumberFormat('vi-VN').format(pkg.surcharge)}</td>
+                      <td className="p-2 px-4 italic" colSpan={3}>+ Surcharge / Phí tách thùng, xử lý phát sinh</td>
+                      <td className="p-2 px-4 text-right font-bold tabular-nums">
+                        {new Intl.NumberFormat('vi-VN').format(pkg.surcharge)}
+                      </td>
                     </tr>
                   )}
                 </React.Fragment>
               );
             })}
           </tbody>
-          <tfoot className="bg-slate-50">
-             <tr>
-               <td className="py-3 px-2" colSpan={2}>
-                 <p className="text-[10px] font-bold uppercase text-slate-400">Ghi chú vận phẩm</p>
-                 <p className="text-xs italic">{lead.itemType} {lead.notes ? `- ${lead.notes}` : ''}</p>
-               </td>
-               <td className="py-3 px-2 text-center font-bold whitespace-nowrap">{totalWeight} kg</td>
-               <td className="py-3 px-2 text-right font-black uppercase text-xs" colSpan={1}>Tổng cộng</td>
-               <td className="py-3 px-2 text-right text-lg font-black text-rose-600 whitespace-nowrap">{formatVND(lead.totalFee)}</td>
-             </tr>
-          </tfoot>
         </table>
       </div>
 
-      {/* Signature Section */}
-      <div className="grid grid-cols-2 gap-12 text-center mt-8 mb-12">
+      {/* Summary Footer Section */}
+      <div className="grid grid-cols-[1fr_2fr] gap-10 mt-auto border-t-4 border-slate-900 pt-8">
         <div>
-          <p className="font-bold mb-16 uppercase text-xs tracking-widest">Khách hàng xác nhận</p>
-          <div className="border-t border-dotted border-slate-300 w-48 mx-auto" />
-          <p className="text-[10px] text-slate-400 mt-2 italic">(Ký và ghi rõ họ tên)</p>
+          <div className="bg-slate-100 p-4 rounded border-l-4 border-slate-400">
+            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Ghi chú vận phẩm</h4>
+            <p className="text-xs italic leading-relaxed text-slate-600 font-medium font-serif">
+              "{lead.itemType} {lead.notes ? `| ${lead.notes}` : ''}"
+            </p>
+          </div>
         </div>
-        <div>
-          <p className="font-bold mb-16 uppercase text-xs tracking-widest">Đại diện Ikigai Logistics</p>
-          <div className="border-t border-dotted border-slate-300 w-48 mx-auto" />
-          <p className="text-[10px] text-slate-400 mt-2 italic">(Ký và đóng dấu)</p>
+        
+        <div className="space-y-4">
+          <div className="flex justify-between items-baseline px-4">
+            <span className="text-xs font-bold uppercase tracking-widest text-slate-400">Tổng trọng lượng thực tế</span>
+            <span className="text-2xl font-black tabular-nums">{totalWeight} <span className="text-sm">KG</span></span>
+          </div>
+          <div className="bg-slate-900 text-white p-6 flex justify-between items-center shadow-xl">
+            <span className="text-base font-black tracking-[0.2em] uppercase">Ván toán tổng cộng</span>
+            <div className="text-right">
+              <span className="text-3xl font-black tabular-nums">{formatVND(lead.totalFee)}</span>
+              <p className="text-[9px] text-white/50 italic mt-1">(Giá đã bao gồm tất cả các loại phí dịch vụ phát sinh)</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Footer message */}
-      <div className="text-center border-t border-slate-200 pt-4">
-        <p className="text-xs font-medium">Cảm ơn quý khách đã tin tưởng sử dụng dịch vụ của Ikigai Logistics!</p>
-        <p className="text-[9px] text-slate-400 mt-1 uppercase tracking-widest">www.ikigai.vn • Chuyên nghiệp - Tận tâm - Tốc độ</p>
+      {/* Formal Signature Area */}
+      <div className="grid grid-cols-2 gap-20 text-center mt-20 mb-24">
+        <div className="flex flex-col items-center">
+          <p className="font-black text-xs uppercase tracking-[0.25em] mb-24 text-slate-400">Xác nhận của khách hàng</p>
+          <div className="w-48 h-px bg-slate-200 border-dashed border-t" />
+          <p className="text-[10px] text-slate-400 mt-3 italic italic">(Ký và ghi rõ họ tên)</p>
+        </div>
+        <div className="flex flex-col items-center">
+          <p className="font-black text-xs uppercase tracking-[0.25em] mb-24 text-slate-900">Đại diện Ikigai Logistics</p>
+          <div className="w-48 h-px bg-slate-200 border-dashed border-t" />
+          <p className="text-[10px] text-slate-400 mt-3 italic">(Ký, đóng dấu & ghi ngày)</p>
+        </div>
+      </div>
+
+      {/* Legal/Footer */}
+      <div className="border-t border-slate-100 pt-8 text-center text-slate-400 space-y-2">
+        <p className="text-[11px] font-bold uppercase tracking-widest leading-loose">
+          IKIGAI LOGISTICS • Chuyên nghiệp - Tận tâm - Tốc độ
+        </p>
+        <p className="text-[9px] max-w-2xl mx-auto leading-relaxed">
+          Quý khách vui lòng kiểm tra kỹ số lượng kiện hàng và tình trạng niêm phong khi nhận. Mọi khiếu nại về sau liên quan đến việc thiếu hụt hàng hóa sẽ khó được giải quyết nếu không có biên bản đồng kiểm tại chỗ. Trân trọng cảm ơn!
+        </p>
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          /* Hide everything first */
-          body * { 
-            visibility: hidden !important; 
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-          
-          /* Show ONLY the receipt and its children */
-          #printable-receipt, #printable-receipt * { 
-            visibility: visible !important; 
-          }
-          
-          /* Position receipt at the top-left */
+          body * { visibility: hidden !important; }
+          #printable-receipt, #printable-receipt * { visibility: visible !important; }
           #printable-receipt {
-            position: fixed !important;
+            position: absolute !important;
             left: 0 !important;
             top: 0 !important;
-            width: 100% !important;
+            width: 210mm !important;
+            height: 297mm !important;
             margin: 0 !important;
-            padding: 20px !important;
-            background: white !important;
-            z-index: 9999999 !important;
+            padding: 10mm !important;
+            box-shadow: none !important;
           }
-
-          /* Ensure proper page breaks and layout */
           @page {
             size: A4;
             margin: 0;
