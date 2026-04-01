@@ -124,52 +124,7 @@ export default function ReportsPage() {
       </TabsContent>
 
       <TabsContent value="cpl" className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card className="border-none shadow-md">
-            <CardHeader>
-              <CardTitle className="text-base font-bold">Biểu đồ CPL theo nguồn</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={cplData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
-                  <XAxis dataKey="source" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
-                  <YAxis axisLine={false} tickLine={false} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} tick={{ fontSize: 11 }} />
-                  <Tooltip 
-                    cursor={{ fill: 'hsl(var(--muted)/0.3)' }}
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                    formatter={(v: number) => formatVND(v)}
-                  />
-                  <Bar dataKey="cpl" fill="#f97316" name="CPL (VNĐ/Lead)" radius={[4, 4, 0, 0]} barSize={25} />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <Card className="border-none shadow-md">
-            <CardHeader>
-              <CardTitle className="text-base font-bold">So sánh Ngân sách & Số Lead</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={cplData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
-                  <XAxis dataKey="source" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
-                  <YAxis yAxisId="left" axisLine={false} tickLine={false} tickFormatter={(v) => `${(v/1000000).toFixed(0)}tr`} tick={{ fontSize: 11 }} />
-                  <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
-                  <Tooltip 
-                    cursor={{ fill: 'hsl(var(--muted)/0.3)' }}
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  />
-                  <Bar yAxisId="left" dataKey="spend" fill="#1e293b" name="Ngân sách (tr)" radius={[4, 4, 0, 0]} barSize={15} />
-                  <Bar yAxisId="right" dataKey="leads" fill="#10b981" name="Số Lead" radius={[4, 4, 0, 0]} barSize={15} />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Card className="border-none shadow-md overflow-hidden">
+        <Card className="border-none shadow-md overflow-hidden mt-2">
           <CardHeader className="bg-slate-900 text-white p-4">
              <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
                Phân tích chỉ số CPL chi tiết
