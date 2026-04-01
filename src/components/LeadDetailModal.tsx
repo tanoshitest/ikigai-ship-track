@@ -173,7 +173,16 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                 <div className="rounded-lg border p-4 bg-primary/5 border-primary/20 space-y-3">
                   <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Tổng cộng đơn hàng</p>
                   <p className="text-3xl font-black text-primary">{formatVND(totalFeeValue)}</p>
-                  <p className="text-xs text-muted-foreground">Phí vận chuyển cho {localPackages.length} kiện hàng</p>
+                  <div className="space-y-1.5 py-2 border-y border-primary/10">
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-2">Chi tiết từng kiện:</p>
+                    {localPackages.map((pkg, idx) => (
+                      <div key={idx} className="flex justify-between text-xs font-medium">
+                        <span className="text-muted-foreground">Kiện {idx + 1} ({pkg.chargeWeight}kg):</span>
+                        <span>{formatVND(pkg.total)}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground italic text-right pt-1">Tổng cộng {localPackages.length} kiện hàng</p>
                   
                   <div className="pt-2">
                     <div className={cn(
