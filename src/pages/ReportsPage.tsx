@@ -143,14 +143,18 @@ export default function ReportsPage() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={currentMonthlyData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="month" axisLine={false} tickLine={false} />
-                <YAxis axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000000).toFixed(0)}tr`} />
-                <Tooltip formatter={(v: number) => formatVND(v)} />
-                <Line type="monotone" dataKey="revenue" stroke="#f97316" strokeWidth={3} dot={{ r: 4, fill: '#f97316' }} name="Doanh thu" />
-                <Line type="monotone" dataKey="cost" stroke="#94a3b8" strokeWidth={2} strokeDasharray="5 5" name="Chi tiêu" />
-              </LineChart>
+              <BarChart data={currentMonthlyData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
+                <YAxis axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000000).toFixed(0)}tr`} tick={{ fontSize: 11 }} />
+                <Tooltip 
+                  cursor={{ fill: 'hsl(var(--muted)/0.3)' }}
+                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  formatter={(v: number) => formatVND(v)}
+                />
+                <Bar dataKey="revenue" fill="#f97316" name="Doanh thu" radius={[4, 4, 0, 0]} barSize={20} />
+                <Bar dataKey="cost" fill="#94a3b8" name="Chi tiêu" radius={[4, 4, 0, 0]} barSize={20} />
+              </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
