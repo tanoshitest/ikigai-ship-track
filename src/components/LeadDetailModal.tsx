@@ -532,15 +532,19 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                         className="w-full text-xs h-7" 
                         onClick={() => {
                           const now = new Date().toISOString().slice(0, 10);
+                          const isCurrentlyInFlight = currentLead.status === 'dang_bay';
+                          const nextLeadStatus = isCurrentlyInFlight ? 'su_co' : currentLead.status;
+                          
                           const newHistory = [
                             ...currentLead.statusHistory,
                             { 
-                              status: currentLead.status, 
+                              status: nextLeadStatus, 
                               date: now, 
                               note: `LỖI: ${issueReason} (${issueDesc}). XỬ LÝ: ${issueSolution}` 
                             }
                           ];
                           updateLead(currentLead.id, { 
+                            status: nextLeadStatus,
                             hasIssue, 
                             issueReason, 
                             issueDesc, 

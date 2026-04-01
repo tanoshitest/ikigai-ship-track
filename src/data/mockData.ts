@@ -1,5 +1,5 @@
 export type LeadSource = 'Facebook' | 'Zalo' | 'TikTok' | 'Website' | 'Khác';
-export type LeadStatus = 'cho_xac_nhan' | 'lead_moi' | 'van_chuyen_noi_dia' | 'dang_bay' | 'hoan_thanh';
+export type LeadStatus = 'cho_xac_nhan' | 'lead_moi' | 'van_chuyen_noi_dia' | 'dang_bay' | 'su_co' | 'hoan_thanh';
 export type ItemType = 'Thực phẩm' | 'Quần áo' | 'Mỹ phẩm' | 'Đồ điện tử' | 'Khác';
 export type Carrier = 'EMS' | 'DHL' | 'Sagawa';
 export type EmployeeRole = 'Admin' | 'Sale' | 'Kho';
@@ -80,15 +80,17 @@ export const STATUS_LABELS: Record<LeadStatus, string> = {
   lead_moi: 'Đã chốt đơn',
   van_chuyen_noi_dia: 'Vận chuyển nội địa',
   dang_bay: 'Đang bay',
+  su_co: 'Sự cố',
   hoan_thanh: 'Hoàn thành',
 };
 
 export const STATUS_COLORS: Record<LeadStatus, string> = {
-  cho_xac_nhan: 'bg-status-pending',
-  lead_moi: 'bg-status-new',
-  van_chuyen_noi_dia: 'bg-status-domestic',
-  dang_bay: 'bg-status-inflight',
-  hoan_thanh: 'bg-status-done',
+  cho_xac_nhan: 'bg-orange-500',
+  lead_moi: 'bg-blue-500',
+  van_chuyen_noi_dia: 'bg-emerald-500',
+  dang_bay: 'bg-sky-500',
+  su_co: 'bg-red-500',
+  hoan_thanh: 'bg-slate-400',
 };
 
 export const SOURCE_ABBR: Record<LeadSource, string> = {
@@ -104,6 +106,7 @@ const nextStatus: Record<LeadStatus, LeadStatus | null> = {
   lead_moi: 'van_chuyen_noi_dia',
   van_chuyen_noi_dia: 'dang_bay',
   dang_bay: 'hoan_thanh',
+  su_co: 'hoan_thanh',
   hoan_thanh: null,
 };
 
