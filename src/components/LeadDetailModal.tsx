@@ -59,7 +59,7 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
     updateLeadStatus(currentLead.id, nextStatus);
   };
 
-  const isShipping = currentLead.status === 'van_chuyen_noi_dia' || currentLead.status === 'dang_bay';
+  const isShipping = currentLead.status === 'dang_bay';
   const isWarehouse = currentLead.status === 'lead_moi';
 
   return (
