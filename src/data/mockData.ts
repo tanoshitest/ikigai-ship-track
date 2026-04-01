@@ -170,9 +170,7 @@ export function calcShippingFee(
     const price = getTierPrice(w);
     const shippingFee = Math.round(w * price);
     const boxFee = getBoxFee(w);
-    const pkgsCount = weightList.length;
-    // Surcharge of 40k only if there's multiple packages
-    const surcharge = pkgsCount > 1 ? surchargePerPkg : 0;
+    const surcharge = surchargePerPkg;
     
     return {
       weight: w,

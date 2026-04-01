@@ -134,8 +134,6 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
 
           <div className="flex gap-6 text-xs mb-3 bg-muted/30 p-2 rounded">
             <span><span className="text-muted-foreground">Loại hàng:</span> {currentLead.itemType}</span>
-            <span><span className="text-muted-foreground">Cân nặng gốc:</span> {currentLead.weightKg} kg</span>
-            <span><span className="text-muted-foreground">Kích thước gốc:</span> {currentLead.dimL}x{currentLead.dimW}x{currentLead.dimH} cm</span>
           </div>
 
           {/* Main content */}
@@ -204,7 +202,7 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                           </p>
                           <p className="text-muted-foreground flex justify-between">
                             <span>Phí tách kiện:</span>
-                            <span className="font-medium text-foreground">{formatVND(finalPackages.length > 1 ? settings.surchargePerPkg : 0)}</span>
+                            <span className="font-medium text-foreground">{formatVND(settings.surchargePerPkg)}</span>
                           </p>
                         </div>
                         <div className="flex flex-col justify-end items-end space-y-1">
