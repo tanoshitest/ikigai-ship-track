@@ -84,8 +84,7 @@ export default function LeadManagementPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Pipeline Vận Đơn</h2>
+      <div className="flex items-center justify-end">
         <Button onClick={() => setAddOpen(true)} className="bg-accent text-accent-foreground hover:bg-accent/90">
           <Plus size={16} className="mr-1" /> Thêm Lead mới
         </Button>
