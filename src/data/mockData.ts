@@ -242,10 +242,43 @@ export const initialLeads: Lead[] = [
   { id: '12', code: 'IKG-FB-260312-012', status: 'dang_bay', source: 'Facebook', senderName: 'Phan Quốc Minh', senderPhone: '0912345679', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Morita Aiko', receiverAddress: 'Okayama, Kita-ku, 4-4-4', receiverPhone: '070-2323-4545', itemType: 'Khác', weightKg: 20, dimL: 70, dimW: 50, dimH: 40, totalFee: 2330000, carrier: 'Sagawa', trackingCode: 'SGW1122334455', shipDate: '2026-03-27', createdAt: '2026-03-12', assignedTo: 'Trần Thị Mai', statusHistory: [{ status: 'van_chuyen_noi_dia', date: '2026-03-14' }, { status: 'dang_bay', date: '2026-03-27' }] },
   
   // Hoàn thành
-  { id: '13', code: 'IKG-TT-260301-013', status: 'hoan_thanh', source: 'TikTok', senderName: 'Đỗ Thị Ngọc', senderPhone: '0923456780', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Kimura Daiki', receiverAddress: 'Tokyo, Shibuya-ku, 9-9-9', receiverPhone: '080-6767-8989', itemType: 'Thực phẩm', weightKg: 6, dimL: 40, dimW: 30, dimH: 25, totalFee: 705000, carrier: 'EMS', trackingCode: 'EMS1111222233', shipDate: '2026-03-03', createdAt: '2026-03-01', assignedTo: 'Trần Thị Mai', statusHistory: [{ status: 'hoan_thanh', date: '2026-03-08' }] },
-  { id: '14', code: 'IKG-WEB-260302-014', status: 'hoan_thanh', source: 'Website', senderName: 'Trịnh Văn Phú', senderPhone: '0934567891', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Shimizu Yuna', receiverAddress: 'Osaka, Tennoji-ku, 6-6-6', receiverPhone: '090-4545-6767', itemType: 'Mỹ phẩm', weightKg: 3, dimL: 30, dimW: 20, dimH: 15, totalFee: 345000, carrier: 'DHL', trackingCode: 'DHL4444555566', shipDate: '2026-03-04', createdAt: '2026-03-02', assignedTo: 'Trần Thị Mai', statusHistory: [{ status: 'hoan_thanh', date: '2026-03-09' }] },
-  { id: '15', code: 'IKG-K-260303-015', status: 'hoan_thanh', source: 'Khác', senderName: 'Cao Thị Quỳnh', senderPhone: '0945678902', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Honda Taro', receiverAddress: 'Nagoya, Nakamura-ku, 8-8-8', receiverPhone: '070-8989-0101', itemType: 'Quần áo', weightKg: 11, dimL: 55, dimW: 45, dimH: 35, totalFee: 1280000, carrier: 'Sagawa', trackingCode: 'SGW7777888899', shipDate: '2026-03-05', createdAt: '2026-03-03', assignedTo: 'Trần Thị Mai', statusHistory: [{ status: 'hoan_thanh', date: '2026-03-10' }] },
-  { id: '16', code: 'IKG-FB-260304-016', status: 'hoan_thanh', source: 'Facebook', senderName: 'Lê Thị Ry', senderPhone: '0956789013', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Matsuda Ken', receiverAddress: 'Sapporo, Toyohira-ku, 1-3-5', receiverPhone: '080-0202-0303', itemType: 'Đồ điện tử', weightKg: 5, dimL: 45, dimW: 30, dimH: 20, totalFee: 590000, carrier: 'EMS', trackingCode: 'EMS3333444455', shipDate: '2026-03-06', createdAt: '2026-03-04', assignedTo: 'Trần Thị Mai', statusHistory: [{ status: 'hoan_thanh', date: '2026-03-11' }] },
+  { id: '13', code: 'IKG-TT-260301-013', status: 'hoan_thanh', source: 'TikTok', senderName: 'Đỗ Thị Ngọc', senderPhone: '0923456780', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Kimura Daiki', receiverAddress: 'Tokyo, Shibuya-ku, 9-9-9', receiverPhone: '080-6767-8989', itemType: 'Thực phẩm', weightKg: 6, dimL: 40, dimW: 30, dimH: 25, totalFee: 705000, carrier: 'EMS', trackingCode: 'EMS1111222233', shipDate: '2026-03-03', createdAt: '2026-03-01', assignedTo: 'Trần Thị Mai', 
+    statusHistory: [
+      { status: 'cho_xac_nhan', date: '2026-03-01', note: 'Tiếp nhận yêu cầu từ TikTok' },
+      { status: 'lead_moi', date: '2026-03-02', note: 'Khách xác nhận chốt đơn' },
+      { status: 'lead_moi', date: '2026-03-02', note: 'LỖI: Thiếu ảnh CMND mặt sau. XỬ LÝ: Đã gọi khách bổ sung qua Zalo' },
+      { status: 'van_chuyen_noi_dia', date: '2026-03-03', note: 'Đã nhận hàng tại kho Nhật' },
+      { status: 'dang_bay', date: '2026-03-05', note: 'Chuyến bay bay số hiệu NH832' },
+      { status: 'hoan_thanh', date: '2026-03-08', note: 'Giao hàng thành công' }
+    ] 
+  },
+  { id: '14', code: 'IKG-WEB-260302-014', status: 'hoan_thanh', source: 'Website', senderName: 'Trịnh Văn Phú', senderPhone: '0934567891', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Shimizu Yuna', receiverAddress: 'Osaka, Tennoji-ku, 6-6-6', receiverPhone: '090-4545-6767', itemType: 'Mỹ phẩm', weightKg: 3, dimL: 30, dimW: 20, dimH: 15, totalFee: 345000, carrier: 'DHL', trackingCode: 'DHL4444555566', shipDate: '2026-03-04', createdAt: '2026-03-02', assignedTo: 'Trần Thị Mai', 
+    statusHistory: [
+      { status: 'cho_xac_nhan', date: '2026-03-02', note: 'Đơn từ landing page' },
+      { status: 'lead_moi', date: '2026-03-03', note: 'Khách thanh toán qua Vietcombank' },
+      { status: 'van_chuyen_noi_dia', date: '2026-03-04', note: 'Đang gom hàng nội địa' },
+      { status: 'dang_bay', date: '2026-03-06' },
+      { status: 'hoan_thanh', date: '2026-03-09' }
+    ] 
+  },
+  { id: '15', code: 'IKG-K-260303-015', status: 'hoan_thanh', source: 'Khác', senderName: 'Cao Thị Quỳnh', senderPhone: '0945678902', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Honda Taro', receiverAddress: 'Nagoya, Nakamura-ku, 8-8-8', receiverPhone: '070-8989-0101', itemType: 'Quần áo', weightKg: 11, dimL: 55, dimW: 45, dimH: 35, totalFee: 1280000, carrier: 'Sagawa', trackingCode: 'SGW7777888899', shipDate: '2026-03-05', createdAt: '2026-03-03', assignedTo: 'Trần Thị Mai', 
+    statusHistory: [
+      { status: 'cho_xac_nhan', date: '2026-03-03', note: 'Khách quen giới thiệu' },
+      { status: 'lead_moi', date: '2026-03-04' },
+      { status: 'van_chuyen_noi_dia', date: '2026-03-05' },
+      { status: 'dang_bay', date: '2026-03-07' },
+      { status: 'hoan_thanh', date: '2026-03-10' }
+    ] 
+  },
+  { id: '16', code: 'IKG-FB-260304-016', status: 'hoan_thanh', source: 'Facebook', senderName: 'Lê Thị Ry', senderPhone: '0956789013', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Matsuda Ken', receiverAddress: 'Sapporo, Toyohira-ku, 1-3-5', receiverPhone: '080-0202-0303', itemType: 'Đồ điện tử', weightKg: 5, dimL: 45, dimW: 30, dimH: 20, totalFee: 590000, carrier: 'EMS', trackingCode: 'EMS3333444455', shipDate: '2026-03-06', createdAt: '2026-03-04', assignedTo: 'Trần Thị Mai', 
+    statusHistory: [
+      { status: 'cho_xac_nhan', date: '2026-03-04', note: 'Inbox từ Fanpage' },
+      { status: 'lead_moi', date: '2026-03-05' },
+      { status: 'van_chuyen_noi_dia', date: '2026-03-06' },
+      { status: 'dang_bay', date: '2026-03-08' },
+      { status: 'hoan_thanh', date: '2026-03-11' }
+    ] 
+  },
 ];
 
 export const initialCustomers: Customer[] = [
