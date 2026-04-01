@@ -537,7 +537,7 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                             { 
                               status: currentLead.status, 
                               date: now, 
-                              note: `Phát sinh lỗi: ${issueReason} (${issueDesc}). Hướng xử lý: ${issueSolution}` 
+                              note: `LỖI: ${issueReason} (${issueDesc}). XỬ LÝ: ${issueSolution}` 
                             }
                           ];
                           updateLead(currentLead.id, { 
@@ -567,9 +567,25 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                     <div className="absolute -left-[21px] top-1.5 w-2 h-2 rounded-full bg-muted-foreground/30 border-2 border-background" />
                     <div className="flex flex-col gap-0.5">
                       <span className="text-[10px] text-muted-foreground font-mono uppercase">{h.date}</span>
-                      <div className="flex items-center gap-1.5">
-                        <Badge variant="outline" className="text-[10px] px-1 py-0 h-4">{STATUS_LABELS[h.status]}</Badge>
-                        {h.note && <span className="text-[10px] text-muted-foreground line-clamp-1">— {h.note}</span>}
+                      <div className="flex flex-col gap-1.5 mt-1 border-t border-muted/30 pt-1.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <Badge variant="outline" className="text-[10px] px-1 py-0 h-4">{STATUS_LABELS[h.status]}</Badge>
+                          {h.note && !h.note.includes('LỖI:') && (
+                            <span className="text-[11px] text-muted-foreground">— {h.note}</span>
+                          )}
+                        </div>
+                        {h.note && h.note.includes('LỖI:') && (
+                          <div className="bg-red-50/50 p-2 rounded-md border border-red-100/50 text-[11px] space-y-1 mt-0.5">
+                            <p className="text-red-700 font-semibold flex gap-1.5">
+                              <span className="opacity-70">Phát sinh lỗi:</span>
+                              {h.note.split('XỬ LÝ:')[0].replace('LỖI:', '').trim()}
+                            </p>
+                            <p className="text-blue-700 font-semibold flex gap-1.5 border-t border-red-100/30 pt-1">
+                              <span className="opacity-70">Hướng xử lý:</span>
+                              {h.note.split('XỬ LÝ:')[1]?.trim() || 'Chưa có'}
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
