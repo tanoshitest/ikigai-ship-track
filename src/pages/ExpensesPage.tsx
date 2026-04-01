@@ -22,6 +22,9 @@ export default function ExpensesPage() {
   const [expenses, setExpenses] = useState(mockExpenses);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
+  const [filterMonth, setFilterMonth] = useState('all');
+  const [filterYear, setFilterYear] = useState('2026');
+  
   // States for new expense form
   const [newExpense, setNewExpense] = useState({
     date: new Date().toISOString().split('T')[0],
@@ -56,14 +59,40 @@ export default function ExpensesPage() {
     toast.success("Đã thêm khoản chi mới");
   };
 
-  const totalExpense = expenses.reduce((sum, exp) => sum + exp.amount, 0);
-  const paidExpense = expenses.filter(exp => exp.status === 'Đã thanh toán').reduce((sum, exp) => sum + exp.amount, 0);
-  const pendingExpense = totalExpense - paidExpense;
+  const filteredExpenses = expenses.filter(exp => {
+    const matchesMonth = filterMonth === 'all' ? true : exp.date.split('-')[1] === filterMonth.padStart(2, '0');
+    const matchesYear = filterYear === 'all' ? true : exp.date.startsWith(filterYear);
+    return matchesMonth && matchesYear;
+  });
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight text-primary">Cập nhật chi tiêu</h1>
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl font-bold tracking-tight text-primary">Cập nhật chi tiêu</h1>
+          <div className="flex items-center gap-2">
+            <Select value={filterMonth} onValueChange={setFilterMonth}>
+              <SelectTrigger className="h-8 w-[120px] text-xs">
+                <SelectValue placeholder="Chọn tháng" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả tháng</SelectItem>
+                {[...Array(12)].map((_, i) => (
+                   <SelectItem key={i+1} value={(i+1).toString()}>Tháng {i+1}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={filterYear} onValueChange={setFilterYear}>
+              <SelectTrigger className="h-8 w-[100px] text-xs">
+                <SelectValue placeholder="Chọn năm" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="2026">Năm 2026</SelectItem>
+                <SelectItem value="2025">Năm 2025</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-accent text-accent-foreground hover:bg-accent/90">
@@ -130,32 +159,6 @@ export default function ExpensesPage() {
         </Dialog>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="shadow-sm border-none bg-white">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Tổng chi tiêu tháng này</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-slate-800">{formatVND(totalExpense)}</div>
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm border-none bg-white">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Đã thanh toán</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-emerald-600">{formatVND(paidExpense)}</div>
-          </CardContent>
-        </Card>
-        <Card className="shadow-sm border-none bg-white">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Chờ xử lý</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-500">{formatVND(pendingExpense)}</div>
-          </CardContent>
-        </Card>
-      </div>
 
       <Card className="border-none shadow-sm bg-white overflow-hidden">
         <div className="p-4 border-b flex items-center justify-between">
@@ -178,7 +181,7 @@ export default function ExpensesPage() {
                 </tr>
               </thead>
               <tbody>
-                {expenses.map((expense) => (
+                {filteredExpenses.map((expense) => (
                   <tr key={expense.id} className="border-b hover:bg-muted/10 transition-colors">
                     <td className="p-4">{expense.date}</td>
                     <td className="p-4 font-medium">{expense.category}</td>
