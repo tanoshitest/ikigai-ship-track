@@ -75,6 +75,15 @@ export interface Employee {
   active: boolean;
 }
 
+export interface Expense {
+  id: string;
+  date: string;
+  category: string;
+  amount: number;
+  description: string;
+  leadSource?: LeadSource;
+}
+
 export const STATUS_LABELS: Record<LeadStatus, string> = {
   cho_xac_nhan: 'Lead mới - đang chăm sóc',
   lead_moi: 'Đã chốt đơn',
@@ -312,4 +321,13 @@ export const initialCustomers: Customer[] = [
 export const initialEmployees: Employee[] = [
   { id: 'e1', name: 'Nguyễn Thanh Tùng', role: 'Admin', phone: '0901111111', email: 'tung@ikigai.vn', ordersHandled: 245, active: true },
   { id: 'e2', name: 'Trần Thị Mai', role: 'Sale', phone: '0902222222', email: 'mai@ikigai.vn', ordersHandled: 189, active: true },
+];
+
+export const initialExpenses: Expense[] = [
+  { id: '1', date: '2026-03-25', category: 'Lương nhân viên', amount: 45000000, description: 'Lương tháng 3/2026' },
+  { id: '2', date: '2026-03-22', category: 'Vận chuyển nội địa', amount: 12500000, description: 'Phí vận chuyển từ kho đến sân bay' },
+  { id: '3', date: '2026-03-15', category: 'Marketing', amount: 8000000, description: 'Chạy quảng cáo Facebook Ads', leadSource: 'Facebook' },
+  { id: '4', date: '2026-03-10', category: 'Marketing', amount: 4500000, description: 'Quảng cáo TikTok tháng 3', leadSource: 'TikTok' },
+  { id: '5', date: '2026-03-05', category: 'Marketing', amount: 3200000, description: 'Tìm lead Zalo', leadSource: 'Zalo' },
+  { id: '6', date: '2026-03-01', category: 'Cước phí đối tác', amount: 56000000, description: 'Phí gửi EMS đợt 1 tháng 3' },
 ];

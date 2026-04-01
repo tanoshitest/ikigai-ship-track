@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Plus } from 'lucide-react';
-import { formatVND } from '@/data/mockData';
+import { formatVND, initialExpenses, LeadSource } from '@/data/mockData';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -28,9 +28,10 @@ export default function ExpensesPage() {
   // States for new expense form
   const [newExpense, setNewExpense] = useState({
     date: new Date().toISOString().split('T')[0],
-    category: 'Văn phòng phẩm',
+    category: 'Marketing',
     amount: '',
-    description: ''
+    description: '',
+    leadSource: undefined as LeadSource | undefined
   });
 
   const handleAddExpense = (e: React.FormEvent) => {
@@ -50,9 +51,10 @@ export default function ExpensesPage() {
     setIsDialogOpen(false);
     setNewExpense({
       date: new Date().toISOString().split('T')[0],
-      category: 'Văn phòng phẩm',
+      category: 'Marketing',
       amount: '',
-      description: ''
+      description: '',
+      leadSource: undefined
     });
     toast.success("Đã thêm khoản chi mới");
   };
@@ -139,6 +141,26 @@ export default function ExpensesPage() {
                   onChange={(e) => setNewExpense({...newExpense, amount: e.target.value})} 
                 />
               </div>
+              {newExpense.category === 'Marketing' && (
+                <div className="grid gap-2">
+                  <Label htmlFor="leadSource">Nguồn Lead (Chỉ cho Marketing)</Label>
+                  <Select 
+                    value={newExpense.leadSource} 
+                    onValueChange={(val) => setNewExpense({...newExpense, leadSource: val as LeadSource})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn nguồn lead" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Facebook">Facebook</SelectItem>
+                      <SelectItem value="Zalo">Zalo</SelectItem>
+                      <SelectItem value="TikTok">TikTok</SelectItem>
+                      <SelectItem value="Website">Website</SelectItem>
+                      <SelectItem value="Khác">Khác</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div className="grid gap-2">
                 <Label htmlFor="description">Mô tả chi tiết</Label>
                 <Input 
@@ -180,7 +202,16 @@ export default function ExpensesPage() {
                 {filteredExpenses.map((expense) => (
                   <tr key={expense.id} className="border-b hover:bg-muted/10 transition-colors">
                     <td className="p-4">{expense.date}</td>
-                    <td className="p-4 font-medium">{expense.category}</td>
+                    <td className="p-4">
+                      <div className="flex flex-col gap-1">
+                        <span className="font-medium">{expense.category}</span>
+                        {expense.leadSource && (
+                          <Badge variant="outline" className="w-fit text-[10px] py-0 h-4 bg-primary/5 text-primary border-primary/20">
+                            {expense.leadSource}
+                          </Badge>
+                        )}
+                      </div>
+                    </td>
                     <td className="p-4 text-slate-500">{expense.description}</td>
                     <td className="p-4 text-right font-bold tracking-tight text-slate-700">
                       {expense.amount.toLocaleString()}

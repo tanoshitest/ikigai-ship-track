@@ -3,32 +3,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { formatVND } from '@/data/mockData';
+import { formatVND, initialLeads, initialExpenses, LeadSource } from '@/data/mockData';
 import { useState } from 'react';
 
-const sourceDataAll = [
-  { source: 'Facebook', leads: 156, prospecting: 45, closed: 82, incident: 12, completed: 17, revenue: 245000000 },
-  { source: 'Zalo', leads: 98, prospecting: 28, closed: 52, incident: 6, completed: 12, revenue: 156000000 },
-  { source: 'TikTok', leads: 74, prospecting: 22, closed: 38, incident: 4, completed: 10, revenue: 112000000 },
-  { source: 'Website', leads: 42, prospecting: 12, closed: 24, incident: 2, completed: 4, revenue: 68000000 },
-  { source: 'Khác', leads: 25, prospecting: 5, closed: 15, incident: 1, completed: 4, revenue: 35000000 },
-];
-
-const sourceDataThisMonth = [
-  { source: 'Facebook', leads: 85, prospecting: 25, closed: 45, incident: 6, completed: 9, revenue: 135000000 },
-  { source: 'Zalo', leads: 55, prospecting: 15, closed: 30, incident: 3, completed: 7, revenue: 85000000 },
-  { source: 'TikTok', leads: 40, prospecting: 12, closed: 20, incident: 2, completed: 6, revenue: 58000000 },
-  { source: 'Website', leads: 22, prospecting: 8, closed: 10, incident: 1, completed: 3, revenue: 32000000 },
-  { source: 'Khác', leads: 15, prospecting: 3, closed: 10, incident: 0, completed: 2, revenue: 18000000 },
-];
-
-const sourceDataLastMonth = [
-  { source: 'Facebook', leads: 71, prospecting: 20, closed: 37, incident: 6, completed: 8, revenue: 110000000 },
-  { source: 'Zalo', leads: 43, prospecting: 13, closed: 22, incident: 3, completed: 5, revenue: 71000000 },
-  { source: 'TikTok', leads: 34, prospecting: 10, closed: 18, incident: 2, completed: 4, revenue: 54000000 },
-  { source: 'Website', leads: 20, prospecting: 4, closed: 14, incident: 1, completed: 1, revenue: 36000000 },
-  { source: 'Khác', leads: 10, prospecting: 2, closed: 5, incident: 1, completed: 2, revenue: 17000000 },
-];
+const sources: LeadSource[] = ['Facebook', 'Zalo', 'TikTok', 'Website', 'Khác'];
 
 const monthlyData = [
   { month: 'T04/25', orders: 45, incidentRate: 12, cost: 98000000, revenue: 125000000, kpi: 50, change: 0 },
@@ -51,9 +29,32 @@ export default function ReportsPage() {
   
   const [salesYear, setSalesYear] = useState('2026');
   
-  const currentSourceData = sourceMonth === 'all' ? sourceDataAll : 
-                            sourceMonth === '3' ? sourceDataThisMonth : 
-                            sourceDataLastMonth;
+  const cplData = sources.map(src => {
+    const leadsCount = initialLeads.filter(l => l.source === src).length;
+    const adsSpend = initialExpenses
+      .filter(e => e.category === 'Marketing' && e.leadSource === src)
+      .reduce((sum, e) => sum + e.amount, 0);
+    
+    return {
+       source: src,
+       leads: leadsCount,
+       spend: adsSpend,
+       cpl: leadsCount > 0 ? adsSpend / leadsCount : 0
+    };
+  });
+
+  const sourceData = sources.map(src => {
+    const leads = initialLeads.filter(l => l.source === src);
+    return {
+      source: src,
+      leads: leads.length,
+      prospecting: leads.filter(l => l.status === 'cho_xac_nhan').length,
+      closed: leads.filter(l => l.status === 'lead_moi').length,
+      incident: leads.filter(l => l.status === 'su_co').length,
+      completed: leads.filter(l => l.status === 'hoan_thanh').length,
+      revenue: leads.reduce((sum, l) => sum + l.totalFee, 0)
+    };
+  });
 
   const currentMonthlyData = monthlyData.filter(m => {
     const yearStr = salesYear === 'all' ? null : `/${salesYear.slice(-2)}`;
@@ -64,6 +65,7 @@ export default function ReportsPage() {
     <Tabs defaultValue="source" className="space-y-4">
       <TabsList>
         <TabsTrigger value="source">Lead theo nguồn</TabsTrigger>
+        <TabsTrigger value="cpl">Báo cáo CPL</TabsTrigger>
         <TabsTrigger value="monthly">Doanh số theo tháng</TabsTrigger>
       </TabsList>
 
@@ -102,7 +104,7 @@ export default function ReportsPage() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={350}>
-              <BarChart data={currentSourceData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <BarChart data={sourceData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
                 <XAxis dataKey="source" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 500 }} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
@@ -117,6 +119,98 @@ export default function ReportsPage() {
                 <Bar dataKey="completed" fill="#10b981" name="Đã hoàn thành" radius={[4, 4, 0, 0]} barSize={20} />
               </BarChart>
             </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="cpl" className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="border-none shadow-md">
+            <CardHeader>
+              <CardTitle className="text-base font-bold">Biểu đồ CPL theo nguồn</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={cplData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
+                  <XAxis dataKey="source" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
+                  <YAxis axisLine={false} tickLine={false} tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} tick={{ fontSize: 11 }} />
+                  <Tooltip 
+                    cursor={{ fill: 'hsl(var(--muted)/0.3)' }}
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    formatter={(v: number) => formatVND(v)}
+                  />
+                  <Bar dataKey="cpl" fill="#f97316" name="CPL (VNĐ/Lead)" radius={[4, 4, 0, 0]} barSize={25} />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-md">
+            <CardHeader>
+              <CardTitle className="text-base font-bold">So sánh Ngân sách & Số Lead</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={cplData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
+                  <XAxis dataKey="source" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
+                  <YAxis yAxisId="left" axisLine={false} tickLine={false} tickFormatter={(v) => `${(v/1000000).toFixed(0)}tr`} tick={{ fontSize: 11 }} />
+                  <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
+                  <Tooltip 
+                    cursor={{ fill: 'hsl(var(--muted)/0.3)' }}
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  />
+                  <Bar yAxisId="left" dataKey="spend" fill="#1e293b" name="Ngân sách (tr)" radius={[4, 4, 0, 0]} barSize={15} />
+                  <Bar yAxisId="right" dataKey="leads" fill="#10b981" name="Số Lead" radius={[4, 4, 0, 0]} barSize={15} />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className="border-none shadow-md overflow-hidden">
+          <CardHeader className="bg-slate-900 text-white p-4">
+             <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
+               Phân tích chỉ số CPL chi tiết
+               <Badge className="bg-orange-500 hover:bg-orange-600 border-none text-[10px]">Real-time</Badge>
+             </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-muted text-left text-muted-foreground uppercase tracking-widest text-[10px] font-black">
+                    <th className="p-4">Nguồn Lead</th>
+                    <th className="p-4 text-center">Số lượng Lead</th>
+                    <th className="p-4 text-right">Tổng chi phí Ads</th>
+                    <th className="p-4 text-right">CPL thực tế</th>
+                    <th className="p-4 text-center">Đánh giá</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cplData.map((item) => (
+                    <tr key={item.source} className="border-b hover:bg-muted/10 transition-colors">
+                      <td className="p-4 font-bold text-slate-700">{item.source}</td>
+                      <td className="p-4 text-center font-black">{item.leads}</td>
+                      <td className="p-4 text-right font-medium text-slate-500">{formatVND(item.spend)}</td>
+                      <td className="p-4 text-right text-base font-black text-primary">{formatVND(Math.round(item.cpl))}</td>
+                      <td className="p-4 text-center">
+                        {item.cpl === 0 ? (
+                           <Badge variant="secondary" className="text-[10px]">N/A</Badge>
+                        ) : item.cpl < 100000 ? (
+                           <Badge className="bg-emerald-500 text-white border-none text-[10px] font-bold">HIỆU QUẢ CAO</Badge>
+                        ) : item.cpl < 250000 ? (
+                           <Badge className="bg-orange-500 text-white border-none text-[10px] font-bold">TRUNG BÌNH</Badge>
+                        ) : (
+                           <Badge className="bg-red-500 text-white border-none text-[10px] font-bold">CẦN TỐI ƯU</Badge>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </CardContent>
         </Card>
       </TabsContent>
