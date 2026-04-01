@@ -52,10 +52,10 @@ export const useStore = create<AppState>((set, get) => ({
       ...data,
       id: String(counter),
       code,
-      status: 'lead_moi',
+      status: 'cho_xac_nhan',
       totalFee: fee.total,
       createdAt: now,
-      statusHistory: [{ status: 'lead_moi', date: now }],
+      statusHistory: [{ status: 'cho_xac_nhan', date: now }],
     };
     set({ leads: [...state.leads, newLead], leadCounter: counter + 1 });
   },
