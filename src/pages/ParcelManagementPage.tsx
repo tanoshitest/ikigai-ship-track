@@ -203,62 +203,49 @@ export default function ParcelManagementPage() {
 
       {/* Table */}
       <div className="overflow-x-auto rounded-lg border bg-card">
-        <Table>
+        <Table className="text-xs">
           <TableHeader>
             <TableRow>
               <SortHeader label="Mã đơn" sortKeyName="code" />
               <SortHeader label="Tên khách hàng" sortKeyName="customerName" />
-              <TableHead>SĐT</TableHead>
+              <TableHead className="whitespace-nowrap px-2 py-2 text-xs">SĐT</TableHead>
               <SortHeader label="NV chăm sóc" sortKeyName="employeeName" />
               <SortHeader label="Loại hàng" sortKeyName="itemType" />
               <SortHeader label="KL (kg)" sortKeyName="weightKg" />
-              <TableHead>Dài</TableHead>
-              <TableHead>Rộng</TableHead>
-              <TableHead>Cao</TableHead>
+              <TableHead className="px-2 py-2 text-xs">Dài</TableHead>
+              <TableHead className="px-2 py-2 text-xs">Rộng</TableHead>
+              <TableHead className="px-2 py-2 text-xs">Cao</TableHead>
               <SortHeader label="CL quy đổi" sortKeyName="volWeight" />
               <SortHeader label="Tình trạng" sortKeyName="status" />
               <SortHeader label="Hãng VC" sortKeyName="carrier" />
-              <TableHead>Tracking</TableHead>
-              <TableHead>Ghi chú</TableHead>
-              <SortHeader label="Ngày tạo" sortKeyName="createdAt" />
+              <TableHead className="px-2 py-2 text-xs">Tracking</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {pageData.length === 0 ? (
-              <TableRow><TableCell colSpan={15} className="py-8 text-center text-muted-foreground">Không có bưu kiện nào</TableCell></TableRow>
+              <TableRow><TableCell colSpan={13} className="py-8 text-center text-muted-foreground">Không có bưu kiện nào</TableCell></TableRow>
             ) : pageData.map(p => {
               const vw = volWeight(p);
               const showVol = vw > p.weightKg;
               return (
                 <TableRow key={p.id} className="cursor-pointer hover:bg-muted/50" onClick={() => openDrawer(p)}>
-                  <TableCell className="font-mono text-xs">{p.code}</TableCell>
-                  <TableCell className="whitespace-nowrap">{p.customerName}</TableCell>
-                  <TableCell className="text-xs">{p.customerPhone}</TableCell>
-                  <TableCell className="whitespace-nowrap text-sm">{p.employeeName}</TableCell>
-                  <TableCell>{p.itemType}</TableCell>
-                  <TableCell>{p.weightKg} kg</TableCell>
-                  <TableCell>{p.dimL}</TableCell>
-                  <TableCell>{p.dimW}</TableCell>
-                  <TableCell>{p.dimH}</TableCell>
-                  <TableCell>{showVol ? `${vw} kg` : '—'}</TableCell>
-                  <TableCell>
-                    <Badge className={cn('text-white text-[11px]', PARCEL_STATUS_COLORS[p.status])}>
+                  <TableCell className="whitespace-nowrap px-2 py-2 font-mono text-xs">{p.code}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2 py-2">{p.customerName}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2 py-2">{p.customerPhone}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2 py-2">{p.employeeName}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2 py-2">{p.itemType}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2 py-2">{p.weightKg} kg</TableCell>
+                  <TableCell className="px-2 py-2">{p.dimL}</TableCell>
+                  <TableCell className="px-2 py-2">{p.dimW}</TableCell>
+                  <TableCell className="px-2 py-2">{p.dimH}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2 py-2">{showVol ? `${vw} kg` : '—'}</TableCell>
+                  <TableCell className="px-2 py-2">
+                    <Badge className={cn('text-white text-[10px] whitespace-nowrap px-1.5 py-0.5', PARCEL_STATUS_COLORS[p.status])}>
                       {PARCEL_STATUS_LABELS[p.status]}
                     </Badge>
                   </TableCell>
-                  <TableCell>{p.carrier || '—'}</TableCell>
-                  <TableCell className="font-mono text-xs">{p.trackingCode || '—'}</TableCell>
-                  <TableCell className="max-w-[120px]">
-                    {p.note ? (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="block truncate text-xs">{p.note}</span>
-                        </TooltipTrigger>
-                        <TooltipContent><p className="max-w-xs">{p.note}</p></TooltipContent>
-                      </Tooltip>
-                    ) : '—'}
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap text-xs">{formatDate(p.createdAt)}</TableCell>
+                  <TableCell className="px-2 py-2">{p.carrier || '—'}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2 py-2 font-mono">{p.trackingCode || '-'}</TableCell>
                 </TableRow>
               );
             })}
