@@ -52,6 +52,7 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
     receiverPhone: currentLead.receiverPhone,
     source: currentLead.source || 'Facebook',
     notes: currentLead.notes || '',
+    assignedTo: currentLead.assignedTo || '',
     itemType: currentLead.itemType,
   });
 
@@ -233,6 +234,29 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                   </Select>
                 ) : (
                   <Badge variant="secondary" className="h-5 text-[10px] px-1.5 font-medium uppercase">{currentLead.source}</Badge>
+                )}
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="text-muted-foreground font-semibold">Sale chăm sóc:</span>
+                {isEditingInfo ? (
+                  <Select 
+                    value={tempInfo.assignedTo} 
+                    onValueChange={(val) => setTempInfo({...tempInfo, assignedTo: val})}
+                  >
+                    <SelectTrigger className="h-7 w-32 border-none bg-background shadow-sm text-xs px-2">
+                      <SelectValue placeholder="Chọn sale" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {useStore.getState().employees
+                        .filter(e => e.role === 'Sale' || e.role === 'Admin')
+                        .map(e => (
+                          <SelectItem key={e.id} value={e.name}>{e.name}</SelectItem>
+                        ))
+                      }
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <span className="font-medium">{currentLead.assignedTo || 'Chưa phân công'}</span>
                 )}
               </span>
               <span className="flex items-center gap-2">

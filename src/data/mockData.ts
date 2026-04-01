@@ -51,6 +51,7 @@ export interface Lead {
   issueSolution?: string;
   createdAt: string;
   notes?: string;
+  assignedTo?: string;
   statusHistory: { status: LeadStatus; date: string; note?: string }[];
 }
 
