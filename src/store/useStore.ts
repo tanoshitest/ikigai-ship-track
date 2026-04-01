@@ -12,7 +12,9 @@ interface AppState {
     surchargePerPkg: number;
     maxKgPerPkg: number;
     boxFees: { min: number; max: number; fee: number }[];
+    monthlySalesKPI: number;
   };
+  updateSettings: (updates: Partial<AppState['settings']>) => void;
   addLead: (lead: Omit<Lead, 'id' | 'code' | 'status' | 'totalFee' | 'createdAt' | 'statusHistory'> & { source: Lead['source'] }) => void;
   updateLeadStatus: (id: string, newStatus: LeadStatus, note?: string) => void;
   moveLead: (id: string, newStatus: LeadStatus) => void;
@@ -35,6 +37,10 @@ export const useStore = create<AppState>((set, get) => ({
       { min: 15, max: 24, fee: 20000 },
       { min: 25, max: 30, fee: 30000 },
     ],
+    monthlySalesKPI: 500000000,
+  },
+  updateSettings: (updates) => {
+    set((s) => ({ settings: { ...s.settings, ...updates } }));
   },
   addLead: (data) => {
     const state = get();
