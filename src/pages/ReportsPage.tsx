@@ -43,6 +43,20 @@ export default function ReportsPage() {
     };
   });
 
+  const cpaData = sources.map(src => {
+    const successfulLeadsCount = initialLeads.filter(l => l.source === src && l.status === 'hoan_thanh').length;
+    const adsSpend = initialExpenses
+      .filter(e => e.category === 'Marketing' && e.leadSource === src)
+      .reduce((sum, e) => sum + e.amount, 0);
+    
+    return {
+       source: src,
+       successfulLeads: successfulLeadsCount,
+       spend: adsSpend,
+       cpa: successfulLeadsCount > 0 ? adsSpend / successfulLeadsCount : 0
+    };
+  });
+
   const sourceData = sources.map(src => {
     const leads = initialLeads.filter(l => l.source === src);
     return {
@@ -66,6 +80,7 @@ export default function ReportsPage() {
       <TabsList>
         <TabsTrigger value="source">Lead theo nguồn</TabsTrigger>
         <TabsTrigger value="cpl">Báo cáo CPL</TabsTrigger>
+        <TabsTrigger value="cpa">Báo cáo CPA</TabsTrigger>
         <TabsTrigger value="monthly">Doanh số theo tháng</TabsTrigger>
       </TabsList>
 
@@ -159,6 +174,55 @@ export default function ReportsPage() {
                            <Badge className="bg-orange-500 text-white border-none text-[10px] font-bold">TRUNG BÌNH</Badge>
                         ) : (
                            <Badge className="bg-red-500 text-white border-none text-[10px] font-bold">CẦN TỐI ƯU</Badge>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="cpa" className="space-y-4">
+        <Card className="border-none shadow-md overflow-hidden mt-2">
+          <CardHeader className="bg-emerald-900 text-white p-4">
+             <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center justify-between">
+               <div className="flex items-center gap-2">
+                 Phân tích chỉ số CPA (Chi phí / Đơn thành công)
+                 <Badge className="bg-sky-500 hover:bg-sky-600 border-none text-[10px]">Conversion Focus</Badge>
+               </div>
+             </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-muted text-left text-muted-foreground uppercase tracking-widest text-[10px] font-black">
+                    <th className="p-4">Nguồn Lead</th>
+                    <th className="p-4 text-center">Số Lead Thành công</th>
+                    <th className="p-4 text-right">Tổng chi phí Ads</th>
+                    <th className="p-4 text-right">CPA thực tế</th>
+                    <th className="p-4 text-center">Đánh giá</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cpaData.map((item) => (
+                    <tr key={item.source} className="border-b hover:bg-muted/10 transition-colors">
+                      <td className="p-4 font-bold text-slate-700">{item.source}</td>
+                      <td className="p-4 text-center font-black">{item.successfulLeads}</td>
+                      <td className="p-4 text-right font-medium text-slate-500">{formatVND(item.spend)}</td>
+                      <td className="p-4 text-right text-base font-black text-emerald-600">{formatVND(Math.round(item.cpa))}</td>
+                      <td className="p-4 text-center">
+                        {item.cpa === 0 ? (
+                           <Badge variant="secondary" className="text-[10px]">N/A</Badge>
+                        ) : item.cpa < 200000 ? (
+                           <Badge className="bg-emerald-500 text-white border-none text-[10px] font-bold">TỐI ƯU TỐT</Badge>
+                        ) : item.cpa < 500000 ? (
+                           <Badge className="bg-orange-500 text-white border-none text-[10px] font-bold">CHẤP NHẬN ĐC</Badge>
+                        ) : (
+                           <Badge className="bg-red-500 text-white border-none text-[10px] font-bold">CHI PHÍ CAO</Badge>
                         )}
                       </td>
                     </tr>
