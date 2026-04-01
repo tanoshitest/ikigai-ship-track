@@ -7,8 +7,7 @@ interface AppState {
   employees: Employee[];
   leadCounter: number;
   settings: {
-    priceMain: number;
-    priceSub: number;
+    shippingTiers: { min: number; max: number; price: number }[];
     surchargePerPkg: number;
     maxKgPerPkg: number;
     boxFees: { min: number; max: number; fee: number }[];
@@ -28,8 +27,11 @@ export const useStore = create<AppState>((set, get) => ({
   employees: initialEmployees,
   leadCounter: 17,
   settings: {
-    priceMain: 115000,
-    priceSub: 125000,
+    shippingTiers: [
+      { min: 5, max: 10, price: 130000 },
+      { min: 11, max: 20, price: 124000 },
+      { min: 21, max: 30, price: 120000 },
+    ],
     surchargePerPkg: 40000,
     maxKgPerPkg: 30,
     boxFees: [
@@ -46,7 +48,7 @@ export const useStore = create<AppState>((set, get) => ({
     const state = get();
     const counter = state.leadCounter;
     const code = generateCode(data.source, counter);
-    const fee = calcShippingFee(data.weightKg, data.dimL, data.dimW, data.dimH, state.settings.priceMain, state.settings.priceSub, state.settings.surchargePerPkg, state.settings.maxKgPerPkg);
+    const fee = calcShippingFee(data.weightKg, data.dimL, data.dimW, data.dimH, 0, 0, state.settings.surchargePerPkg, state.settings.maxKgPerPkg);
     const now = new Date().toISOString().slice(0, 10);
     const newLead: Lead = {
       ...data,
