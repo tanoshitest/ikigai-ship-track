@@ -25,9 +25,6 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
   const currentLead = leads.find((l) => l.id === lead.id) || lead;
 
   const [actualWeight, setActualWeight] = useState(currentLead.actualWeightKg || currentLead.weightKg);
-  const [actualL, setActualL] = useState(currentLead.actualDimL || currentLead.dimL);
-  const [actualW, setActualW] = useState(currentLead.actualDimW || currentLead.dimW);
-  const [actualH, setActualH] = useState(currentLead.actualDimH || currentLead.dimH);
   
   // Local packages state for editing
   const [localPackages, setLocalPackages] = useState<PackageDetail[]>(currentLead.packages || []);
@@ -44,8 +41,8 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
 
   // Recalculate packages when weight/dims change
   const calcResult = useMemo(() => {
-    return calcShippingFee(actualWeight, actualL, actualW, actualH, settings.priceMain, settings.priceSub, settings.surchargePerPkg, settings.maxKgPerPkg);
-  }, [actualWeight, actualL, actualW, actualH, settings]);
+    return calcShippingFee(actualWeight, 0, 0, 0, settings.priceMain, settings.priceSub, settings.surchargePerPkg, settings.maxKgPerPkg);
+  }, [actualWeight, settings]);
 
   // Sync localPackages with calcResult when they change, but preserve user toggles if weights match
   useEffect(() => {
@@ -90,9 +87,6 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
   const handleWarehouseUpdate = () => {
     updateLead(currentLead.id, {
       actualWeightKg: actualWeight, 
-      actualDimL: actualL, 
-      actualDimW: actualW, 
-      actualDimH: actualH,
       packages: finalPackages,
       totalFee: totalFeeValue,
     });
@@ -164,12 +158,6 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                       onChange={(e) => setActualWeight(parseFloat(e.target.value) || 0)} 
                     />
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div><Label className="text-xs mb-1.5 block">Dài (cm)</Label><Input className="h-8 text-sm" type="number" value={actualL} onChange={(e) => setActualL(parseFloat(e.target.value) || 0)} /></div>
-                    <div><Label className="text-xs mb-1.5 block">Rộng (cm)</Label><Input className="h-8 text-sm" type="number" value={actualW} onChange={(e) => setActualW(parseFloat(e.target.value) || 0)} /></div>
-                    <div><Label className="text-xs mb-1.5 block">Cao (cm)</Label><Input className="h-8 text-sm" type="number" value={actualH} onChange={(e) => setActualH(parseFloat(e.target.value) || 0)} /></div>
-                  </div>
-                  
                   {calcResult.isVolumetric && (
                     <div className="flex items-center gap-2 text-[10px] text-amber-600 bg-amber-50 p-1 rounded border border-amber-100">
                       <AlertCircle className="w-3 h-3" />
