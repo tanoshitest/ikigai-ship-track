@@ -301,46 +301,32 @@ export default function ParcelManagementPage() {
                   {selectedParcel.note && <InfoRow label="Ghi chú" value={selectedParcel.note} />}
                 </div>
 
-                {/* Update status */}
-                <div className="space-y-2 rounded-lg border p-3">
-                  <h4 className="text-sm font-semibold">Cập nhật tình trạng</h4>
-                  <Select value={newStatus} onValueChange={setNewStatus}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {(Object.keys(PARCEL_STATUS_LABELS) as ParcelStatus[]).map(s => (
-                        <SelectItem key={s} value={s}>{PARCEL_STATUS_LABELS[s]}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90" onClick={handleUpdateStatus}>
-                    Cập nhật
-                  </Button>
-                </div>
-
-                {/* Note */}
-                <div className="space-y-2 rounded-lg border p-3">
-                  <h4 className="text-sm font-semibold">Ghi chú</h4>
-                  <Textarea placeholder="Thêm ghi chú..." value={newNote} onChange={e => setNewNote(e.target.value)} rows={3} />
-                  <Button size="sm" variant="outline" onClick={handleSaveNote}>Lưu ghi chú</Button>
-                </div>
-
                 {/* History */}
-                <div className="space-y-2 rounded-lg border p-3">
-                  <h4 className="text-sm font-semibold">Lịch sử thay đổi</h4>
-                  <div className="space-y-3">
+                <div className="space-y-4 rounded-lg border p-4 bg-muted/30">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">Lịch sử thay đổi</h4>
+                  <div className="space-y-4">
                     {selectedParcel.statusHistory.map((h, i) => (
-                      <div key={i} className="flex gap-3">
-                        <div className="flex flex-col items-center">
-                          <div className="h-2.5 w-2.5 rounded-full bg-accent" />
-                          {i < selectedParcel.statusHistory.length - 1 && <div className="w-px flex-1 bg-border" />}
+                      <div key={i} className="flex gap-4">
+                        <div className="flex flex-col items-center pt-1">
+                          <div className="h-2.5 w-2.5 rounded-full bg-accent shadow-sm" />
+                          {i < selectedParcel.statusHistory.length - 1 && <div className="w-0.5 flex-1 bg-border mt-1" />}
                         </div>
-                        <div className="pb-3 text-sm">
-                          <p className="font-medium">{formatDate(h.date)}</p>
-                          <p className="text-muted-foreground">
-                            {h.fromStatus ? `${PARCEL_STATUS_LABELS[h.fromStatus]} → ` : ''}
-                            {PARCEL_STATUS_LABELS[h.toStatus]}
-                          </p>
-                          <p className="text-xs text-muted-foreground">bởi {h.employee}</p>
+                        <div className="pb-4 text-xs">
+                          <p className="font-bold text-muted-foreground/80 mb-1">{formatDate(h.date)}</p>
+                          <div className="bg-card border rounded px-2 py-1.5 shadow-sm inline-block min-w-[200px]">
+                            <p className="font-medium text-foreground">
+                              {h.fromStatus ? (
+                                <span className="flex items-center gap-2">
+                                  <span className="opacity-50 strike-through">{PARCEL_STATUS_LABELS[h.fromStatus]}</span>
+                                  <span className="text-muted-foreground">→</span>
+                                  <span>{PARCEL_STATUS_LABELS[h.toStatus]}</span>
+                                </span>
+                              ) : (
+                                <span>{PARCEL_STATUS_LABELS[h.toStatus]}</span>
+                              )}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground mt-1 font-mono uppercase italic">Bởi {h.employee}</p>
+                          </div>
                         </div>
                       </div>
                     ))}
