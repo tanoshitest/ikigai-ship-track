@@ -1,5 +1,5 @@
 export type LeadSource = 'Facebook' | 'Zalo' | 'TikTok' | 'Website' | 'Khác';
-export type LeadStatus = 'lead_moi' | 'cho_xac_nhan' | 'da_chot' | 'dang_van_chuyen' | 'hoan_thanh';
+export type LeadStatus = 'lead_moi' | 'dang_cham_soc' | 'cho_xac_nhan' | 'da_chot' | 'van_chuyen_noi_dia' | 'dang_bay' | 'hoan_thanh';
 export type ItemType = 'Thực phẩm' | 'Quần áo' | 'Mỹ phẩm' | 'Đồ điện tử' | 'Khác';
 export type Carrier = 'EMS' | 'DHL' | 'Sagawa';
 export type EmployeeRole = 'Admin' | 'Sale' | 'Kho';
@@ -57,17 +57,21 @@ export interface Employee {
 
 export const STATUS_LABELS: Record<LeadStatus, string> = {
   lead_moi: 'Lead mới',
+  dang_cham_soc: 'Đang chăm sóc',
   cho_xac_nhan: 'Chờ xác nhận',
   da_chot: 'Đã chốt đơn',
-  dang_van_chuyen: 'Đang vận chuyển',
+  van_chuyen_noi_dia: 'Vận chuyển nội địa',
+  dang_bay: 'Đang bay',
   hoan_thanh: 'Hoàn thành',
 };
 
 export const STATUS_COLORS: Record<LeadStatus, string> = {
   lead_moi: 'bg-status-new',
+  dang_cham_soc: 'bg-status-care',
   cho_xac_nhan: 'bg-status-pending',
   da_chot: 'bg-status-confirmed',
-  dang_van_chuyen: 'bg-status-shipping',
+  van_chuyen_noi_dia: 'bg-status-domestic',
+  dang_bay: 'bg-status-inflight',
   hoan_thanh: 'bg-status-done',
 };
 
@@ -80,10 +84,12 @@ export const SOURCE_ABBR: Record<LeadSource, string> = {
 };
 
 const nextStatus: Record<LeadStatus, LeadStatus | null> = {
-  lead_moi: 'cho_xac_nhan',
+  lead_moi: 'dang_cham_soc',
+  dang_cham_soc: 'cho_xac_nhan',
   cho_xac_nhan: 'da_chot',
-  da_chot: 'dang_van_chuyen',
-  dang_van_chuyen: 'hoan_thanh',
+  da_chot: 'van_chuyen_noi_dia',
+  van_chuyen_noi_dia: 'dang_bay',
+  dang_bay: 'hoan_thanh',
   hoan_thanh: null,
 };
 
@@ -154,14 +160,14 @@ export const initialLeads: Lead[] = [
   { id: '8', code: 'IKG-K-260316-008', status: 'da_chot', source: 'Khác', senderName: 'Bùi Thị Hoa', senderPhone: '0978901234', receiverName: 'Takahashi Yui', receiverAddress: 'Kyoto, Higashiyama-ku, 3-3-3', receiverPhone: '090-1212-3434', itemType: 'Mỹ phẩm', weightKg: 4, dimL: 35, dimW: 25, dimH: 20, totalFee: 460000, createdAt: '2026-03-16', statusHistory: [{ status: 'lead_moi', date: '2026-03-16' }, { status: 'cho_xac_nhan', date: '2026-03-18' }, { status: 'da_chot', date: '2026-03-20' }] },
   { id: '9', code: 'IKG-FB-260317-009', status: 'da_chot', source: 'Facebook', senderName: 'Ngô Thanh Inh', senderPhone: '0989012345', receiverName: 'Kobayashi Riku', receiverAddress: 'Sendai, Aoba-ku, 5-5-5', receiverPhone: '070-5656-7878', itemType: 'Thực phẩm', weightKg: 15, dimL: 60, dimW: 50, dimH: 40, totalFee: 1750000, createdAt: '2026-03-17', statusHistory: [{ status: 'lead_moi', date: '2026-03-17' }, { status: 'cho_xac_nhan', date: '2026-03-19' }, { status: 'da_chot', date: '2026-03-21' }] },
   // Đang vận chuyển
-  { id: '10', code: 'IKG-WEB-260310-010', status: 'dang_van_chuyen', source: 'Website', senderName: 'Lý Văn Khôi', senderPhone: '0990123456', receiverName: 'Yoshida Sakura', receiverAddress: 'Hiroshima, Minami-ku, 7-7-7', receiverPhone: '080-3434-5656', itemType: 'Đồ điện tử', weightKg: 7, dimL: 50, dimW: 35, dimH: 25, totalFee: 820000, carrier: 'EMS', trackingCode: 'EMS1234567890', shipDate: '2026-03-12', createdAt: '2026-03-10', statusHistory: [{ status: 'lead_moi', date: '2026-03-10' }, { status: 'cho_xac_nhan', date: '2026-03-11' }, { status: 'da_chot', date: '2026-03-11' }, { status: 'dang_van_chuyen', date: '2026-03-12' }] },
-  { id: '11', code: 'IKG-ZL-260311-011', status: 'dang_van_chuyen', source: 'Zalo', senderName: 'Mai Thị Lan', senderPhone: '0901234568', receiverName: 'Kato Haruto', receiverAddress: 'Niigata, Chuo-ku, 2-2-2', receiverPhone: '090-7878-9090', itemType: 'Quần áo', weightKg: 9, dimL: 55, dimW: 40, dimH: 30, totalFee: 1050000, carrier: 'DHL', trackingCode: 'DHL9876543210', shipDate: '2026-03-13', createdAt: '2026-03-11', statusHistory: [{ status: 'lead_moi', date: '2026-03-11' }, { status: 'cho_xac_nhan', date: '2026-03-12' }, { status: 'da_chot', date: '2026-03-12' }, { status: 'dang_van_chuyen', date: '2026-03-13' }] },
-  { id: '12', code: 'IKG-FB-260312-012', status: 'dang_van_chuyen', source: 'Facebook', senderName: 'Phan Quốc Minh', senderPhone: '0912345679', receiverName: 'Morita Aiko', receiverAddress: 'Okayama, Kita-ku, 4-4-4', receiverPhone: '070-2323-4545', itemType: 'Khác', weightKg: 20, dimL: 70, dimW: 50, dimH: 40, totalFee: 2330000, carrier: 'Sagawa', trackingCode: 'SGW5555666677', shipDate: '2026-03-14', createdAt: '2026-03-12', statusHistory: [{ status: 'lead_moi', date: '2026-03-12' }, { status: 'cho_xac_nhan', date: '2026-03-13' }, { status: 'da_chot', date: '2026-03-13' }, { status: 'dang_van_chuyen', date: '2026-03-14' }] },
+  { id: '10', code: 'IKG-WEB-260310-010', status: 'van_chuyen_noi_dia', source: 'Website', senderName: 'Lý Văn Khôi', senderPhone: '0990123456', receiverName: 'Yoshida Sakura', receiverAddress: 'Hiroshima, Minami-ku, 7-7-7', receiverPhone: '080-3434-5656', itemType: 'Đồ điện tử', weightKg: 7, dimL: 50, dimW: 35, dimH: 25, totalFee: 820000, carrier: 'EMS', trackingCode: 'EMS1234567890', shipDate: '2026-03-12', createdAt: '2026-03-10', statusHistory: [{ status: 'lead_moi', date: '2026-03-10' }, { status: 'cho_xac_nhan', date: '2026-03-11' }, { status: 'da_chot', date: '2026-03-11' }, { status: 'van_chuyen_noi_dia', date: '2026-03-12' }] },
+  { id: '11', code: 'IKG-ZL-260311-011', status: 'van_chuyen_noi_dia', source: 'Zalo', senderName: 'Mai Thị Lan', senderPhone: '0901234568', receiverName: 'Kato Haruto', receiverAddress: 'Niigata, Chuo-ku, 2-2-2', receiverPhone: '090-7878-9090', itemType: 'Quần áo', weightKg: 9, dimL: 55, dimW: 40, dimH: 30, totalFee: 1050000, carrier: 'DHL', trackingCode: 'DHL9876543210', shipDate: '2026-03-13', createdAt: '2026-03-11', statusHistory: [{ status: 'lead_moi', date: '2026-03-11' }, { status: 'cho_xac_nhan', date: '2026-03-12' }, { status: 'da_chot', date: '2026-03-12' }, { status: 'van_chuyen_noi_dia', date: '2026-03-13' }] },
+  { id: '12', code: 'IKG-FB-260312-012', status: 'van_chuyen_noi_dia', source: 'Facebook', senderName: 'Phan Quốc Minh', senderPhone: '0912345679', receiverName: 'Morita Aiko', receiverAddress: 'Okayama, Kita-ku, 4-4-4', receiverPhone: '070-2323-4545', itemType: 'Khác', weightKg: 20, dimL: 70, dimW: 50, dimH: 40, totalFee: 2330000, carrier: 'Sagawa', trackingCode: 'SGW5555666677', shipDate: '2026-03-14', createdAt: '2026-03-12', statusHistory: [{ status: 'lead_moi', date: '2026-03-12' }, { status: 'cho_xac_nhan', date: '2026-03-13' }, { status: 'da_chot', date: '2026-03-13' }, { status: 'van_chuyen_noi_dia', date: '2026-03-14' }] },
   // Hoàn thành
-  { id: '13', code: 'IKG-TT-260301-013', status: 'hoan_thanh', source: 'TikTok', senderName: 'Đỗ Thị Ngọc', senderPhone: '0923456780', receiverName: 'Kimura Daiki', receiverAddress: 'Tokyo, Shibuya-ku, 9-9-9', receiverPhone: '080-6767-8989', itemType: 'Thực phẩm', weightKg: 6, dimL: 40, dimW: 30, dimH: 25, totalFee: 705000, carrier: 'EMS', trackingCode: 'EMS1111222233', shipDate: '2026-03-03', createdAt: '2026-03-01', statusHistory: [{ status: 'lead_moi', date: '2026-03-01' }, { status: 'cho_xac_nhan', date: '2026-03-02' }, { status: 'da_chot', date: '2026-03-02' }, { status: 'dang_van_chuyen', date: '2026-03-03' }, { status: 'hoan_thanh', date: '2026-03-08' }] },
-  { id: '14', code: 'IKG-WEB-260302-014', status: 'hoan_thanh', source: 'Website', senderName: 'Trịnh Văn Phú', senderPhone: '0934567891', receiverName: 'Shimizu Yuna', receiverAddress: 'Osaka, Tennoji-ku, 6-6-6', receiverPhone: '090-4545-6767', itemType: 'Mỹ phẩm', weightKg: 3, dimL: 30, dimW: 20, dimH: 15, totalFee: 345000, carrier: 'DHL', trackingCode: 'DHL4444555566', shipDate: '2026-03-04', createdAt: '2026-03-02', statusHistory: [{ status: 'lead_moi', date: '2026-03-02' }, { status: 'cho_xac_nhan', date: '2026-03-03' }, { status: 'da_chot', date: '2026-03-03' }, { status: 'dang_van_chuyen', date: '2026-03-04' }, { status: 'hoan_thanh', date: '2026-03-09' }] },
-  { id: '15', code: 'IKG-K-260303-015', status: 'hoan_thanh', source: 'Khác', senderName: 'Cao Thị Quỳnh', senderPhone: '0945678902', receiverName: 'Honda Taro', receiverAddress: 'Nagoya, Nakamura-ku, 8-8-8', receiverPhone: '070-8989-0101', itemType: 'Quần áo', weightKg: 11, dimL: 55, dimW: 45, dimH: 35, totalFee: 1280000, carrier: 'Sagawa', trackingCode: 'SGW7777888899', shipDate: '2026-03-05', createdAt: '2026-03-03', statusHistory: [{ status: 'lead_moi', date: '2026-03-03' }, { status: 'cho_xac_nhan', date: '2026-03-04' }, { status: 'da_chot', date: '2026-03-04' }, { status: 'dang_van_chuyen', date: '2026-03-05' }, { status: 'hoan_thanh', date: '2026-03-10' }] },
-  { id: '16', code: 'IKG-FB-260304-016', status: 'hoan_thanh', source: 'Facebook', senderName: 'Lê Thị Ry', senderPhone: '0956789013', receiverName: 'Matsuda Ken', receiverAddress: 'Sapporo, Toyohira-ku, 1-3-5', receiverPhone: '080-0202-0303', itemType: 'Đồ điện tử', weightKg: 5, dimL: 45, dimW: 30, dimH: 20, totalFee: 590000, carrier: 'EMS', trackingCode: 'EMS3333444455', shipDate: '2026-03-06', createdAt: '2026-03-04', statusHistory: [{ status: 'lead_moi', date: '2026-03-04' }, { status: 'cho_xac_nhan', date: '2026-03-05' }, { status: 'da_chot', date: '2026-03-05' }, { status: 'dang_van_chuyen', date: '2026-03-06' }, { status: 'hoan_thanh', date: '2026-03-11' }] },
+  { id: '13', code: 'IKG-TT-260301-013', status: 'hoan_thanh', source: 'TikTok', senderName: 'Đỗ Thị Ngọc', senderPhone: '0923456780', receiverName: 'Kimura Daiki', receiverAddress: 'Tokyo, Shibuya-ku, 9-9-9', receiverPhone: '080-6767-8989', itemType: 'Thực phẩm', weightKg: 6, dimL: 40, dimW: 30, dimH: 25, totalFee: 705000, carrier: 'EMS', trackingCode: 'EMS1111222233', shipDate: '2026-03-03', createdAt: '2026-03-01', statusHistory: [{ status: 'lead_moi', date: '2026-03-01' }, { status: 'cho_xac_nhan', date: '2026-03-02' }, { status: 'da_chot', date: '2026-03-02' }, { status: 'van_chuyen_noi_dia', date: '2026-03-03' }, { status: 'hoan_thanh', date: '2026-03-08' }] },
+  { id: '14', code: 'IKG-WEB-260302-014', status: 'hoan_thanh', source: 'Website', senderName: 'Trịnh Văn Phú', senderPhone: '0934567891', receiverName: 'Shimizu Yuna', receiverAddress: 'Osaka, Tennoji-ku, 6-6-6', receiverPhone: '090-4545-6767', itemType: 'Mỹ phẩm', weightKg: 3, dimL: 30, dimW: 20, dimH: 15, totalFee: 345000, carrier: 'DHL', trackingCode: 'DHL4444555566', shipDate: '2026-03-04', createdAt: '2026-03-02', statusHistory: [{ status: 'lead_moi', date: '2026-03-02' }, { status: 'cho_xac_nhan', date: '2026-03-03' }, { status: 'da_chot', date: '2026-03-03' }, { status: 'van_chuyen_noi_dia', date: '2026-03-04' }, { status: 'hoan_thanh', date: '2026-03-09' }] },
+  { id: '15', code: 'IKG-K-260303-015', status: 'hoan_thanh', source: 'Khác', senderName: 'Cao Thị Quỳnh', senderPhone: '0945678902', receiverName: 'Honda Taro', receiverAddress: 'Nagoya, Nakamura-ku, 8-8-8', receiverPhone: '070-8989-0101', itemType: 'Quần áo', weightKg: 11, dimL: 55, dimW: 45, dimH: 35, totalFee: 1280000, carrier: 'Sagawa', trackingCode: 'SGW7777888899', shipDate: '2026-03-05', createdAt: '2026-03-03', statusHistory: [{ status: 'lead_moi', date: '2026-03-03' }, { status: 'cho_xac_nhan', date: '2026-03-04' }, { status: 'da_chot', date: '2026-03-04' }, { status: 'van_chuyen_noi_dia', date: '2026-03-05' }, { status: 'hoan_thanh', date: '2026-03-10' }] },
+  { id: '16', code: 'IKG-FB-260304-016', status: 'hoan_thanh', source: 'Facebook', senderName: 'Lê Thị Ry', senderPhone: '0956789013', receiverName: 'Matsuda Ken', receiverAddress: 'Sapporo, Toyohira-ku, 1-3-5', receiverPhone: '080-0202-0303', itemType: 'Đồ điện tử', weightKg: 5, dimL: 45, dimW: 30, dimH: 20, totalFee: 590000, carrier: 'EMS', trackingCode: 'EMS3333444455', shipDate: '2026-03-06', createdAt: '2026-03-04', statusHistory: [{ status: 'lead_moi', date: '2026-03-04' }, { status: 'cho_xac_nhan', date: '2026-03-05' }, { status: 'da_chot', date: '2026-03-05' }, { status: 'van_chuyen_noi_dia', date: '2026-03-06' }, { status: 'hoan_thanh', date: '2026-03-11' }] },
 ];
 
 export const initialCustomers: Customer[] = [

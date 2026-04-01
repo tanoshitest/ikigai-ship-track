@@ -50,7 +50,7 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
 
   const handleAdvanceStatus = () => {
     if (!nextStatus) return;
-    if (currentLead.status === 'dang_van_chuyen') {
+    if (currentLead.status === 'van_chuyen_noi_dia' || currentLead.status === 'dang_bay') {
       updateLead(currentLead.id, { carrier, trackingCode, shipDate: shipDate?.toISOString().slice(0, 10) });
     }
     if (hasIssue) {
@@ -59,7 +59,7 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
     updateLeadStatus(currentLead.id, nextStatus);
   };
 
-  const isShipping = currentLead.status === 'dang_van_chuyen';
+  const isShipping = currentLead.status === 'van_chuyen_noi_dia' || currentLead.status === 'dang_bay';
   const isWarehouse = currentLead.status === 'cho_xac_nhan';
 
   return (

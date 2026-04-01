@@ -10,7 +10,7 @@ import { useDraggable } from '@dnd-kit/core';
 import AddLeadModal from '@/components/AddLeadModal';
 import LeadDetailModal from '@/components/LeadDetailModal';
 
-const COLUMNS: LeadStatus[] = ['lead_moi', 'cho_xac_nhan', 'da_chot', 'dang_van_chuyen', 'hoan_thanh'];
+const COLUMNS: LeadStatus[] = ['lead_moi', 'dang_cham_soc', 'cho_xac_nhan', 'da_chot', 'van_chuyen_noi_dia', 'dang_bay', 'hoan_thanh'];
 
 function KanbanColumn({ status, leads, onCardClick }: { status: LeadStatus; leads: Lead[]; onCardClick: (l: Lead) => void }) {
   const { setNodeRef, isOver } = useDroppable({ id: status });

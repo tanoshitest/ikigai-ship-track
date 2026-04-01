@@ -58,9 +58,11 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
         "status-new": "hsl(var(--status-new))",
+        "status-care": "hsl(var(--status-care))",
         "status-pending": "hsl(var(--status-pending))",
         "status-confirmed": "hsl(var(--status-confirmed))",
-        "status-shipping": "hsl(var(--status-shipping))",
+        "status-domestic": "hsl(var(--status-domestic))",
+        "status-inflight": "hsl(var(--status-inflight))",
         "status-done": "hsl(var(--status-done))",
       },
       borderRadius: {

@@ -30,7 +30,7 @@ export default function DashboardPage() {
 
   const stats = [
     { label: 'Tổng Lead tháng này', value: '156', icon: Package, color: 'text-status-new' },
-    { label: 'Đang vận chuyển', value: '42', icon: Truck, color: 'text-status-shipping' },
+    { label: 'Vận chuyển nội địa', value: '42', icon: Truck, color: 'text-status-domestic' },
     { label: 'Hoàn thành', value: '98', icon: CheckCircle, color: 'text-status-done' },
     { label: 'Doanh thu tháng', value: '245.000.000 VNĐ', icon: DollarSign, color: 'text-accent' },
   ];

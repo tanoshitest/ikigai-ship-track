@@ -40,9 +40,11 @@
     --sidebar-hover: 210 40% 30%;
 
     --status-new: 210 80% 55%;
+    --status-care: 170 75% 41%;
     --status-pending: 30 90% 55%;
     --status-confirmed: 270 60% 55%;
-    --status-shipping: 145 65% 42%;
+    --status-domestic: 145 65% 42%;
+    --status-inflight: 199 89% 48%;
     --status-done: 215 14% 60%;
 
     --sidebar-background: 210 53% 24%;
