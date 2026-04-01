@@ -256,7 +256,7 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                     </SelectContent>
                   </Select>
                 ) : (
-                  <span className="font-medium">{currentLead.assignedTo || 'Chưa phân công'}</span>
+                  <span className="font-medium">{currentLead.assignedTo}</span>
                 )}
               </span>
               <span className="flex items-center gap-2">
