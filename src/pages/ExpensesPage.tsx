@@ -4,6 +4,11 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Plus } from 'lucide-react';
 import { formatVND } from '@/data/mockData';
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from 'sonner';
 
 const mockExpenses = [
   { id: '1', date: '2026-03-25', category: 'Lương nhân viên', amount: 45000000, description: 'Lương tháng 3/2026', status: 'Đã thanh toán' },
@@ -14,13 +19,115 @@ const mockExpenses = [
 ];
 
 export default function ExpensesPage() {
+  const [expenses, setExpenses] = useState(mockExpenses);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
+  // States for new expense form
+  const [newExpense, setNewExpense] = useState({
+    date: new Date().toISOString().split('T')[0],
+    category: 'Văn phòng phẩm',
+    amount: '',
+    description: '',
+    status: 'Chờ thanh toán'
+  });
+
+  const handleAddExpense = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newExpense.amount || !newExpense.description) {
+      toast.error("Vui lòng điền đầy đủ thông tin");
+      return;
+    }
+
+    const newEntry = {
+      id: Math.random().toString(36).substring(2, 9),
+      ...newExpense,
+      amount: parseInt(newExpense.amount)
+    };
+
+    setExpenses([newEntry, ...expenses]);
+    setIsDialogOpen(false);
+    setNewExpense({
+      date: new Date().toISOString().split('T')[0],
+      category: 'Văn phòng phẩm',
+      amount: '',
+      description: '',
+      status: 'Chờ thanh toán'
+    });
+    toast.success("Đã thêm khoản chi mới");
+  };
+
+  const totalExpense = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+  const paidExpense = expenses.filter(exp => exp.status === 'Đã thanh toán').reduce((sum, exp) => sum + exp.amount, 0);
+  const pendingExpense = totalExpense - paidExpense;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight text-primary">Cập nhật chi tiêu</h1>
-        <Button className="bg-accent text-accent-foreground hover:bg-accent/90">
-          <Plus size={16} className="mr-2" /> Thêm khoản chi mới
-        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-accent text-accent-foreground hover:bg-accent/90">
+              <Plus size={16} className="mr-2" /> Thêm khoản chi mới
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Thêm khoản chi mới</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleAddExpense} className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="date">Ngày lập</Label>
+                <Input 
+                  id="date" 
+                  type="date" 
+                  value={newExpense.date} 
+                  onChange={(e) => setNewExpense({...newExpense, date: e.target.value})} 
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="category">Danh mục</Label>
+                <Select 
+                  value={newExpense.category} 
+                  onValueChange={(val) => setNewExpense({...newExpense, category: val})}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn danh mục" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Lương nhân viên">Lương nhân viên</SelectItem>
+                    <SelectItem value="Vận chuyển nội địa">Vận chuyển nội địa</SelectItem>
+                    <SelectItem value="Marketing">Marketing</SelectItem>
+                    <SelectItem value="Văn phòng phẩm">Văn phòng phẩm</SelectItem>
+                    <SelectItem value="Cước phí đối tác">Cước phí đối tác</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="amount">Số tiền (VNĐ)</Label>
+                <Input 
+                  id="amount" 
+                  type="number" 
+                  placeholder="Ví dụ: 500000" 
+                  value={newExpense.amount} 
+                  onChange={(e) => setNewExpense({...newExpense, amount: e.target.value})} 
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="description">Mô tả chi tiết</Label>
+                <Input 
+                  id="description" 
+                  placeholder="Nhập lý do chi..." 
+                  value={newExpense.description} 
+                  onChange={(e) => setNewExpense({...newExpense, description: e.target.value})} 
+                />
+              </div>
+              <DialogFooter className="mt-4">
+                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>Hủy</Button>
+                <Button type="submit">Lưu khoản chi</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -29,7 +136,7 @@ export default function ExpensesPage() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Tổng chi tiêu tháng này</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-800">{formatVND(123000000)}</div>
+            <div className="text-2xl font-bold text-slate-800">{formatVND(totalExpense)}</div>
           </CardContent>
         </Card>
         <Card className="shadow-sm border-none bg-white">
@@ -37,7 +144,7 @@ export default function ExpensesPage() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Đã thanh toán</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-emerald-600">{formatVND(59000000)}</div>
+            <div className="text-2xl font-bold text-emerald-600">{formatVND(paidExpense)}</div>
           </CardContent>
         </Card>
         <Card className="shadow-sm border-none bg-white">
@@ -45,7 +152,7 @@ export default function ExpensesPage() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Chờ xử lý</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-500">{formatVND(64000000)}</div>
+            <div className="text-2xl font-bold text-orange-500">{formatVND(pendingExpense)}</div>
           </CardContent>
         </Card>
       </div>
@@ -71,7 +178,7 @@ export default function ExpensesPage() {
                 </tr>
               </thead>
               <tbody>
-                {mockExpenses.map((expense) => (
+                {expenses.map((expense) => (
                   <tr key={expense.id} className="border-b hover:bg-muted/10 transition-colors">
                     <td className="p-4">{expense.date}</td>
                     <td className="p-4 font-medium">{expense.category}</td>
