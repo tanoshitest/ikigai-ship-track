@@ -128,16 +128,16 @@ export const LeadReceipt = React.forwardRef<HTMLDivElement, LeadReceiptProps>(({
           </div>
         </div>
         
-        <div className="space-y-4">
-          <div className="flex justify-between items-baseline px-4">
-            <span className="text-xs font-bold uppercase tracking-widest text-slate-400">Tổng trọng lượng thực tế</span>
-            <span className="text-2xl font-black tabular-nums">{totalWeight} <span className="text-sm">KG</span></span>
+        <div className="space-y-2">
+          <div className="flex justify-between items-baseline px-4 text-slate-400">
+            <span className="text-[10px] font-bold uppercase tracking-widest">Tổng trọng lượng thực tế</span>
+            <span className="text-xl font-bold tabular-nums">{totalWeight} <span className="text-xs">KG</span></span>
           </div>
-          <div className="bg-slate-900 text-white p-6 flex justify-between items-center shadow-xl">
-            <span className="text-base font-black tracking-[0.2em] uppercase">Ván toán tổng cộng</span>
+          <div className="flex justify-between items-center p-6 border-t-2 border-slate-900">
+            <span className="text-lg font-black tracking-[0.1em] uppercase text-slate-900">Thanh toán:</span>
             <div className="text-right">
-              <span className="text-3xl font-black tabular-nums">{formatVND(lead.totalFee)}</span>
-              <p className="text-[9px] text-white/50 italic mt-1">(Giá đã bao gồm tất cả các loại phí dịch vụ phát sinh)</p>
+              <span className="text-3xl font-black tabular-nums text-rose-600">{formatVND(lead.totalFee)}</span>
+              <p className="text-[10px] text-slate-400 italic mt-1">(Đã bao gồm tất cả các phí dịch vụ)</p>
             </div>
           </div>
         </div>
