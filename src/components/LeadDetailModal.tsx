@@ -8,11 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Lead, STATUS_LABELS, STATUS_COLORS, formatVND, getNextStatus, calcShippingFee, Carrier, PackageDetail, getBoxFee } from '@/data/mockData';
+import { Lead, STATUS_LABELS, STATUS_COLORS, formatVND, getNextStatus, calcShippingFee, Carrier, PackageDetail, getBoxFee, getTierPrice } from '@/data/mockData';
 import { useStore } from '@/store/useStore';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Package, AlertCircle } from 'lucide-react';
+import { CalendarIcon, Package, AlertCircle, CreditCard, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -26,8 +26,9 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
 
   const [actualWeight, setActualWeight] = useState(currentLead.actualWeightKg || currentLead.weightKg);
   
-  // Local packages state for editing
+  // Local packages state for granular editing
   const [localPackages, setLocalPackages] = useState<PackageDetail[]>(currentLead.packages || []);
+  const [isPaidLocal, setIsPaidLocal] = useState(currentLead.isPaid || false);
 
   const [carrier, setCarrier] = useState<Carrier>(currentLead.carrier || 'EMS');
   const [trackingCode, setTrackingCode] = useState(currentLead.trackingCode || '');
@@ -39,61 +40,55 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
 
   const nextStatus = getNextStatus(currentLead.status);
 
-  // Recalculate packages when weight/dims change
-  const calcResult = useMemo(() => {
-    return calcShippingFee(actualWeight, 0, 0, 0, settings.priceMain, settings.priceSub, settings.surchargePerPkg, settings.maxKgPerPkg);
+  // Initial split logic (only if localPackages is empty)
+  useEffect(() => {
+    if (localPackages.length === 0) {
+      const result = calcShippingFee(actualWeight, 0, 0, 0, 0, 0, settings.surchargePerPkg, settings.maxKgPerPkg);
+      setLocalPackages(result.packages);
+    }
   }, [actualWeight, settings]);
 
-  // Sync localPackages with calcResult when they change, but preserve user toggles if weights match
-  useEffect(() => {
-    if (!currentLead.packages) {
-      setLocalPackages(calcResult.packages);
-    }
-  }, [calcResult.packages, currentLead.packages]);
-
-  // Handle packing fee toggle
-  const togglePackingFee = (idx: number) => {
-    const newPkgs = [...calcResult.packages];
-    // We need to use the split logic's packages but override the fee selection
-    // Wait, it's easier to just maintain a list of toggles
+  // Function to recalculate a specific package
+  const updatePackage = (idx: number, updates: Partial<PackageDetail>) => {
+    const updated = [...localPackages];
+    const pkg = { ...updated[idx], ...updates };
+    
+    // Recalculate dimensions and charge weight
+    const volWeight = (pkg.dimL * pkg.dimW * pkg.dimH) / 6000;
+    pkg.volWeight = Math.round(volWeight * 100) / 100;
+    pkg.chargeWeight = Math.max(pkg.weight, pkg.volWeight);
+    
+    // Recalculate fees
+    const price = getTierPrice(pkg.chargeWeight);
+    pkg.shippingFee = Math.round(pkg.chargeWeight * price);
+    pkg.boxFee = pkg.hasPackingFee ? getBoxFee(pkg.chargeWeight) : 0;
+    pkg.total = pkg.shippingFee + pkg.boxFee + pkg.surcharge;
+    
+    updated[idx] = pkg;
+    setLocalPackages(updated);
   };
 
-  // Re-calculate everything based on checkboxes
-  const [packingFeeSelections, setPackingFeeSelections] = useState<boolean[]>([]);
-
-  useEffect(() => {
-    if (packingFeeSelections.length !== calcResult.packages.length) {
-      setPackingFeeSelections(calcResult.packages.map(() => true));
-    }
-  }, [calcResult.packages.length]);
-
-  const finalPackages = useMemo(() => {
-    return calcResult.packages.map((p, idx) => {
-      const hasFee = packingFeeSelections[idx] ?? true;
-      const boxFee = hasFee ? getBoxFee(p.weight) : 0;
-      return {
-        ...p,
-        hasPackingFee: hasFee,
-        boxFee,
-        total: p.shippingFee + boxFee + (calcResult.packages.length > 1 ? settings.surchargePerPkg : 0)
-      };
-    });
-  }, [calcResult.packages, packingFeeSelections, settings.surchargePerPkg]);
-
   const totalFeeValue = useMemo(() => {
-    return finalPackages.reduce((sum, p) => sum + p.total, 0);
-  }, [finalPackages]);
+    return localPackages.reduce((sum, p) => sum + p.total, 0);
+  }, [localPackages]);
 
   const handleWarehouseUpdate = () => {
     updateLead(currentLead.id, {
       actualWeightKg: actualWeight, 
-      packages: finalPackages,
+      packages: localPackages,
       totalFee: totalFeeValue,
     });
   };
 
+  const handlePayment = () => {
+    setIsPaidLocal(true);
+    updateLead(currentLead.id, { isPaid: true });
+  };
+
   const handleAdvanceStatus = () => {
     if (!nextStatus) return;
+    if (currentLead.status === 'lead_moi' && !isPaidLocal) return; // Payment check
+
     if (currentLead.status === 'dang_bay') {
       updateLead(currentLead.id, { carrier, trackingCode, shipDate: shipDate?.toISOString().slice(0, 10) });
     }
@@ -113,6 +108,11 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
           <DialogTitle className="flex items-center gap-3">
             <span className="font-mono text-sm">{currentLead.code}</span>
             <Badge className={`${STATUS_COLORS[currentLead.status]} text-primary-foreground text-xs`}>{STATUS_LABELS[currentLead.status]}</Badge>
+            {currentLead.status === 'lead_moi' && (
+              <Badge variant={isPaidLocal ? "default" : "outline"} className={cn(isPaidLocal ? "bg-green-500" : "text-amber-600 border-amber-600")}>
+                {isPaidLocal ? "Đã thanh toán" : "Chưa thanh toán"}
+              </Badge>
+            )}
           </DialogTitle>
         </DialogHeader>
 
@@ -137,91 +137,122 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
           </div>
 
           {/* Main content */}
-          <div className={cn("grid gap-6", isShipping ? "grid-cols-3" : isWarehouse ? "grid-cols-[1.2fr_1fr]" : "grid-cols-1")}>
+          <div className={cn("grid gap-6", isShipping ? "grid-cols-3" : isWarehouse ? "grid-cols-[1.2fr_1.8fr]" : "grid-cols-1")}>
             
             {/* Warehouse update Form */}
             {isWarehouse && (
               <div className="space-y-3">
-                <div className="rounded-lg border p-3 space-y-2 bg-card">
-                  <h3 className="font-bold text-xs flex items-center gap-2">
+                <div className="rounded-lg border p-3 space-y-4 bg-card">
+                  <h3 className="font-bold text-xs flex items-center gap-2 border-b pb-2">
                     <Package className="w-3.5 h-3.5" />
-                    Nhập thông tin thực tế
+                    Cập nhật tổng trọng lượng
                   </h3>
                   <div>
-                    <Label className="text-xs mb-1.5 block">Cân nặng thực tế (kg)</Label>
-                    <Input 
-                      className="h-8 text-sm focus-visible:ring-primary" 
-                      type="number" 
-                      value={actualWeight} 
-                      onChange={(e) => setActualWeight(parseFloat(e.target.value) || 0)} 
-                    />
-                  </div>
-                  {calcResult.isVolumetric && (
-                    <div className="flex items-center gap-2 text-[10px] text-amber-600 bg-amber-50 p-1 rounded border border-amber-100">
-                      <AlertCircle className="w-3 h-3" />
-                      Sử dụng cân nặng quy đổi thể tích: {calcResult.volWeight} kg
+                    <Label className="text-xs mb-1.5 block">Tổng cân nặng thực tế (kg)</Label>
+                    <div className="flex gap-2">
+                      <Input 
+                        className="h-10 text-base font-bold focus-visible:ring-primary" 
+                        type="number" 
+                        value={actualWeight} 
+                        onChange={(e) => setActualWeight(parseFloat(e.target.value) || 0)} 
+                      />
+                      <Button onClick={() => {
+                        const result = calcShippingFee(actualWeight, 0, 0, 0, 0, 0, settings.surchargePerPkg, settings.maxKgPerPkg);
+                        setLocalPackages(result.packages);
+                      }} variant="secondary">Reset & Split</Button>
                     </div>
-                  )}
+                  </div>
 
                   <div className="pt-2">
-                    <Button size="sm" className="w-full text-xs" onClick={handleWarehouseUpdate}>Xác nhận & Tính toán</Button>
+                    <Button size="lg" className="w-full text-sm font-bold" onClick={handleWarehouseUpdate}>
+                      Lưu thông tin & Tính toán
+                    </Button>
                   </div>
                 </div>
 
-                <div className="rounded-lg border p-3 bg-primary/5 border-primary/20">
-                  <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-1">Tổng cộng dự kiến</p>
-                  <p className="text-lg font-bold text-primary">{formatVND(totalFeeValue)}</p>
-                  <p className="text-[10px] text-muted-foreground">Cho {finalPackages.length} kiện hàng</p>
+                <div className="rounded-lg border p-4 bg-primary/5 border-primary/20 space-y-3">
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Tổng cộng đơn hàng</p>
+                  <p className="text-3xl font-black text-primary">{formatVND(totalFeeValue)}</p>
+                  <p className="text-xs text-muted-foreground">Phí vận chuyển cho {localPackages.length} kiện hàng</p>
+                  
+                  {!isPaidLocal && isWarehouse && (
+                    <Button onClick={handlePayment} variant="destructive" className="w-full gap-2 h-12 text-base font-bold shadow-lg">
+                      <CreditCard className="w-5 h-5" />
+                      Xác nhận Thanh toán
+                    </Button>
+                  )}
+                  {isPaidLocal && isWarehouse && (
+                    <div className="flex items-center gap-2 text-green-600 bg-green-50 p-3 rounded-lg border border-green-200 justify-center font-bold">
+                      <CreditCard className="w-5 h-5" />
+                      Hệ thống đã ghi nhận thanh toán
+                    </div>
+                  )}
                 </div>
               </div>
             )}
 
             {/* Package Breakdown List */}
             {isWarehouse && (
-              <div className="rounded-lg border p-3 space-y-2 bg-muted/10">
-                <h3 className="font-bold text-xs uppercase tracking-wider text-muted-foreground">Chi tiết tách kiện ({finalPackages.length})</h3>
-                <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
-                  {finalPackages.map((pkg, idx) => (
-                    <div key={idx} className="bg-card border rounded p-3 shadow-sm relative overflow-hidden group">
-                      <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
-                      <div className="flex justify-between items-start mb-2">
+              <div className="rounded-lg border p-4 space-y-4 bg-muted/10">
+                <h3 className="font-bold text-xs uppercase tracking-wider text-muted-foreground">Chi tiết từng kiện ({localPackages.length})</h3>
+                <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+                  {localPackages.map((pkg, idx) => (
+                    <div key={idx} className="bg-card border rounded-lg p-4 shadow-sm relative overflow-hidden">
+                      <div className="absolute top-0 left-0 w-1.5 h-full bg-primary" />
+                      
+                      <div className="flex justify-between items-start mb-4">
                         <div>
-                          <p className="text-xs font-bold font-mono">KIỆN #{idx + 1}</p>
-                          <p className="text-sm font-semibold">{pkg.weight} kg</p>
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase mb-0.5">Kiện #{idx + 1}</p>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-xl font-black">{pkg.chargeWeight} kg</span>
+                            <span className="text-[10px] text-muted-foreground italic">(Tính theo: {pkg.chargeWeight === pkg.weight ? 'Cân nặng' : 'Quy đổi'})</span>
+                          </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-xs font-medium text-primary">{formatVND(pkg.total)}</p>
+                          <p className="text-lg font-black text-primary tracking-tight">{formatVND(pkg.total)}</p>
                         </div>
                       </div>
                       
-                      <div className="grid grid-cols-2 gap-3 pt-2 border-t text-[11px]">
-                        <div className="space-y-1">
-                          <p className="text-muted-foreground flex justify-between">
-                            <span>Vận chuyển:</span>
-                            <span className="font-medium text-foreground">{formatVND(pkg.shippingFee)}</span>
-                          </p>
-                          <p className="text-muted-foreground flex justify-between">
-                            <span>Phí tách kiện:</span>
-                            <span className="font-medium text-foreground">{formatVND(settings.surchargePerPkg)}</span>
-                          </p>
+                      <div className="grid grid-cols-2 gap-6 border-y py-4 my-2">
+                        <div className="space-y-3">
+                          <Label className="text-[10px] uppercase font-bold text-muted-foreground mb-2 block">Kích thước (Dài x Rộng x Cao)</Label>
+                          <div className="grid grid-cols-3 gap-1.5">
+                            <Input 
+                              placeholder="D" className="h-8 p-1 text-center font-bold" type="number" 
+                              value={pkg.dimL || ''} onChange={(e) => updatePackage(idx, { dimL: parseFloat(e.target.value) || 0 })} 
+                            />
+                            <Input 
+                              placeholder="R" className="h-8 p-1 text-center font-bold" type="number" 
+                              value={pkg.dimW || ''} onChange={(e) => updatePackage(idx, { dimW: parseFloat(e.target.value) || 0 })} 
+                            />
+                            <Input 
+                              placeholder="C" className="h-8 p-1 text-center font-bold" type="number" 
+                              value={pkg.dimH || ''} onChange={(e) => updatePackage(idx, { dimH: parseFloat(e.target.value) || 0 })} 
+                            />
+                          </div>
+                          {pkg.volWeight > 0 && (
+                            <p className="text-[10px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100 mt-1 inline-block">
+                              Quy đổi: {pkg.volWeight} kg (divisor: 6000)
+                            </p>
+                          )}
                         </div>
-                        <div className="flex flex-col justify-end items-end space-y-1">
-                          <div className="flex items-center space-x-2 bg-secondary/50 px-2 py-1 rounded">
+                        
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">Vận chuyển:</span>
+                            <span className="font-bold">{formatVND(pkg.shippingFee)}</span>
+                          </div>
+                          <div className="flex justify-between text-xs border-b pb-1 mb-1">
+                            <span className="text-muted-foreground">Phí tách kiện:</span>
+                            <span className="font-bold">{formatVND(pkg.surcharge)}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <Label htmlFor={`pack-fee-${idx}`} className="text-[10px] font-bold cursor-pointer">Phí đóng gói (+{formatVND(getBoxFee(pkg.chargeWeight))})</Label>
                             <Checkbox 
                               id={`pack-fee-${idx}`} 
-                              checked={packingFeeSelections[idx]} 
-                              onCheckedChange={(checked) => {
-                                const newSels = [...packingFeeSelections];
-                                newSels[idx] = !!checked;
-                                setPackingFeeSelections(newSels);
-                              }}
+                              checked={pkg.hasPackingFee} 
+                              onCheckedChange={(checked) => updatePackage(idx, { hasPackingFee: !!checked })}
                             />
-                            <label 
-                              htmlFor={`pack-fee-${idx}`}
-                              className="text-[10px] font-medium leading-none cursor-pointer"
-                            >
-                              Phí đóng gói {pkg.boxFee > 0 && `(+${formatVND(pkg.boxFee)})`}
-                            </label>
                           </div>
                         </div>
                       </div>
@@ -231,7 +262,7 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
               </div>
             )}
 
-            {/* Tracking & Issues (Moved to dang_bay in previous turns) */}
+            {/* Tracking & Issues */}
             {isShipping && (
               <div className="col-span-2 grid grid-cols-2 gap-3">
                 <div className="rounded-lg border p-3 font-semibold text-xs space-y-2">
@@ -316,12 +347,15 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
 
               {currentLead.packages && currentLead.packages.length > 0 && (
                 <div className="mt-4 pt-4 border-t">
-                  <h3 className="font-bold text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Kết quả tách kiện</h3>
+                  <h3 className="font-bold text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Kết quả tách kiện đã lưu</h3>
                   <div className="space-y-1">
                     {currentLead.packages.map((pkg, idx) => (
-                      <div key={idx} className="flex justify-between text-xs py-1 border-b border-dashed last:border-0">
-                        <span>Kiện {idx + 1}: {pkg.weight} kg</span>
-                        <span className="font-semibold">{formatVND(pkg.total)}</span>
+                      <div key={idx} className="flex justify-between text-xs py-1 border-b border-dashed last:border-0 items-center">
+                        <div>
+                          <span className="font-medium">Kiện {idx + 1}:</span> {pkg.chargeWeight} kg
+                          {pkg.dimL > 0 && <span className="text-[10px] text-muted-foreground block">({pkg.dimL}x{pkg.dimW}x{pkg.dimH})</span>}
+                        </div>
+                        <span className="font-bold">{formatVND(pkg.total)}</span>
                       </div>
                     ))}
                   </div>
@@ -331,8 +365,17 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
           </div>
 
           {nextStatus && (
-            <Button onClick={handleAdvanceStatus} className="w-full mt-5 bg-orange-500 hover:bg-orange-600 text-white font-bold h-10 shadow-lg">
+            <Button 
+              onClick={handleAdvanceStatus} 
+              disabled={isWarehouse && !isPaidLocal}
+              className={cn(
+                "w-full mt-5 font-bold h-12 shadow-lg transition-all gap-2",
+                isWarehouse && !isPaidLocal ? "bg-muted text-muted-foreground cursor-not-allowed" : "bg-orange-500 hover:bg-orange-600 text-white"
+              )}
+            >
+              {isWarehouse && !isPaidLocal && <AlertCircle className="w-4 h-4" />}
               Chuyển sang "{STATUS_LABELS[nextStatus]}"
+              <ChevronRight className="w-5 h-5 ml-1" />
             </Button>
           )}
         </div>

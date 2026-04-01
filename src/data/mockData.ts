@@ -5,10 +5,16 @@ export type Carrier = 'EMS' | 'DHL' | 'Sagawa';
 export type EmployeeRole = 'Admin' | 'Sale' | 'Kho';
 
 export interface PackageDetail {
-  weight: number;
+  weight: number; // Actual weight
+  dimL: number;
+  dimW: number;
+  dimH: number;
+  volWeight: number;
+  chargeWeight: number;
   hasPackingFee: boolean;
   boxFee: number;
   shippingFee: number;
+  surcharge: number;
   total: number;
 }
 
@@ -36,6 +42,7 @@ export interface Lead {
   shipDate?: string;
   totalFee: number;
   packages?: PackageDetail[];
+  isPaid?: boolean;
   hasIssue?: boolean;
   issueReason?: string;
   issueDesc?: string;
@@ -138,7 +145,7 @@ export function splitWeights(total: number): number[] {
 
 export function getBoxFee(kg: number): number {
   if (kg <= 0) return 0;
-  if (kg < 5) return 0; // Or whatever minimum
+  if (kg < 5) return 0; 
   if (kg <= 14) return 15000;
   if (kg <= 24) return 20000;
   return 30000;
@@ -155,12 +162,12 @@ export function calcShippingFee(
   dimL: number, 
   dimW: number, 
   dimH: number, 
-  priceMainHint = 0, // No longer used as primary, tiered logic takes over
+  priceMainHint = 0, 
   priceSubHint = 0,
   surchargePerPkg = 40000, 
   maxKgPerPkg = 30
 ) {
-  const volWeight = (dimL * dimW * dimH) / 5000;
+  const volWeight = (dimL * dimW * dimH) / 6000; // Divisor updated to 6000
   const chargeWeight = Math.max(weightKg, volWeight);
   const isVolumetric = volWeight > weightKg;
 
@@ -170,13 +177,19 @@ export function calcShippingFee(
     const price = getTierPrice(w);
     const shippingFee = Math.round(w * price);
     const boxFee = getBoxFee(w);
-    const surcharge = surchargePerPkg;
+    const surcharge = surchargePerPkg; // Always apply 40k
     
     return {
       weight: w,
+      dimL: 0,
+      dimW: 0,
+      dimH: 0,
+      volWeight: 0,
+      chargeWeight: w,
       hasPackingFee: true,
       boxFee,
       shippingFee,
+      surcharge,
       total: shippingFee + boxFee + surcharge
     };
   });
@@ -235,22 +248,9 @@ export const initialCustomers: Customer[] = [
   { id: 'c1', name: 'Nguyễn Văn An', phone: '0901234567', source: 'Facebook', orderCount: 5, totalSpent: 4200000, lastOrder: '2026-03-25' },
   { id: 'c2', name: 'Trần Thị Bình', phone: '0912345678', source: 'Zalo', orderCount: 3, totalSpent: 2100000, lastOrder: '2026-03-26' },
   { id: 'c3', name: 'Lê Minh Châu', phone: '0923456789', source: 'TikTok', orderCount: 2, totalSpent: 1500000, lastOrder: '2026-03-27' },
-  { id: 'c4', name: 'Phạm Đức Dũng', phone: '0934567890', source: 'Website', orderCount: 7, totalSpent: 8500000, lastOrder: '2026-03-20' },
-  { id: 'c5', name: 'Hoàng Thị Em', phone: '0945678901', source: 'Facebook', orderCount: 4, totalSpent: 3800000, lastOrder: '2026-03-21' },
-  { id: 'c6', name: 'Vũ Quốc Phong', phone: '0956789012', source: 'Zalo', orderCount: 1, totalSpent: 705000, lastOrder: '2026-03-22' },
-  { id: 'c7', name: 'Đặng Văn Giang', phone: '0967890123', source: 'TikTok', orderCount: 6, totalSpent: 5600000, lastOrder: '2026-03-15' },
-  { id: 'c8', name: 'Bùi Thị Hoa', phone: '0978901234', source: 'Khác', orderCount: 2, totalSpent: 1200000, lastOrder: '2026-03-16' },
-  { id: 'c9', name: 'Ngô Thanh Inh', phone: '0989012345', source: 'Facebook', orderCount: 8, totalSpent: 12000000, lastOrder: '2026-03-17' },
-  { id: 'c10', name: 'Lý Văn Khôi', phone: '0990123456', source: 'Website', orderCount: 3, totalSpent: 2500000, lastOrder: '2026-03-10' },
-  { id: 'c11', name: 'Mai Thị Lan', phone: '0901234568', source: 'Zalo', orderCount: 5, totalSpent: 4100000, lastOrder: '2026-03-11' },
-  { id: 'c12', name: 'Phan Quốc Minh', phone: '0912345679', source: 'Facebook', orderCount: 2, totalSpent: 3200000, lastOrder: '2026-03-12' },
 ];
 
 export const initialEmployees: Employee[] = [
   { id: 'e1', name: 'Nguyễn Thanh Tùng', role: 'Admin', phone: '0901111111', email: 'tung@ikigai.vn', ordersHandled: 245, active: true },
   { id: 'e2', name: 'Trần Thị Mai', role: 'Sale', phone: '0902222222', email: 'mai@ikigai.vn', ordersHandled: 189, active: true },
-  { id: 'e3', name: 'Lê Văn Hùng', role: 'Kho', phone: '0903333333', email: 'hung@ikigai.vn', ordersHandled: 156, active: true },
-  { id: 'e4', name: 'Phạm Thị Linh', role: 'Sale', phone: '0904444444', email: 'linh@ikigai.vn', ordersHandled: 132, active: true },
-  { id: 'e5', name: 'Hoàng Đức Nam', role: 'Kho', phone: '0905555555', email: 'nam@ikigai.vn', ordersHandled: 98, active: false },
-  { id: 'e6', name: 'Vũ Thị Oanh', role: 'Sale', phone: '0906666666', email: 'oanh@ikigai.vn', ordersHandled: 67, active: true },
 ];
