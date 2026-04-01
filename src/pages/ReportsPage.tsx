@@ -101,47 +101,6 @@ export default function ReportsPage() {
             </ResponsiveContainer>
           </CardContent>
         </Card>
-        
-        <Card className="border-none shadow-md overflow-hidden">
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="bg-muted/50 text-left text-muted-foreground uppercase tracking-wider font-bold">
-                    <th className="p-4">Nguồn lead</th>
-                    <th className="p-4 text-center">Tổng lead</th>
-                    <th className="p-4 text-center">Đang chăm sóc</th>
-                    <th className="p-4 text-center">Đã chốt đơn</th>
-                    <th className="p-4 text-center">Sự cố</th>
-                    <th className="p-4 text-center">Đã hoàn thành</th>
-                    <th className="p-4 text-right">Doanh thu dự kiến</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentSourceData.map((s) => (
-                    <tr key={s.source} className="border-b hover:bg-muted/30 transition-colors">
-                      <td className="p-4 font-bold text-slate-700 underline decoration-accent/30 underline-offset-4">{s.source}</td>
-                      <td className="p-4 text-center font-semibold text-slate-600">{s.leads}</td>
-                      <td className="p-4 text-center">
-                        <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none font-bold">{s.prospecting}</Badge>
-                      </td>
-                      <td className="p-4 text-center">
-                        <Badge className="bg-orange-100 text-orange-600 hover:bg-orange-100 border-none font-bold">{s.closed}</Badge>
-                      </td>
-                      <td className="p-4 text-center">
-                        <Badge className="bg-red-100 text-red-600 hover:bg-red-100 border-none font-bold">{s.incident}</Badge>
-                      </td>
-                      <td className="p-4 text-center">
-                        <Badge className="bg-emerald-100 text-emerald-600 hover:bg-emerald-100 border-none font-bold">{s.completed}</Badge>
-                      </td>
-                      <td className="p-4 text-right font-bold text-accent">{formatVND(s.revenue)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
       </TabsContent>
 
       <TabsContent value="monthly" className="space-y-4">
