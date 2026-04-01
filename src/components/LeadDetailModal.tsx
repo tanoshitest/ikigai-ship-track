@@ -146,7 +146,7 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
           )}
 
           {/* Issues - from da_chot onwards */}
-          {['da_chot', 'dang_van_chuyen', 'hoan_thanh'].includes(currentLead.status) && (
+          {currentLead.status === 'dang_van_chuyen' && (
             <div className="rounded-lg border p-4 space-y-3">
               <div className="flex items-center gap-3">
                 <h3 className="font-semibold">Xử lý phát sinh</h3>
@@ -167,6 +167,9 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                   </div>
                   <div><Label>Mô tả vấn đề</Label><Textarea value={issueDesc} onChange={(e) => setIssueDesc(e.target.value)} /></div>
                   <div><Label>Cách xử lý</Label><Textarea value={issueSolution} onChange={(e) => setIssueSolution(e.target.value)} /></div>
+                  <Button size="sm" onClick={() => {
+                    updateLead(currentLead.id, { hasIssue, issueReason, issueDesc, issueSolution });
+                  }}>Lưu phát sinh</Button>
                 </div>
               )}
             </div>
