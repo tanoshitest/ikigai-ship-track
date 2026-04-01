@@ -4,6 +4,9 @@ import { ClipboardList, Package, Users, Truck, UserCog, BarChart3, Settings, Men
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useAuthStore } from '@/store/authStore';
+import { LogOut } from 'lucide-react';
+import { toast } from 'sonner';
 
 type MenuItemType = {
   label: string;
@@ -42,11 +45,25 @@ const pageTitles: Record<string, string> = {
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
+  const { user, logout } = useAuthStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [infoOpen, setInfoOpen] = useState(true);
+  
   const currentPath = location.pathname.startsWith('/leads/') ? '/leads' : location.pathname;
   const pageTitle = pageTitles[currentPath] || 'IKIGAI';
+
+  const filteredMenuItems = menuItems.filter(item => {
+    if (user?.role === 'staff') {
+      return item.path !== '/reports' && item.path !== '/settings';
+    }
+    return true;
+  });
+
+  const handleLogout = () => {
+    logout();
+    toast.info("Đã đăng xuất khỏi hệ thống");
+  };
 
   return (
     <div className="flex min-h-screen w-full">
@@ -69,7 +86,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           </button>
         </div>
         <nav className="flex-1 space-y-1 px-2 py-4">
-          {menuItems.map((item) => {
+          {filteredMenuItems.map((item) => {
             if (item.subItems) {
               const isAnyActive = item.subItems.some(sub => currentPath === sub.path);
               const isExpanded = infoOpen || isAnyActive;
@@ -193,11 +210,21 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             </button>
             <h1 className="text-lg font-semibold">{pageTitle}</h1>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">Admin</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-sm font-bold text-accent-foreground">
-              A
+          <div className="flex items-center gap-4">
+            <div className="flex flex-col items-end mr-2">
+              <span className="text-sm font-bold text-slate-700">{user?.name}</span>
+              <span className="text-[10px] uppercase font-bold text-slate-400">{user?.role === 'admin' ? 'Quản trị viên' : 'Nhân viên'}</span>
             </div>
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-sm font-bold text-accent-foreground">
+              {user?.name?.charAt(0) || 'U'}
+            </div>
+            <button 
+              onClick={handleLogout}
+              className="ml-2 p-2 hover:bg-red-50 hover:text-red-500 rounded-full transition-colors text-slate-400"
+              title="Đăng xuất"
+            >
+              <LogOut size={18} />
+            </button>
           </div>
         </header>
         <main className="flex-1 overflow-auto p-4 lg:p-6 bg-slate-50/50">
