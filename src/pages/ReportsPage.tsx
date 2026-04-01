@@ -47,10 +47,11 @@ const monthlyData = [
 
 export default function ReportsPage() {
   const [sourceMonth, setSourceMonth] = useState('all');
+  const [sourceYear, setSourceYear] = useState('2026');
   
-  const currentSourceData = sourceMonth === 'this_month' ? sourceDataThisMonth : 
-                            sourceMonth === 'last_month' ? sourceDataLastMonth : 
-                            sourceDataAll;
+  const currentSourceData = sourceMonth === 'all' ? sourceDataAll : 
+                            sourceMonth === '3' ? sourceDataThisMonth : 
+                            sourceDataLastMonth;
 
   return (
     <Tabs defaultValue="source" className="space-y-4">
@@ -68,15 +69,26 @@ export default function ReportsPage() {
                 Phân tích Lead chi tiết theo nguồn
                 <Badge variant="outline" className="text-[10px] font-mono">Bản cập nhật mới</Badge>
               </div>
-              <div className="w-[180px]">
+              <div className="flex items-center gap-2">
                 <Select value={sourceMonth} onValueChange={setSourceMonth}>
-                  <SelectTrigger className="h-8 text-xs">
-                    <SelectValue placeholder="Chọn thời gian" />
+                  <SelectTrigger className="h-8 w-[120px] text-xs">
+                    <SelectValue placeholder="Chọn tháng" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Tất cả thời gian</SelectItem>
-                    <SelectItem value="this_month">Tháng này</SelectItem>
-                    <SelectItem value="last_month">Tháng trước</SelectItem>
+                    <SelectItem value="all">Tất cả tháng</SelectItem>
+                    {[...Array(12)].map((_, i) => (
+                       <SelectItem key={i+1} value={(i+1).toString()}>Tháng {i+1}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={sourceYear} onValueChange={setSourceYear}>
+                  <SelectTrigger className="h-8 w-[100px] text-xs">
+                    <SelectValue placeholder="Chọn năm" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả năm</SelectItem>
+                    <SelectItem value="2026">Năm 2026</SelectItem>
+                    <SelectItem value="2025">Năm 2025</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
