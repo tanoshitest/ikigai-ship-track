@@ -125,7 +125,7 @@ export default function ReportsPage() {
         <Card className="border-none shadow-md">
           <CardHeader>
             <CardTitle className="text-base font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <span>Doanh số & Chi tiêu 12 tháng gần nhất</span>
+              <span>Doanh số và chi tiêu của năm {salesYear}</span>
               <div className="flex items-center gap-2">
                 <Select value={salesYear} onValueChange={setSalesYear}>
                   <SelectTrigger className="h-8 w-[120px] text-xs">
