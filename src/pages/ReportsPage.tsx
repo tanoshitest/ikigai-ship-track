@@ -13,18 +13,18 @@ const sourceData = [
 ];
 
 const monthlyData = [
-  { month: 'T04/25', orders: 45, kg: 320, revenue: 125000000, change: 0 },
-  { month: 'T05/25', orders: 52, kg: 380, revenue: 145000000, change: 16 },
-  { month: 'T06/25', orders: 48, kg: 340, revenue: 135000000, change: -7 },
-  { month: 'T07/25', orders: 60, kg: 420, revenue: 168000000, change: 24 },
-  { month: 'T08/25', orders: 55, kg: 400, revenue: 155000000, change: -8 },
-  { month: 'T09/25', orders: 65, kg: 460, revenue: 182000000, change: 17 },
-  { month: 'T10/25', orders: 58, kg: 410, revenue: 162000000, change: -11 },
-  { month: 'T11/25', orders: 72, kg: 510, revenue: 205000000, change: 27 },
-  { month: 'T12/25', orders: 68, kg: 480, revenue: 195000000, change: -5 },
-  { month: 'T01/26', orders: 75, kg: 530, revenue: 220000000, change: 13 },
-  { month: 'T02/26', orders: 80, kg: 560, revenue: 235000000, change: 7 },
-  { month: 'T03/26', orders: 85, kg: 600, revenue: 245000000, change: 4 },
+  { month: 'T04/25', orders: 45, cost: 98000000, revenue: 125000000, kpi: 50, change: 0 },
+  { month: 'T05/25', orders: 52, cost: 112000000, revenue: 145000000, kpi: 58, change: 16 },
+  { month: 'T06/25', orders: 48, cost: 105000000, revenue: 135000000, kpi: 54, change: -7 },
+  { month: 'T07/25', orders: 60, cost: 132000000, revenue: 168000000, kpi: 67, change: 24 },
+  { month: 'T08/25', orders: 55, cost: 121000000, revenue: 155000000, kpi: 62, change: -8 },
+  { month: 'T09/25', orders: 65, cost: 142000000, revenue: 182000000, kpi: 73, change: 17 },
+  { month: 'T10/25', orders: 58, cost: 125000000, revenue: 162000000, kpi: 65, change: -11 },
+  { month: 'T11/25', orders: 72, cost: 158000000, revenue: 205000000, kpi: 82, change: 27 },
+  { month: 'T12/25', orders: 68, cost: 151000000, revenue: 195000000, kpi: 78, change: -5 },
+  { month: 'T01/26', orders: 75, cost: 168000000, revenue: 220000000, kpi: 88, change: 13 },
+  { month: 'T02/26', orders: 80, cost: 182000000, revenue: 235000000, kpi: 94, change: 7 },
+  { month: 'T03/26', orders: 85, cost: 188000000, revenue: 245000000, kpi: 98, change: 4 },
 ];
 
 export default function ReportsPage() {
@@ -36,6 +36,7 @@ export default function ReportsPage() {
       </TabsList>
 
       <TabsContent value="source" className="space-y-4">
+        {/* ... existing source content ... */}
         <Card className="border-none shadow-md">
           <CardHeader>
             <CardTitle className="text-base font-bold flex items-center justify-between">
@@ -101,37 +102,64 @@ export default function ReportsPage() {
       </TabsContent>
 
       <TabsContent value="monthly" className="space-y-4">
-        <Card>
-          <CardHeader><CardTitle className="text-base">Doanh số 12 tháng gần nhất</CardTitle></CardHeader>
+        <Card className="border-none shadow-md">
+          <CardHeader>
+            <CardTitle className="text-base font-bold">Doanh số & Chi tiêu 12 tháng gần nhất</CardTitle>
+          </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis tickFormatter={(v) => `${(v / 1000000).toFixed(0)}tr`} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} />
+                <YAxis axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000000).toFixed(0)}tr`} />
                 <Tooltip formatter={(v: number) => formatVND(v)} />
-                <Line type="monotone" dataKey="revenue" stroke="hsl(25, 95%, 53%)" strokeWidth={2} dot={{ r: 4 }} name="Doanh thu" />
+                <Line type="monotone" dataKey="revenue" stroke="#f97316" strokeWidth={3} dot={{ r: 4, fill: '#f97316' }} name="Doanh thu" />
+                <Line type="monotone" dataKey="cost" stroke="#94a3b8" strokeWidth={2} strokeDasharray="5 5" name="Chi tiêu" />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
-        <Card>
+        
+        <Card className="border-none shadow-md overflow-hidden">
           <CardContent className="p-0">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead><tr className="border-b text-left text-muted-foreground">
-                  <th className="p-3">Tháng</th><th className="p-3">Số đơn</th><th className="p-3">Tổng kg</th>
-                  <th className="p-3">Doanh thu</th><th className="p-3">So tháng trước</th>
-                </tr></thead>
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="bg-muted/50 text-left text-muted-foreground uppercase tracking-wider font-bold">
+                    <th className="p-4">Tháng</th>
+                    <th className="p-4 text-center">Số đơn</th>
+                    <th className="p-4 text-center">% Đạt KPI</th>
+                    <th className="p-4 text-right">Tổng chi tiêu</th>
+                    <th className="p-4 text-right">Doanh thu</th>
+                    <th className="p-4 text-center">So tháng trước</th>
+                  </tr>
+                </thead>
                 <tbody>
                   {monthlyData.map((m) => (
-                    <tr key={m.month} className="border-b">
-                      <td className="p-3 font-medium">{m.month}</td>
-                      <td className="p-3">{m.orders}</td>
-                      <td className="p-3">{m.kg}</td>
-                      <td className="p-3">{formatVND(m.revenue)}</td>
-                      <td className="p-3">
-                        {m.change > 0 ? <span className="text-status-shipping">+{m.change}%</span> : m.change < 0 ? <span className="text-destructive">{m.change}%</span> : '—'}
+                    <tr key={m.month} className="border-b hover:bg-muted/30 transition-colors">
+                      <td className="p-4 font-bold text-slate-700">{m.month}</td>
+                      <td className="p-4 text-center font-medium">{m.orders}</td>
+                      <td className="p-4 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <div className="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                            <div 
+                              className={`h-full ${m.kpi >= 90 ? 'bg-emerald-500' : m.kpi >= 50 ? 'bg-orange-500' : 'bg-red-500'}`} 
+                              style={{ width: `${Math.min(100, m.kpi)}%` }}
+                            />
+                          </div>
+                          <span className="font-bold text-slate-600">{m.kpi}%</span>
+                        </div>
+                      </td>
+                      <td className="p-4 text-right font-medium text-slate-500">{formatVND(m.cost)}</td>
+                      <td className="p-4 text-right font-bold text-slate-800">{formatVND(m.revenue)}</td>
+                      <td className="p-4 text-center">
+                        {m.change > 0 ? (
+                          <span className="text-emerald-600 font-bold">+{m.change}%</span>
+                        ) : m.change < 0 ? (
+                          <span className="text-red-500 font-bold">{m.change}%</span>
+                        ) : (
+                          <span className="text-slate-400">—</span>
+                        )}
                       </td>
                     </tr>
                   ))}
