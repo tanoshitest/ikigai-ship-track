@@ -21,7 +21,6 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
   const updateLead = useStore((s) => s.updateLead);
   const settings = useStore((s) => s.settings);
 
-  // Get fresh lead from store
   const currentLead = leads.find((l) => l.id === lead.id) || lead;
 
   const [actualWeight, setActualWeight] = useState(currentLead.actualWeightKg || currentLead.weightKg);
@@ -60,67 +59,69 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
     updateLeadStatus(currentLead.id, nextStatus);
   };
 
+  const isShipping = currentLead.status === 'dang_van_chuyen';
+  const isWarehouse = currentLead.status === 'cho_xac_nhan';
+
   return (
     <Dialog open onOpenChange={() => onClose()}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+      <DialogContent className={cn("p-5", isShipping ? "max-w-5xl" : "max-w-4xl")}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
-            <span className="font-mono">{currentLead.code}</span>
-            <Badge className={`${STATUS_COLORS[currentLead.status]} text-primary-foreground`}>{STATUS_LABELS[currentLead.status]}</Badge>
+            <span className="font-mono text-sm">{currentLead.code}</span>
+            <Badge className={`${STATUS_COLORS[currentLead.status]} text-primary-foreground text-xs`}>{STATUS_LABELS[currentLead.status]}</Badge>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-5 text-sm">
-          {/* Info */}
-          <div className="grid gap-4 sm:grid-cols-2">
+        <div className="text-sm">
+          {/* Top info row */}
+          <div className="grid grid-cols-2 gap-4 mb-3">
             <div>
-              <h3 className="font-semibold text-muted-foreground mb-1">Người gửi</h3>
-              <p>{currentLead.senderName}</p>
-              <p className="text-muted-foreground">{currentLead.senderPhone}</p>
+              <span className="text-xs text-muted-foreground">Người gửi</span>
+              <p className="font-medium">{currentLead.senderName}</p>
+              <p className="text-xs text-muted-foreground">{currentLead.senderPhone}</p>
             </div>
             <div>
-              <h3 className="font-semibold text-muted-foreground mb-1">Người nhận</h3>
-              <p>{currentLead.receiverName}</p>
-              <p className="text-muted-foreground">{currentLead.receiverAddress}</p>
-              <p className="text-muted-foreground">{currentLead.receiverPhone}</p>
+              <span className="text-xs text-muted-foreground">Người nhận</span>
+              <p className="font-medium">{currentLead.receiverName}</p>
+              <p className="text-xs text-muted-foreground">{currentLead.receiverAddress}</p>
+              <p className="text-xs text-muted-foreground">{currentLead.receiverPhone}</p>
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div><span className="text-muted-foreground">Loại hàng:</span> {currentLead.itemType}</div>
-            <div><span className="text-muted-foreground">Cân nặng:</span> {currentLead.weightKg} kg</div>
-            <div><span className="text-muted-foreground">Thành tiền:</span> {formatVND(currentLead.totalFee)}</div>
+          <div className="flex gap-6 text-xs mb-3">
+            <span><span className="text-muted-foreground">Loại hàng:</span> {currentLead.itemType}</span>
+            <span><span className="text-muted-foreground">Cân nặng:</span> {currentLead.weightKg} kg</span>
+            <span><span className="text-muted-foreground">Thành tiền:</span> {formatVND(currentLead.totalFee)}</span>
           </div>
 
-          {/* Warehouse update - only cho_xac_nhan */}
-          {currentLead.status === 'cho_xac_nhan' && (
-            <div className="rounded-lg border p-4 space-y-3">
-              <h3 className="font-semibold">Cập nhật kho</h3>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div><Label>Cân nặng thực tế (kg)</Label><Input type="number" value={actualWeight} onChange={(e) => setActualWeight(parseFloat(e.target.value) || 0)} /></div>
+          {/* Main content - horizontal layout */}
+          <div className={cn("grid gap-4", isShipping ? "grid-cols-3" : isWarehouse ? "grid-cols-2" : "grid-cols-1")}>
+            {/* Warehouse update */}
+            {isWarehouse && (
+              <div className="rounded-lg border p-3 space-y-2">
+                <h3 className="font-semibold text-xs">Cập nhật kho</h3>
+                <div><Label className="text-xs">Cân nặng thực tế (kg)</Label><Input className="h-8 text-sm" type="number" value={actualWeight} onChange={(e) => setActualWeight(parseFloat(e.target.value) || 0)} /></div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div><Label className="text-xs">Dài (cm)</Label><Input className="h-8 text-sm" type="number" value={actualL} onChange={(e) => setActualL(parseFloat(e.target.value) || 0)} /></div>
+                  <div><Label className="text-xs">Rộng (cm)</Label><Input className="h-8 text-sm" type="number" value={actualW} onChange={(e) => setActualW(parseFloat(e.target.value) || 0)} /></div>
+                  <div><Label className="text-xs">Cao (cm)</Label><Input className="h-8 text-sm" type="number" value={actualH} onChange={(e) => setActualH(parseFloat(e.target.value) || 0)} /></div>
+                </div>
+                <div className="rounded bg-secondary p-2 text-xs space-y-0.5">
+                  <p>Cân tính phí: <strong>{actualFee.chargeWeight} kg</strong> {actualFee.isVolumetric && '(thể tích)'}</p>
+                  <p className="font-bold">Tổng phí: {formatVND(actualFee.total)}</p>
+                </div>
+                <Button size="sm" className="w-full" onClick={handleWarehouseUpdate}>Xác nhận cập nhật</Button>
               </div>
-              <div className="grid grid-cols-3 gap-3">
-                <div><Label>Dài (cm)</Label><Input type="number" value={actualL} onChange={(e) => setActualL(parseFloat(e.target.value) || 0)} /></div>
-                <div><Label>Rộng (cm)</Label><Input type="number" value={actualW} onChange={(e) => setActualW(parseFloat(e.target.value) || 0)} /></div>
-                <div><Label>Cao (cm)</Label><Input type="number" value={actualH} onChange={(e) => setActualH(parseFloat(e.target.value) || 0)} /></div>
-              </div>
-              <div className="rounded bg-secondary p-3 text-xs space-y-1">
-                <p>Cân tính phí: <strong>{actualFee.chargeWeight} kg</strong> {actualFee.isVolumetric && '(thể tích)'}</p>
-                <p className="font-bold">Tổng phí: {formatVND(actualFee.total)}</p>
-              </div>
-              <Button size="sm" onClick={handleWarehouseUpdate}>Xác nhận cập nhật</Button>
-            </div>
-          )}
+            )}
 
-          {/* Tracking - only dang_van_chuyen */}
-          {currentLead.status === 'dang_van_chuyen' && (
-            <div className="rounded-lg border p-4 space-y-3">
-              <h3 className="font-semibold">Tracking</h3>
-              <div className="grid gap-3 sm:grid-cols-2">
+            {/* Tracking */}
+            {isShipping && (
+              <div className="rounded-lg border p-3 space-y-2">
+                <h3 className="font-semibold text-xs">Tracking</h3>
                 <div>
-                  <Label>Hãng vận chuyển</Label>
+                  <Label className="text-xs">Hãng vận chuyển</Label>
                   <Select value={carrier} onValueChange={(v) => setCarrier(v as Carrier)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="EMS">EMS</SelectItem>
                       <SelectItem value="DHL">DHL</SelectItem>
@@ -128,69 +129,67 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                     </SelectContent>
                   </Select>
                 </div>
-                <div><Label>Mã tracking</Label><Input value={trackingCode} onChange={(e) => setTrackingCode(e.target.value)} /></div>
+                <div><Label className="text-xs">Mã tracking</Label><Input className="h-8 text-sm" value={trackingCode} onChange={(e) => setTrackingCode(e.target.value)} /></div>
+                <div>
+                  <Label className="text-xs">Ngày xuất hàng</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className={cn("w-full h-8 justify-start text-left text-sm", !shipDate && "text-muted-foreground")}>
+                        <CalendarIcon className="mr-2 h-3 w-3" />
+                        {shipDate ? format(shipDate, 'dd/MM/yyyy') : 'Chọn ngày'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={shipDate} onSelect={setShipDate} className="p-3 pointer-events-auto" /></PopoverContent>
+                  </Popover>
+                </div>
               </div>
-              <div>
-                <Label>Ngày xuất hàng</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className={cn("w-full justify-start text-left", !shipDate && "text-muted-foreground")}>
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {shipDate ? format(shipDate, 'dd/MM/yyyy') : 'Chọn ngày'}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={shipDate} onSelect={setShipDate} className="p-3 pointer-events-auto" /></PopoverContent>
-                </Popover>
-              </div>
-            </div>
-          )}
+            )}
 
-          {/* Issues - from da_chot onwards */}
-          {currentLead.status === 'dang_van_chuyen' && (
-            <div className="rounded-lg border p-4 space-y-3">
-              <div className="flex items-center gap-3">
-                <h3 className="font-semibold">Xử lý phát sinh</h3>
-                <Switch checked={hasIssue} onCheckedChange={setHasIssue} />
-              </div>
-              {hasIssue && (
-                <div className="space-y-3">
-                  <div>
-                    <Label>Nguyên nhân</Label>
-                    <Select value={issueReason} onValueChange={setIssueReason}>
-                      <SelectTrigger><SelectValue placeholder="Chọn" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Lỗi từ khách">Lỗi từ khách</SelectItem>
-                        <SelectItem value="Lỗi nội bộ">Lỗi nội bộ</SelectItem>
-                        <SelectItem value="Lỗi vận chuyển">Lỗi vận chuyển</SelectItem>
-                      </SelectContent>
-                    </Select>
+            {/* Issues */}
+            {isShipping && (
+              <div className="rounded-lg border p-3 space-y-2">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-xs">Xử lý phát sinh</h3>
+                  <Switch checked={hasIssue} onCheckedChange={setHasIssue} />
+                </div>
+                {hasIssue && (
+                  <div className="space-y-2">
+                    <div>
+                      <Label className="text-xs">Nguyên nhân</Label>
+                      <Select value={issueReason} onValueChange={setIssueReason}>
+                        <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Chọn" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Lỗi từ khách">Lỗi từ khách</SelectItem>
+                          <SelectItem value="Lỗi nội bộ">Lỗi nội bộ</SelectItem>
+                          <SelectItem value="Lỗi vận chuyển">Lỗi vận chuyển</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div><Label className="text-xs">Mô tả</Label><Textarea className="text-sm h-14 resize-none" value={issueDesc} onChange={(e) => setIssueDesc(e.target.value)} /></div>
+                    <div><Label className="text-xs">Cách xử lý</Label><Textarea className="text-sm h-14 resize-none" value={issueSolution} onChange={(e) => setIssueSolution(e.target.value)} /></div>
+                    <Button size="sm" className="w-full" onClick={() => updateLead(currentLead.id, { hasIssue, issueReason, issueDesc, issueSolution })}>Lưu phát sinh</Button>
                   </div>
-                  <div><Label>Mô tả vấn đề</Label><Textarea value={issueDesc} onChange={(e) => setIssueDesc(e.target.value)} /></div>
-                  <div><Label>Cách xử lý</Label><Textarea value={issueSolution} onChange={(e) => setIssueSolution(e.target.value)} /></div>
-                  <Button size="sm" onClick={() => {
-                    updateLead(currentLead.id, { hasIssue, issueReason, issueDesc, issueSolution });
-                  }}>Lưu phát sinh</Button>
-                </div>
-              )}
-            </div>
-          )}
+                )}
+              </div>
+            )}
 
-          {/* Status history */}
-          <div>
-            <h3 className="font-semibold mb-2">Lịch sử trạng thái</h3>
-            <div className="space-y-1">
-              {currentLead.statusHistory.map((h, i) => (
-                <div key={i} className="flex items-center gap-2 text-xs">
-                  <span className="text-muted-foreground">{h.date}</span>
-                  <Badge variant="outline" className="text-xs">{STATUS_LABELS[h.status]}</Badge>
-                  {h.note && <span className="text-muted-foreground">— {h.note}</span>}
-                </div>
-              ))}
+            {/* Status history */}
+            <div className={cn(isShipping ? "" : "")}>
+              <h3 className="font-semibold text-xs mb-1">Lịch sử trạng thái</h3>
+              <div className="space-y-0.5">
+                {currentLead.statusHistory.map((h, i) => (
+                  <div key={i} className="flex items-center gap-2 text-xs">
+                    <span className="text-muted-foreground">{h.date}</span>
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0">{STATUS_LABELS[h.status]}</Badge>
+                    {h.note && <span className="text-muted-foreground">— {h.note}</span>}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
           {nextStatus && (
-            <Button onClick={handleAdvanceStatus} className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
+            <Button onClick={handleAdvanceStatus} className="w-full mt-3 bg-accent text-accent-foreground hover:bg-accent/90">
               Chuyển sang "{STATUS_LABELS[nextStatus]}"
             </Button>
           )}
