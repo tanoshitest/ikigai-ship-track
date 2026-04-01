@@ -7,27 +7,27 @@ import { formatVND } from '@/data/mockData';
 import { useState } from 'react';
 
 const sourceDataAll = [
-  { source: 'Facebook', leads: 156, prospecting: 45, closed: 82, completed: 29, revenue: 245000000 },
-  { source: 'Zalo', leads: 98, prospecting: 28, closed: 52, completed: 18, revenue: 156000000 },
-  { source: 'TikTok', leads: 74, prospecting: 22, closed: 38, completed: 14, revenue: 112000000 },
-  { source: 'Website', leads: 42, prospecting: 12, closed: 24, completed: 6, revenue: 68000000 },
-  { source: 'Khác', leads: 25, prospecting: 5, closed: 15, completed: 5, revenue: 35000000 },
+  { source: 'Facebook', leads: 156, prospecting: 45, closed: 82, incident: 12, completed: 17, revenue: 245000000 },
+  { source: 'Zalo', leads: 98, prospecting: 28, closed: 52, incident: 6, completed: 12, revenue: 156000000 },
+  { source: 'TikTok', leads: 74, prospecting: 22, closed: 38, incident: 4, completed: 10, revenue: 112000000 },
+  { source: 'Website', leads: 42, prospecting: 12, closed: 24, incident: 2, completed: 4, revenue: 68000000 },
+  { source: 'Khác', leads: 25, prospecting: 5, closed: 15, incident: 1, completed: 4, revenue: 35000000 },
 ];
 
 const sourceDataThisMonth = [
-  { source: 'Facebook', leads: 85, prospecting: 25, closed: 45, completed: 15, revenue: 135000000 },
-  { source: 'Zalo', leads: 55, prospecting: 15, closed: 30, completed: 10, revenue: 85000000 },
-  { source: 'TikTok', leads: 40, prospecting: 12, closed: 20, completed: 8, revenue: 58000000 },
-  { source: 'Website', leads: 22, prospecting: 8, closed: 10, completed: 4, revenue: 32000000 },
-  { source: 'Khác', leads: 15, prospecting: 3, closed: 10, completed: 2, revenue: 18000000 },
+  { source: 'Facebook', leads: 85, prospecting: 25, closed: 45, incident: 6, completed: 9, revenue: 135000000 },
+  { source: 'Zalo', leads: 55, prospecting: 15, closed: 30, incident: 3, completed: 7, revenue: 85000000 },
+  { source: 'TikTok', leads: 40, prospecting: 12, closed: 20, incident: 2, completed: 6, revenue: 58000000 },
+  { source: 'Website', leads: 22, prospecting: 8, closed: 10, incident: 1, completed: 3, revenue: 32000000 },
+  { source: 'Khác', leads: 15, prospecting: 3, closed: 10, incident: 0, completed: 2, revenue: 18000000 },
 ];
 
 const sourceDataLastMonth = [
-  { source: 'Facebook', leads: 71, prospecting: 20, closed: 37, completed: 14, revenue: 110000000 },
-  { source: 'Zalo', leads: 43, prospecting: 13, closed: 22, completed: 8, revenue: 71000000 },
-  { source: 'TikTok', leads: 34, prospecting: 10, closed: 18, completed: 6, revenue: 54000000 },
-  { source: 'Website', leads: 20, prospecting: 4, closed: 14, completed: 2, revenue: 36000000 },
-  { source: 'Khác', leads: 10, prospecting: 2, closed: 5, completed: 3, revenue: 17000000 },
+  { source: 'Facebook', leads: 71, prospecting: 20, closed: 37, incident: 6, completed: 8, revenue: 110000000 },
+  { source: 'Zalo', leads: 43, prospecting: 13, closed: 22, incident: 3, completed: 5, revenue: 71000000 },
+  { source: 'TikTok', leads: 34, prospecting: 10, closed: 18, incident: 2, completed: 4, revenue: 54000000 },
+  { source: 'Website', leads: 20, prospecting: 4, closed: 14, incident: 1, completed: 1, revenue: 36000000 },
+  { source: 'Khác', leads: 10, prospecting: 2, closed: 5, incident: 1, completed: 2, revenue: 17000000 },
 ];
 
 const monthlyData = [
@@ -95,6 +95,7 @@ export default function ReportsPage() {
                 <Bar dataKey="leads" fill="#1e293b" name="Tổng lead" radius={[4, 4, 0, 0]} barSize={25} />
                 <Bar dataKey="prospecting" fill="#94a3b8" name="Đang chăm sóc" radius={[4, 4, 0, 0]} barSize={20} />
                 <Bar dataKey="closed" fill="#f97316" name="Đã chốt đơn" radius={[4, 4, 0, 0]} barSize={20} />
+                <Bar dataKey="incident" fill="#ef4444" name="Sự cố" radius={[4, 4, 0, 0]} barSize={20} />
                 <Bar dataKey="completed" fill="#10b981" name="Đã hoàn thành" radius={[4, 4, 0, 0]} barSize={20} />
               </BarChart>
             </ResponsiveContainer>
@@ -111,6 +112,7 @@ export default function ReportsPage() {
                     <th className="p-4 text-center">Tổng lead</th>
                     <th className="p-4 text-center">Đang chăm sóc</th>
                     <th className="p-4 text-center">Đã chốt đơn</th>
+                    <th className="p-4 text-center">Sự cố</th>
                     <th className="p-4 text-center">Đã hoàn thành</th>
                     <th className="p-4 text-right">Doanh thu dự kiến</th>
                   </tr>
@@ -125,6 +127,9 @@ export default function ReportsPage() {
                       </td>
                       <td className="p-4 text-center">
                         <Badge className="bg-orange-100 text-orange-600 hover:bg-orange-100 border-none font-bold">{s.closed}</Badge>
+                      </td>
+                      <td className="p-4 text-center">
+                        <Badge className="bg-red-100 text-red-600 hover:bg-red-100 border-none font-bold">{s.incident}</Badge>
                       </td>
                       <td className="p-4 text-center">
                         <Badge className="bg-emerald-100 text-emerald-600 hover:bg-emerald-100 border-none font-bold">{s.completed}</Badge>
