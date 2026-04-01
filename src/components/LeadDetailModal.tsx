@@ -175,18 +175,31 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                   <p className="text-3xl font-black text-primary">{formatVND(totalFeeValue)}</p>
                   <p className="text-xs text-muted-foreground">Phí vận chuyển cho {localPackages.length} kiện hàng</p>
                   
-                  {!isPaidLocal && isWarehouse && (
-                    <Button onClick={handlePayment} variant="destructive" className="w-full gap-2 h-12 text-base font-bold shadow-lg">
-                      <CreditCard className="w-5 h-5" />
-                      Xác nhận Thanh toán
-                    </Button>
-                  )}
-                  {isPaidLocal && isWarehouse && (
-                    <div className="flex items-center gap-2 text-green-600 bg-green-50 p-3 rounded-lg border border-green-200 justify-center font-bold">
-                      <CreditCard className="w-5 h-5" />
-                      Hệ thống đã ghi nhận thanh toán
+                  <div className="pt-2">
+                    <div className={cn(
+                      "flex items-center gap-3 p-4 rounded-xl border-2 transition-all cursor-pointer",
+                      isPaidLocal ? "bg-green-50 border-green-500 text-green-700" : "bg-muted border-transparent text-muted-foreground hover:bg-muted/80"
+                    )} onClick={() => {
+                      const newVal = !isPaidLocal;
+                      setIsPaidLocal(newVal);
+                      updateLead(currentLead.id, { isPaid: newVal });
+                    }}>
+                      <div className={cn(
+                        "w-6 h-6 rounded flex items-center justify-center border-2 transition-all",
+                        isPaidLocal ? "bg-green-500 border-green-500" : "bg-white border-muted-foreground/30"
+                      )}>
+                        {isPaidLocal && <CreditCard className="w-4 h-4 text-white" />}
+                      </div>
+                      <div>
+                        <p className={cn("text-sm font-bold uppercase", isPaidLocal ? "text-green-700" : "text-muted-foreground")}>
+                          Đã thanh toán
+                        </p>
+                        <p className="text-[10px] opacity-70">
+                          {isPaidLocal ? "Đã xác nhận thanh toán thành công" : "Tick vào đây nếu đã nhận thanh toán"}
+                        </p>
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             )}
