@@ -74,8 +74,8 @@ export interface Employee {
 }
 
 export const STATUS_LABELS: Record<LeadStatus, string> = {
-  cho_xac_nhan: 'Đang chăm sóc',
-  lead_moi: 'Lead mới',
+  cho_xac_nhan: 'Lead mới - đang chăm sóc',
+  lead_moi: 'Đã chốt đơn',
   van_chuyen_noi_dia: 'Vận chuyển nội địa',
   dang_bay: 'Đang bay',
   hoan_thanh: 'Hoàn thành',
