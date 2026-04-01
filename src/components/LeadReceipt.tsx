@@ -23,7 +23,7 @@ export const LeadReceipt = React.forwardRef<HTMLDivElement, LeadReceiptProps>(({
         </div>
         <div className="flex flex-col items-end">
           <div className="bg-slate-900 text-white px-6 py-2 font-black text-xl mb-4 tracking-wider">
-            PHIẾU THU TIỀN
+            BÁO GIÁ
           </div>
           <div className="text-right space-y-1 font-medium">
             <p className="text-xs text-slate-500 uppercase tracking-wider">Mã vận đơn nội bộ</p>
