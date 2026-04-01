@@ -526,7 +526,31 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                       </div>
                       <div><Label className="text-xs font-semibold">Mô tả</Label><Textarea className="text-xs h-12 resize-none" value={issueDesc} onChange={(e) => setIssueDesc(e.target.value)} /></div>
                       <div><Label className="text-xs font-semibold">Cách xử lý</Label><Textarea className="text-xs h-12 resize-none" value={issueSolution} onChange={(e) => setIssueSolution(e.target.value)} /></div>
-                      <Button size="sm" variant="secondary" className="w-full text-xs h-7" onClick={() => updateLead(currentLead.id, { hasIssue, issueReason, issueDesc, issueSolution })}>Lưu phát sinh</Button>
+                      <Button 
+                        size="sm" 
+                        variant="secondary" 
+                        className="w-full text-xs h-7" 
+                        onClick={() => {
+                          const now = new Date().toISOString().slice(0, 10);
+                          const newHistory = [
+                            ...currentLead.statusHistory,
+                            { 
+                              status: currentLead.status, 
+                              date: now, 
+                              note: `PHÁT SINH: ${issueReason} - ${issueDesc}` 
+                            }
+                          ];
+                          updateLead(currentLead.id, { 
+                            hasIssue, 
+                            issueReason, 
+                            issueDesc, 
+                            issueSolution,
+                            statusHistory: newHistory
+                          });
+                        }}
+                      >
+                        Lưu phát sinh
+                      </Button>
                     </div>
                   )}
                   {!hasIssue && <p className="text-xs text-muted-foreground italic text-center py-4">Chưa có phát sinh nào</p>}
