@@ -4,11 +4,11 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { formatVND } from '@/data/mockData';
 
 const sourceData = [
-  { source: 'Facebook', leads: 65, closed: 38, rate: 58, revenue: 98500000 },
-  { source: 'Zalo', leads: 42, closed: 22, rate: 52, revenue: 62000000 },
-  { source: 'TikTok', leads: 28, closed: 12, rate: 43, revenue: 35000000 },
-  { source: 'Website', leads: 18, closed: 14, rate: 78, revenue: 42000000 },
-  { source: 'Khác', leads: 12, closed: 5, rate: 42, revenue: 15000000 },
+  { source: 'Facebook', leads: 156, prospecting: 45, closed: 82, completed: 29, revenue: 245000000 },
+  { source: 'Zalo', leads: 98, prospecting: 28, closed: 52, completed: 18, revenue: 156000000 },
+  { source: 'TikTok', leads: 74, prospecting: 22, closed: 38, completed: 14, revenue: 112000000 },
+  { source: 'Website', leads: 42, prospecting: 12, closed: 24, completed: 6, revenue: 68000000 },
+  { source: 'Khác', leads: 25, prospecting: 5, closed: 15, completed: 5, revenue: 35000000 },
 ];
 
 const monthlyData = [
@@ -35,37 +35,61 @@ export default function ReportsPage() {
       </TabsList>
 
       <TabsContent value="source" className="space-y-4">
-        <Card>
-          <CardHeader><CardTitle className="text-base">So sánh lead theo nguồn</CardTitle></CardHeader>
+        <Card className="border-none shadow-md">
+          <CardHeader>
+            <CardTitle className="text-base font-bold flex items-center justify-between">
+              Phân tích Lead chi tiết theo nguồn
+              <Badge variant="outline" className="text-[10px] font-mono">Bản cập nhật mới</Badge>
+            </CardTitle>
+          </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={sourceData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="source" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="leads" fill="hsl(210, 53%, 24%)" name="Tổng lead" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="closed" fill="hsl(25, 95%, 53%)" name="Đã chốt" radius={[4, 4, 0, 0]} />
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart data={sourceData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
+                <XAxis dataKey="source" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 500 }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
+                <Tooltip 
+                  cursor={{ fill: 'hsl(var(--muted)/0.3)' }}
+                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                />
+                <Bar dataKey="leads" fill="#1e293b" name="Tổng lead" radius={[4, 4, 0, 0]} barSize={25} />
+                <Bar dataKey="prospecting" fill="#94a3b8" name="Đang chăm sóc" radius={[4, 4, 0, 0]} barSize={20} />
+                <Bar dataKey="closed" fill="#f97316" name="Đã chốt đơn" radius={[4, 4, 0, 0]} barSize={20} />
+                <Bar dataKey="completed" fill="#10b981" name="Đã hoàn thành" radius={[4, 4, 0, 0]} barSize={20} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
-        <Card>
+        
+        <Card className="border-none shadow-md overflow-hidden">
           <CardContent className="p-0">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead><tr className="border-b text-left text-muted-foreground">
-                  <th className="p-3">Nguồn</th><th className="p-3">Số lead</th><th className="p-3">Đã chốt</th>
-                  <th className="p-3">Tỷ lệ chuyển đổi</th><th className="p-3">Doanh thu</th>
-                </tr></thead>
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="bg-muted/50 text-left text-muted-foreground uppercase tracking-wider font-bold">
+                    <th className="p-4">Nguồn lead</th>
+                    <th className="p-4 text-center">Tổng lead</th>
+                    <th className="p-4 text-center">Đang chăm sóc</th>
+                    <th className="p-4 text-center">Đã chốt đơn</th>
+                    <th className="p-4 text-center">Đã hoàn thành</th>
+                    <th className="p-4 text-right">Doanh thu dự kiến</th>
+                  </tr>
+                </thead>
                 <tbody>
                   {sourceData.map((s) => (
-                    <tr key={s.source} className="border-b">
-                      <td className="p-3 font-medium">{s.source}</td>
-                      <td className="p-3">{s.leads}</td>
-                      <td className="p-3">{s.closed}</td>
-                      <td className="p-3">{s.rate}%</td>
-                      <td className="p-3">{formatVND(s.revenue)}</td>
+                    <tr key={s.source} className="border-b hover:bg-muted/30 transition-colors">
+                      <td className="p-4 font-bold text-slate-700 underline decoration-accent/30 underline-offset-4">{s.source}</td>
+                      <td className="p-4 text-center font-semibold text-slate-600">{s.leads}</td>
+                      <td className="p-4 text-center">
+                        <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none font-bold">{s.prospecting}</Badge>
+                      </td>
+                      <td className="p-4 text-center">
+                        <Badge className="bg-orange-100 text-orange-600 hover:bg-orange-100 border-none font-bold">{s.closed}</Badge>
+                      </td>
+                      <td className="p-4 text-center">
+                        <Badge className="bg-emerald-100 text-emerald-600 hover:bg-emerald-100 border-none font-bold">{s.completed}</Badge>
+                      </td>
+                      <td className="p-4 text-right font-bold text-accent">{formatVND(s.revenue)}</td>
                     </tr>
                   ))}
                 </tbody>
