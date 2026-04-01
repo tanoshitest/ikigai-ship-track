@@ -60,7 +60,7 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
   };
 
   const isShipping = currentLead.status === 'van_chuyen_noi_dia' || currentLead.status === 'dang_bay';
-  const isWarehouse = currentLead.status === 'cho_xac_nhan';
+  const isWarehouse = currentLead.status === 'lead_moi';
 
   return (
     <Dialog open onOpenChange={() => onClose()}>
