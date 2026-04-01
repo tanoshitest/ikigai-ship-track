@@ -1,8 +1,9 @@
 import { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ClipboardList, Package, Users, Truck, UserCog, BarChart3, Settings, Menu, X } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, Package, Users, Truck, UserCog, BarChart3, Settings, Menu, X, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const menuItems = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
@@ -29,6 +30,7 @@ const pageTitles: Record<string, string> = {
 export default function AppLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const currentPath = location.pathname.startsWith('/leads/') ? '/leads' : location.pathname;
   const pageTitle = pageTitles[currentPath] || 'IKIGAI';
 
@@ -41,39 +43,65 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
       {/* Sidebar */}
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-primary text-primary-foreground transition-transform lg:static lg:translate-x-0",
+        "fixed inset-y-0 left-0 z-50 flex flex-col bg-primary text-primary-foreground transition-all duration-300 lg:static lg:translate-x-0",
+        collapsed ? "w-16" : "w-64",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
-        <div className="flex h-16 items-center justify-between px-6">
-          <span className="text-xl font-bold tracking-wider">🌸 IKIGAI</span>
+        <div className={cn("flex h-16 items-center px-4", collapsed ? "justify-center" : "justify-between px-6")}>
+          {!collapsed && <span className="text-xl font-bold tracking-wider">🌸 IKIGAI</span>}
+          {collapsed && <span className="text-xl">🌸</span>}
           <button className="lg:hidden" onClick={() => setSidebarOpen(false)}>
             <X size={20} />
           </button>
         </div>
-        <nav className="flex-1 space-y-1 px-3 py-4">
+        <nav className="flex-1 space-y-1 px-2 py-4">
           {menuItems.map((item) => {
             const active = currentPath === item.path;
-            return (
+            const linkContent = (
               <Link
                 key={item.path}
                 to={item.path}
                 onClick={() => setSidebarOpen(false)}
                 className={cn(
                   "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+                  collapsed && "justify-center px-0",
                   active
                     ? "bg-accent text-accent-foreground"
                     : "text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground"
                 )}
               >
                 <item.icon size={18} />
-                {item.label}
+                {!collapsed && item.label}
               </Link>
             );
+
+            if (collapsed) {
+              return (
+                <Tooltip key={item.path} delayDuration={0}>
+                  <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
+                  <TooltipContent side="right" className="text-xs">{item.label}</TooltipContent>
+                </Tooltip>
+              );
+            }
+            return linkContent;
           })}
         </nav>
-        <div className="border-t border-primary-foreground/10 p-4">
-          <p className="text-xs text-primary-foreground/50">© 2026 IKIGAI Logistics</p>
+
+        {/* Collapse toggle */}
+        <div className="hidden border-t border-primary-foreground/10 lg:block">
+          <button
+            onClick={() => setCollapsed(c => !c)}
+            className="flex w-full items-center justify-center py-3 text-primary-foreground/50 hover:text-primary-foreground transition-colors"
+          >
+            {collapsed ? <ChevronsRight size={18} /> : <ChevronsLeft size={18} />}
+          </button>
         </div>
+
+        {!collapsed && (
+          <div className="border-t border-primary-foreground/10 p-4">
+            <p className="text-xs text-primary-foreground/50">© 2026 IKIGAI Logistics</p>
+          </div>
+        )}
       </aside>
 
       {/* Main */}
