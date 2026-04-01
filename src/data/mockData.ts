@@ -138,10 +138,16 @@ export function splitWeights(total: number): number[] {
 
 export function getBoxFee(kg: number): number {
   if (kg <= 0) return 0;
-  if (kg < 5) return 0;
-  if (kg < 15) return 15000;
-  if (kg < 25) return 20000;
+  if (kg < 5) return 0; // Or whatever minimum
+  if (kg <= 14) return 15000;
+  if (kg <= 24) return 20000;
   return 30000;
+}
+
+export function getTierPrice(kg: number): number {
+  if (kg <= 10) return 130000;
+  if (kg <= 20) return 124000;
+  return 120000;
 }
 
 export function calcShippingFee(
@@ -149,8 +155,8 @@ export function calcShippingFee(
   dimL: number, 
   dimW: number, 
   dimH: number, 
-  priceMain = 115000, 
-  priceSub = 125000, 
+  priceMainHint = 0, // No longer used as primary, tiered logic takes over
+  priceSubHint = 0,
   surchargePerPkg = 40000, 
   maxKgPerPkg = 30
 ) {
@@ -161,18 +167,16 @@ export function calcShippingFee(
   const weightList = splitWeights(chargeWeight);
   
   const packages: PackageDetail[] = weightList.map((w, idx) => {
-    const isFirst = idx === 0;
-    const price = isFirst ? priceMain : priceSub;
+    const price = getTierPrice(w);
     const shippingFee = Math.round(w * price);
-    const boxFee = getBoxFee(w); // Default for calculation, UI can toggle
-    // Note: Surcharge logic from original code (40k per pkg if split)
-    // Here we might just apply it if pkgs > 1
+    const boxFee = getBoxFee(w);
     const pkgsCount = weightList.length;
+    // Surcharge of 40k only if there's multiple packages
     const surcharge = pkgsCount > 1 ? surchargePerPkg : 0;
     
     return {
       weight: w,
-      hasPackingFee: true, // Default true
+      hasPackingFee: true,
       boxFee,
       shippingFee,
       total: shippingFee + boxFee + surcharge
