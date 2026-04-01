@@ -11,11 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 
 const mockExpenses = [
-  { id: '1', date: '2026-03-25', category: 'Lương nhân viên', amount: 45000000, description: 'Lương tháng 3/2026', status: 'Đã thanh toán' },
-  { id: '2', date: '2026-03-22', category: 'Vận chuyển nội địa', amount: 12500000, description: 'Phí vận chuyển từ kho đến sân bay', status: 'Đã thanh toán' },
-  { id: '3', date: '2026-03-15', category: 'Marketing', amount: 8000000, description: 'Chạy quảng cáo Facebook Ads', status: 'Chờ duyệt' },
-  { id: '4', date: '2026-03-10', category: 'Văn phòng phẩm', amount: 1500000, description: 'Mua giấy in và băng dính', status: 'Đã thanh toán' },
-  { id: '5', date: '2026-03-05', category: 'Cước phí đối tác', amount: 56000000, description: 'Phí gửi EMS đợt 1 tháng 3', status: 'Chờ thanh toán' },
+  { id: '1', date: '2026-03-25', category: 'Lương nhân viên', amount: 45000000, description: 'Lương tháng 3/2026' },
+  { id: '2', date: '2026-03-22', category: 'Vận chuyển nội địa', amount: 12500000, description: 'Phí vận chuyển từ kho đến sân bay' },
+  { id: '3', date: '2026-03-15', category: 'Marketing', amount: 8000000, description: 'Chạy quảng cáo Facebook Ads' },
+  { id: '4', date: '2026-03-10', category: 'Văn phòng phẩm', amount: 1500000, description: 'Mua giấy in và băng dính' },
+  { id: '5', date: '2026-03-05', category: 'Cước phí đối tác', amount: 56000000, description: 'Phí gửi EMS đợt 1 tháng 3' },
 ];
 
 export default function ExpensesPage() {
@@ -30,8 +30,7 @@ export default function ExpensesPage() {
     date: new Date().toISOString().split('T')[0],
     category: 'Văn phòng phẩm',
     amount: '',
-    description: '',
-    status: 'Chờ thanh toán'
+    description: ''
   });
 
   const handleAddExpense = (e: React.FormEvent) => {
@@ -53,8 +52,7 @@ export default function ExpensesPage() {
       date: new Date().toISOString().split('T')[0],
       category: 'Văn phòng phẩm',
       amount: '',
-      description: '',
-      status: 'Chờ thanh toán'
+      description: ''
     });
     toast.success("Đã thêm khoản chi mới");
   };
@@ -165,7 +163,6 @@ export default function ExpensesPage() {
           <Input placeholder="Tìm kiếm khoản chi..." className="max-w-xs" />
           <div className="flex gap-2">
              <Button variant="outline" size="sm">Lọc theo danh mục</Button>
-             <Button variant="outline" size="sm">Lọc theo trạng thái</Button>
           </div>
         </div>
         <CardContent className="p-0">
@@ -177,7 +174,6 @@ export default function ExpensesPage() {
                   <th className="p-4 font-medium">Danh mục</th>
                   <th className="p-4 font-medium">Mô tả chi tiết</th>
                   <th className="p-4 font-medium text-right">Số tiền (VNĐ)</th>
-                  <th className="p-4 font-medium text-center">Trạng thái</th>
                 </tr>
               </thead>
               <tbody>
@@ -188,18 +184,6 @@ export default function ExpensesPage() {
                     <td className="p-4 text-slate-500">{expense.description}</td>
                     <td className="p-4 text-right font-bold tracking-tight text-slate-700">
                       {expense.amount.toLocaleString()}
-                    </td>
-                    <td className="p-4 text-center">
-                      <Badge 
-                        variant="secondary" 
-                        className={
-                          expense.status === 'Đã thanh toán' ? 'bg-emerald-100 text-emerald-700' :
-                          expense.status === 'Chờ thanh toán' ? 'bg-orange-100 text-orange-700' :
-                          'bg-slate-100 text-slate-600'
-                        }
-                      >
-                        {expense.status}
-                      </Badge>
                     </td>
                   </tr>
                 ))}
