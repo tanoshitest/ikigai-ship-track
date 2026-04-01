@@ -211,8 +211,6 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                 <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
                   {localPackages.map((pkg, idx) => (
                     <div key={idx} className="bg-card border rounded-lg p-4 shadow-sm relative overflow-hidden">
-                      <div className="absolute top-0 left-0 w-1.5 h-full bg-primary" />
-                      
                       <div className="flex justify-between items-start mb-4">
                         <div>
                           <p className="text-[10px] font-bold text-muted-foreground uppercase mb-0.5">Kiện #{idx + 1}</p>
