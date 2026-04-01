@@ -372,8 +372,16 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                       <div className="flex justify-between items-start mb-4">
                         <div>
                           <p className="text-[10px] font-bold text-muted-foreground uppercase mb-0.5">Kiện #{idx + 1}</p>
-                          <div className="flex items-baseline gap-2">
-                            <span className="text-xl font-black">{pkg.chargeWeight} kg</span>
+                          <div className="flex items-center gap-2">
+                            <div className="relative group/w">
+                              <Input 
+                                type="number" 
+                                value={pkg.weight} 
+                                onChange={(e) => updatePackage(idx, { weight: parseFloat(e.target.value) || 0 })} 
+                                className="w-20 font-black text-xl h-9 px-2 bg-muted/20 border-primary/20 focus-visible:ring-primary"
+                              />
+                              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground pointer-events-none group-focus-within/w:hidden">kg</span>
+                            </div>
                             <span className="text-[10px] text-muted-foreground italic">(Tính theo: {pkg.chargeWeight === pkg.weight ? 'Cân nặng' : 'Quy đổi'})</span>
                           </div>
                         </div>
@@ -407,8 +415,13 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                         </div>
                         
                         <div className="space-y-2">
-                          <div className="flex justify-between text-xs">
-                            <span className="text-muted-foreground">Vận chuyển:</span>
+                          <div className="flex justify-between text-xs items-center">
+                            <div className="flex flex-col">
+                              <span className="text-muted-foreground">Vận chuyển:</span>
+                              <span className="text-[9px] text-muted-foreground/70 font-mono">
+                                ({new Intl.NumberFormat('vi-VN').format(getTierPrice(pkg.chargeWeight))} x {pkg.chargeWeight}kg)
+                              </span>
+                            </div>
                             <span className="font-bold">{formatVND(pkg.shippingFee)}</span>
                           </div>
                           <div className="flex justify-between text-xs border-b pb-1 mb-1">
