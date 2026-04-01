@@ -131,16 +131,34 @@ export const LeadReceipt = React.forwardRef<HTMLDivElement, LeadReceiptProps>(({
 
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          body * { visibility: hidden; }
-          #printable-receipt, #printable-receipt * { visibility: visible; }
+          /* Hide everything first */
+          body * { 
+            visibility: hidden !important; 
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          
+          /* Show ONLY the receipt and its children */
+          #printable-receipt, #printable-receipt * { 
+            visibility: visible !important; 
+          }
+          
+          /* Position receipt at the top-left */
           #printable-receipt {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
+            position: fixed !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 20px !important;
+            background: white !important;
+            z-index: 9999999 !important;
+          }
+
+          /* Ensure proper page breaks and layout */
+          @page {
+            size: A4;
             margin: 0;
-            padding: 0;
-            box-shadow: none;
           }
         }
       `}} />

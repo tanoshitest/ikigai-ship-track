@@ -61,7 +61,25 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
   const receiptRef = useRef<HTMLDivElement>(null);
   
   const handlePrint = () => {
-    window.print();
+    if (!receiptRef.current) return;
+    
+    const element = receiptRef.current;
+    const opt = {
+      margin:       10,
+      filename:     `Hoadon_${currentLead.code}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, logging: false },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    // @ts-ignore - html2pdf is loaded via CDN
+    if (window.html2pdf) {
+      // @ts-ignore
+      window.html2pdf().set(opt).from(element).save();
+    } else {
+      // Fallback to native print if library fails to load
+      window.print();
+    }
   };
 
   // Initial split logic (only if localPackages is empty)
@@ -672,8 +690,8 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
           )}
         </div>
         
-        {/* Hidden receipt for printing */}
-        <div className="hidden">
+        {/* Hidden receipt for printing - Moved out of 'hidden' to ensure printer visibility */}
+        <div style={{ position: 'absolute', top: '-10000px', left: '-10000px', overflow: 'hidden' }}>
            <LeadReceipt ref={receiptRef} lead={currentLead} />
         </div>
       </DialogContent>
