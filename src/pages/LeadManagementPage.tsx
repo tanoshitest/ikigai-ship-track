@@ -3,7 +3,8 @@ import { useStore } from '@/store/useStore';
 import { Lead, LeadStatus, STATUS_LABELS, STATUS_COLORS, formatVND } from '@/data/mockData';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { useDroppable } from '@dnd-kit/core';
 import { useDraggable } from '@dnd-kit/core';
@@ -64,6 +65,7 @@ export default function LeadManagementPage() {
   const [addOpen, setAddOpen] = useState(false);
   const [detailLead, setDetailLead] = useState<Lead | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
@@ -80,12 +82,30 @@ export default function LeadManagementPage() {
     }
   };
 
+  const filteredLeads = leads.filter((l) => {
+    const q = searchQuery.toLowerCase();
+    return (
+      l.senderName.toLowerCase().includes(q) ||
+      l.senderPhone.includes(q) ||
+      l.code.toLowerCase().includes(q)
+    );
+  });
+
   const activeLead = activeId ? leads.find((l) => l.id === activeId) : null;
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-end">
-        <Button onClick={() => setAddOpen(true)} className="bg-accent text-accent-foreground hover:bg-accent/90">
+      <div className="flex items-center justify-between gap-4 py-2">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Tìm theo tên, SĐT hoặc mã đơn..."
+            className="pl-9 h-10"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <Button onClick={() => setAddOpen(true)} className="bg-accent text-accent-foreground hover:bg-accent/90 h-10 shrink-0">
           <Plus size={16} className="mr-1" /> Thêm Lead mới
         </Button>
       </div>
@@ -96,7 +116,7 @@ export default function LeadManagementPage() {
             <KanbanColumn
               key={status}
               status={status}
-              leads={leads.filter((l) => l.status === status)}
+              leads={filteredLeads.filter((l) => l.status === status)}
               onCardClick={setDetailLead}
             />
           ))}
