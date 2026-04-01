@@ -4,6 +4,14 @@ export type ItemType = 'Thực phẩm' | 'Quần áo' | 'Mỹ phẩm' | 'Đồ �
 export type Carrier = 'EMS' | 'DHL' | 'Sagawa';
 export type EmployeeRole = 'Admin' | 'Sale' | 'Kho';
 
+export interface PackageDetail {
+  weight: number;
+  hasPackingFee: boolean;
+  boxFee: number;
+  shippingFee: number;
+  total: number;
+}
+
 export interface Lead {
   id: string;
   code: string;
@@ -27,6 +35,7 @@ export interface Lead {
   trackingCode?: string;
   shipDate?: string;
   totalFee: number;
+  packages?: PackageDetail[];
   hasIssue?: boolean;
   issueReason?: string;
   issueDesc?: string;
@@ -95,39 +104,91 @@ export function formatVND(n: number): string {
   return n.toLocaleString('vi-VN') + ' VNĐ';
 }
 
-export function calcShippingFee(weightKg: number, dimL: number, dimW: number, dimH: number, priceMain = 115000, priceSub = 125000, surchargePerPkg = 40000, maxKgPerPkg = 30) {
-  const volWeight = (dimL * dimW * dimH) / 5000;
-  const chargeWeight = Math.max(weightKg, volWeight);
-  const isVolumetric = volWeight > weightKg;
-
-  if (chargeWeight <= maxKgPerPkg) {
-    const boxFee = getBoxFee(chargeWeight);
-    const shipping = Math.round(chargeWeight * priceMain);
-    return { weightKg, volWeight: Math.round(volWeight * 100) / 100, chargeWeight: Math.round(chargeWeight * 100) / 100, isVolumetric, needsSplit: false, total: shipping + boxFee, breakdown: null, boxFee, shipping };
+/**
+ * Splitting logic:
+ * - Max 30kg per package.
+ * - If remainder < 5kg, adjust previous package to ensure last is 5kg.
+ */
+export function splitWeights(total: number): number[] {
+  if (total <= 0) return [];
+  if (total <= 30) return [total];
+  
+  const pkgs: number[] = [];
+  let remaining = total;
+  
+  while (remaining > 30) {
+    let next = 30;
+    let afterNext = remaining - 30;
+    
+    if (afterNext > 0 && afterNext < 5) {
+      // Adjust to ensure last is 5
+      next = remaining - 5;
+    }
+    
+    pkgs.push(Math.round(next * 100) / 100);
+    remaining -= next;
   }
-
-  const pkg1 = maxKgPerPkg;
-  const pkg2 = Math.round((chargeWeight - maxKgPerPkg) * 100) / 100;
-  const pkg1Fee = pkg1 * priceMain;
-  const pkg2Fee = pkg2 * priceSub;
-  const surcharge = surchargePerPkg * 2;
-  const boxFee = getBoxFee(pkg1) + getBoxFee(pkg2);
-  const total = pkg1Fee + pkg2Fee + surcharge + boxFee;
-
-  return {
-    weightKg, volWeight: Math.round(volWeight * 100) / 100, chargeWeight: Math.round(chargeWeight * 100) / 100, isVolumetric,
-    needsSplit: true,
-    breakdown: { pkg1, pkg2, pkg1Fee, pkg2Fee, surcharge, boxFee },
-    total, boxFee, shipping: pkg1Fee + pkg2Fee,
-  };
+  
+  if (remaining > 0) {
+    pkgs.push(Math.round(remaining * 100) / 100);
+  }
+  
+  return pkgs;
 }
 
-function getBoxFee(kg: number): number {
+export function getBoxFee(kg: number): number {
   if (kg <= 0) return 0;
   if (kg < 5) return 0;
   if (kg < 15) return 15000;
   if (kg < 25) return 20000;
   return 30000;
+}
+
+export function calcShippingFee(
+  weightKg: number, 
+  dimL: number, 
+  dimW: number, 
+  dimH: number, 
+  priceMain = 115000, 
+  priceSub = 125000, 
+  surchargePerPkg = 40000, 
+  maxKgPerPkg = 30
+) {
+  const volWeight = (dimL * dimW * dimH) / 5000;
+  const chargeWeight = Math.max(weightKg, volWeight);
+  const isVolumetric = volWeight > weightKg;
+
+  const weightList = splitWeights(chargeWeight);
+  
+  const packages: PackageDetail[] = weightList.map((w, idx) => {
+    const isFirst = idx === 0;
+    const price = isFirst ? priceMain : priceSub;
+    const shippingFee = Math.round(w * price);
+    const boxFee = getBoxFee(w); // Default for calculation, UI can toggle
+    // Note: Surcharge logic from original code (40k per pkg if split)
+    // Here we might just apply it if pkgs > 1
+    const pkgsCount = weightList.length;
+    const surcharge = pkgsCount > 1 ? surchargePerPkg : 0;
+    
+    return {
+      weight: w,
+      hasPackingFee: true, // Default true
+      boxFee,
+      shippingFee,
+      total: shippingFee + boxFee + surcharge
+    };
+  });
+
+  const total = packages.reduce((sum, p) => sum + p.total, 0);
+
+  return {
+    weightKg,
+    volWeight: Math.round(volWeight * 100) / 100,
+    chargeWeight: Math.round(chargeWeight * 100) / 100,
+    isVolumetric,
+    packages,
+    total
+  };
 }
 
 export function generateCode(source: LeadSource, index: number): string {
@@ -151,12 +212,12 @@ export const initialLeads: Lead[] = [
   { id: '2', code: 'IKG-ZL-260326-002', status: 'lead_moi', source: 'Zalo', senderName: 'Trần Thị Bình', senderPhone: '0912345678', receiverName: 'Sato Kenji', receiverAddress: 'Osaka, Namba, 4-5-6', receiverPhone: '090-8765-4321', itemType: 'Quần áo', weightKg: 3, dimL: 50, dimW: 40, dimH: 30, totalFee: 345000, createdAt: '2026-03-26', statusHistory: [{ status: 'lead_moi', date: '2026-03-26' }] },
   { id: '3', code: 'IKG-TT-260327-003', status: 'lead_moi', source: 'TikTok', senderName: 'Lê Minh Châu', senderPhone: '0923456789', receiverName: 'Yamamoto Aoi', receiverAddress: 'Nagoya, Chikusa-ku, 7-8-9', receiverPhone: '070-1111-2222', itemType: 'Mỹ phẩm', weightKg: 2, dimL: 30, dimW: 20, dimH: 15, totalFee: 230000, createdAt: '2026-03-27', statusHistory: [{ status: 'lead_moi', date: '2026-03-27' }] },
   
-  // Vận chuyển nội địa (Không tracking, không issue)
+  // Vận chuyển nội địa
   { id: '7', code: 'IKG-TT-260315-007', status: 'van_chuyen_noi_dia', source: 'TikTok', senderName: 'Đặng Văn Giang', senderPhone: '0967890123', receiverName: 'Ito Sota', receiverAddress: 'Yokohama, Nishi-ku, 1-1-1', receiverPhone: '080-9999-0000', itemType: 'Quần áo', weightKg: 10, dimL: 55, dimW: 45, dimH: 30, totalFee: 1165000, createdAt: '2026-03-15', statusHistory: [{ status: 'van_chuyen_noi_dia', date: '2026-03-19' }] },
   { id: '8', code: 'IKG-K-260316-008', status: 'van_chuyen_noi_dia', source: 'Khác', senderName: 'Bùi Thị Hoa', senderPhone: '0978901234', receiverName: 'Takahashi Yui', receiverAddress: 'Kyoto, Higashiyama-ku, 3-3-3', receiverPhone: '090-1212-3434', itemType: 'Mỹ phẩm', weightKg: 4, dimL: 35, dimW: 25, dimH: 20, totalFee: 460000, createdAt: '2026-03-16', statusHistory: [{ status: 'van_chuyen_noi_dia', date: '2026-03-20' }] },
   { id: '9', code: 'IKG-FB-260317-009', status: 'van_chuyen_noi_dia', source: 'Facebook', senderName: 'Ngô Thanh Inh', senderPhone: '0989012345', receiverName: 'Kobayashi Riku', receiverAddress: 'Sendai, Aoba-ku, 5-5-5', receiverPhone: '070-5656-7878', itemType: 'Thực phẩm', weightKg: 15, dimL: 60, dimW: 50, dimH: 40, totalFee: 1750000, createdAt: '2026-03-17', statusHistory: [{ status: 'van_chuyen_noi_dia', date: '2026-03-21' }] },
   
-  // Đang bay (Có tracking, có phát sinh xử lý)
+  // Đang bay
   { id: '10', code: 'IKG-WEB-260310-010', status: 'dang_bay', source: 'Website', senderName: 'Lý Văn Khôi', senderPhone: '0990123456', receiverName: 'Yoshida Sakura', receiverAddress: 'Hiroshima, Minami-ku, 7-7-7', receiverPhone: '080-3434-5656', itemType: 'Đồ điện tử', weightKg: 7, dimL: 50, dimW: 35, dimH: 25, totalFee: 820000, carrier: 'EMS', trackingCode: 'EMS9988776655', shipDate: '2026-03-25', createdAt: '2026-03-10', statusHistory: [{ status: 'van_chuyen_noi_dia', date: '2026-03-12' }, { status: 'dang_bay', date: '2026-03-25' }] },
   { id: '11', code: 'IKG-ZL-260311-011', status: 'dang_bay', source: 'Zalo', senderName: 'Mai Thị Lan', senderPhone: '0901234568', receiverName: 'Kato Haruto', receiverAddress: 'Niigata, Chuo-ku, 2-2-2', receiverPhone: '090-7878-9090', itemType: 'Quần áo', weightKg: 9, dimL: 55, dimW: 40, dimH: 30, totalFee: 1050000, carrier: 'DHL', trackingCode: 'DHL5544332211', shipDate: '2026-03-26', hasIssue: true, issueReason: 'Lỗi vận chuyển', issueDesc: 'Thời tiết xấu, bay chậm 1 ngày', issueSolution: 'Thông báo khách hàng thông cảm', createdAt: '2026-03-11', statusHistory: [{ status: 'van_chuyen_noi_dia', date: '2026-03-13' }, { status: 'dang_bay', date: '2026-03-26' }] },
   { id: '12', code: 'IKG-FB-260312-012', status: 'dang_bay', source: 'Facebook', senderName: 'Phan Quốc Minh', senderPhone: '0912345679', receiverName: 'Morita Aiko', receiverAddress: 'Okayama, Kita-ku, 4-4-4', receiverPhone: '070-2323-4545', itemType: 'Khác', weightKg: 20, dimL: 70, dimW: 50, dimH: 40, totalFee: 2330000, carrier: 'Sagawa', trackingCode: 'SGW1122334455', shipDate: '2026-03-27', createdAt: '2026-03-12', statusHistory: [{ status: 'van_chuyen_noi_dia', date: '2026-03-14' }, { status: 'dang_bay', date: '2026-03-27' }] },
