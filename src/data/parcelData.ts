@@ -49,7 +49,7 @@ export interface Parcel {
 
 const employees = initialEmployees.filter(e => e.active).map(e => e.name);
 const itemTypes = ['Thực phẩm', 'Quần áo', 'Mỹ phẩm', 'Đồ điện tử', 'Khác'];
-const statuses: ParcelStatus[] = ['chua_nhan', 'da_nhan', 'noi_dia', 'dang_bay', 'hoan_thanh'];
+const statuses: ParcelStatus[] = ['chua_nhan', 'da_nhan', 'noi_dia', 'dang_bay', 'su_co', 'hoan_thanh'];
 const carriers: Carrier[] = ['EMS', 'DHL', 'Sagawa'];
 const sources = ['FB', 'ZL', 'TT', 'WEB', 'K'];
 
@@ -103,8 +103,8 @@ const phones = [
   '0901234569', '0912345670', '0923456781', '0934567892', '0945678903',
 ];
 
-export const initialParcels: Parcel[] = Array.from({ length: 25 }, (_, i) => {
-  const statusIdx = i % 5;
+export const initialParcels: Parcel[] = Array.from({ length: 30 }, (_, i) => {
+  const statusIdx = i % 6;
   const status = statuses[statusIdx];
   const emp = employees[i % employees.length];
   const day = String(rand(1, 28)).padStart(2, '0');
@@ -116,6 +116,7 @@ export const initialParcels: Parcel[] = Array.from({ length: 25 }, (_, i) => {
   const r = rand(30, 60);
   const h = rand(20, 50);
   const hasTracking = statusIdx >= 3;
+  const isSuCo = status === 'su_co';
   const note = notes[i % notes.length];
 
   return {
@@ -132,7 +133,7 @@ export const initialParcels: Parcel[] = Array.from({ length: 25 }, (_, i) => {
     status,
     carrier: statusIdx >= 3 ? carriers[i % carriers.length] : undefined,
     trackingCode: hasTracking ? `${carriers[i % carriers.length].toUpperCase()}${rand(1000000, 9999999)}` : undefined,
-    note: note || undefined,
+    note: isSuCo ? 'Kiện hàng bị giữ tại hải quan Nhật Bản. Đang liên hệ xử lý.' : (note || undefined),
     createdAt,
     statusHistory: genHistory(status, emp, createdAt),
   };
