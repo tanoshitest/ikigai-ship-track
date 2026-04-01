@@ -31,18 +31,18 @@ const sourceDataLastMonth = [
 ];
 
 const monthlyData = [
-  { month: 'T04/25', orders: 45, cost: 98000000, revenue: 125000000, kpi: 50, change: 0 },
-  { month: 'T05/25', orders: 52, cost: 112000000, revenue: 145000000, kpi: 58, change: 16 },
-  { month: 'T06/25', orders: 48, cost: 105000000, revenue: 135000000, kpi: 54, change: -7 },
-  { month: 'T07/25', orders: 60, cost: 132000000, revenue: 168000000, kpi: 67, change: 24 },
-  { month: 'T08/25', orders: 55, cost: 121000000, revenue: 155000000, kpi: 62, change: -8 },
-  { month: 'T09/25', orders: 65, cost: 142000000, revenue: 182000000, kpi: 73, change: 17 },
-  { month: 'T10/25', orders: 58, cost: 125000000, revenue: 162000000, kpi: 65, change: -11 },
-  { month: 'T11/25', orders: 72, cost: 158000000, revenue: 205000000, kpi: 82, change: 27 },
-  { month: 'T12/25', orders: 68, cost: 151000000, revenue: 195000000, kpi: 78, change: -5 },
-  { month: 'T01/26', orders: 75, cost: 168000000, revenue: 220000000, kpi: 88, change: 13 },
-  { month: 'T02/26', orders: 80, cost: 182000000, revenue: 235000000, kpi: 94, change: 7 },
-  { month: 'T03/26', orders: 85, cost: 188000000, revenue: 245000000, kpi: 98, change: 4 },
+  { month: 'T04/25', orders: 45, incidentRate: 12, cost: 98000000, revenue: 125000000, kpi: 50, change: 0 },
+  { month: 'T05/25', orders: 52, incidentRate: 8, cost: 112000000, revenue: 145000000, kpi: 58, change: 16 },
+  { month: 'T06/25', orders: 48, incidentRate: 15, cost: 105000000, revenue: 135000000, kpi: 54, change: -7 },
+  { month: 'T07/25', orders: 60, incidentRate: 5, cost: 132000000, revenue: 168000000, kpi: 67, change: 24 },
+  { month: 'T08/25', orders: 55, incidentRate: 10, cost: 121000000, revenue: 155000000, kpi: 62, change: -8 },
+  { month: 'T09/25', orders: 65, incidentRate: 7, cost: 142000000, revenue: 182000000, kpi: 73, change: 17 },
+  { month: 'T10/25', orders: 58, incidentRate: 14, cost: 125000000, revenue: 162000000, kpi: 65, change: -11 },
+  { month: 'T11/25', orders: 72, incidentRate: 6, cost: 158000000, revenue: 205000000, kpi: 82, change: 27 },
+  { month: 'T12/25', orders: 68, incidentRate: 9, cost: 151000000, revenue: 195000000, kpi: 78, change: -5 },
+  { month: 'T01/26', orders: 75, incidentRate: 4, cost: 168000000, revenue: 220000000, kpi: 88, change: 13 },
+  { month: 'T02/26', orders: 80, incidentRate: 3, cost: 182000000, revenue: 235000000, kpi: 94, change: 7 },
+  { month: 'T03/26', orders: 85, incidentRate: 5, cost: 188000000, revenue: 245000000, kpi: 98, change: 4 },
 ];
 
 export default function ReportsPage() {
@@ -165,6 +165,7 @@ export default function ReportsPage() {
                   <tr className="bg-muted/50 text-left text-muted-foreground uppercase tracking-wider font-bold">
                     <th className="p-4">Tháng</th>
                     <th className="p-4 text-center">Số đơn</th>
+                    <th className="p-4 text-center">% Sự cố</th>
                     <th className="p-4 text-center">% Đạt KPI</th>
                     <th className="p-4 text-right">Tổng chi tiêu</th>
                     <th className="p-4 text-right">Doanh thu</th>
@@ -176,6 +177,11 @@ export default function ReportsPage() {
                     <tr key={m.month} className="border-b hover:bg-muted/30 transition-colors">
                       <td className="p-4 font-bold text-slate-700">{m.month}</td>
                       <td className="p-4 text-center font-medium">{m.orders}</td>
+                      <td className="p-4 text-center">
+                        <Badge className="bg-red-50 text-red-600 hover:bg-red-50 border-none font-bold bg-opacity-10">
+                          {m.incidentRate}%
+                        </Badge>
+                      </td>
                       <td className="p-4 text-center">
                         <div className="flex items-center justify-center gap-2">
                           <div className="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden">
