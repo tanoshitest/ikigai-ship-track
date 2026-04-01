@@ -190,9 +190,9 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
               <span className="text-xs text-muted-foreground">Người gửi</span>
               {isEditingInfo ? (
                 <div className="space-y-2 mt-1">
-                  <Input size="sm" className="h-7 text-xs" value={tempInfo.senderName} onChange={(e) => setTempInfo({...tempInfo, senderName: e.target.value})} placeholder="Tên người gửi" />
-                  <Input size="sm" className="h-7 text-xs" value={tempInfo.senderPhone} onChange={(e) => setTempInfo({...tempInfo, senderPhone: e.target.value})} placeholder="SĐT người gửi" />
-                  <Input size="sm" className="h-7 text-xs" value={tempInfo.senderAddress} onChange={(e) => setTempInfo({...tempInfo, senderAddress: e.target.value})} placeholder="Địa chỉ gửi" />
+                  <Input className="h-7 text-xs" value={tempInfo.senderName} onChange={(e) => setTempInfo({...tempInfo, senderName: e.target.value})} placeholder="Tên người gửi" />
+                  <Input className="h-7 text-xs" value={tempInfo.senderPhone} onChange={(e) => setTempInfo({...tempInfo, senderPhone: e.target.value})} placeholder="SĐT người gửi" />
+                  <Input className="h-7 text-xs" value={tempInfo.senderAddress} onChange={(e) => setTempInfo({...tempInfo, senderAddress: e.target.value})} placeholder="Địa chỉ gửi" />
                 </div>
               ) : (
                 <>
@@ -206,9 +206,9 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
               <span className="text-xs text-muted-foreground">Người nhận</span>
               {isEditingInfo ? (
                 <div className="space-y-2 mt-1">
-                  <Input size="sm" className="h-7 text-xs" value={tempInfo.receiverName} onChange={(e) => setTempInfo({...tempInfo, receiverName: e.target.value})} placeholder="Tên người nhận" />
-                  <Input size="sm" className="h-7 text-xs" value={tempInfo.receiverPhone} onChange={(e) => setTempInfo({...tempInfo, receiverPhone: e.target.value})} placeholder="SĐT người nhận" />
-                  <Input size="sm" className="h-7 text-xs" value={tempInfo.receiverAddress} onChange={(e) => setTempInfo({...tempInfo, receiverAddress: e.target.value})} placeholder="Địa chỉ nhận" />
+                  <Input className="h-7 text-xs" value={tempInfo.receiverName} onChange={(e) => setTempInfo({...tempInfo, receiverName: e.target.value})} placeholder="Tên người nhận" />
+                  <Input className="h-7 text-xs" value={tempInfo.receiverPhone} onChange={(e) => setTempInfo({...tempInfo, receiverPhone: e.target.value})} placeholder="SĐT người nhận" />
+                  <Input className="h-7 text-xs" value={tempInfo.receiverAddress} onChange={(e) => setTempInfo({...tempInfo, receiverAddress: e.target.value})} placeholder="Địa chỉ nhận" />
                 </div>
               ) : (
                 <>
@@ -271,7 +271,7 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                 <span className="text-muted-foreground font-semibold">Loại hàng:</span> 
                 {isEditingInfo ? (
                   <Input 
-                    size="sm" className="h-7 text-xs w-32 bg-background border-none shadow-sm" 
+                    className="h-7 text-xs w-32 bg-background border-none shadow-sm" 
                     value={tempInfo.itemType} 
                     onChange={(e) => setTempInfo({...tempInfo, itemType: e.target.value as any})} 
                   />
