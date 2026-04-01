@@ -1,12 +1,11 @@
 import { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ClipboardList, Package, Users, Truck, UserCog, BarChart3, Settings, Menu, X, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { ClipboardList, Package, Users, Truck, UserCog, BarChart3, Settings, Menu, X, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const menuItems = [
-  { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
   { label: 'Quản lý Lead', icon: ClipboardList, path: '/leads' },
   { label: 'Quản lý bưu kiện', icon: Package, path: '/parcels' },
   { label: 'Khách hàng', icon: Users, path: '/customers' },
@@ -17,7 +16,6 @@ const menuItems = [
 ];
 
 const pageTitles: Record<string, string> = {
-  '/': 'Dashboard',
   '/leads': 'Quản lý Lead',
   '/parcels': 'Quản lý bưu kiện',
   '/customers': 'Khách hàng',
