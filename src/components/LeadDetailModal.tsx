@@ -99,7 +99,7 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
             {/* Warehouse update */}
             {isWarehouse && (
               <div className="rounded-lg border p-3 space-y-2">
-                <h3 className="font-semibold text-xs">Cập nhật kho</h3>
+                <h3 className="font-semibold text-xs">Cập nhật thực tế</h3>
                 <div><Label className="text-xs">Cân nặng thực tế (kg)</Label><Input className="h-8 text-sm" type="number" value={actualWeight} onChange={(e) => setActualWeight(parseFloat(e.target.value) || 0)} /></div>
                 <div className="grid grid-cols-3 gap-2">
                   <div><Label className="text-xs">Dài (cm)</Label><Input className="h-8 text-sm" type="number" value={actualL} onChange={(e) => setActualL(parseFloat(e.target.value) || 0)} /></div>

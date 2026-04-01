@@ -1,5 +1,5 @@
 export type LeadSource = 'Facebook' | 'Zalo' | 'TikTok' | 'Website' | 'Khác';
-export type LeadStatus = 'lead_moi' | 'dang_cham_soc' | 'cho_xac_nhan' | 'da_chot' | 'van_chuyen_noi_dia' | 'dang_bay' | 'hoan_thanh';
+export type LeadStatus = 'lead_moi' | 'cho_xac_nhan' | 'da_chot' | 'van_chuyen_noi_dia' | 'dang_bay' | 'hoan_thanh';
 export type ItemType = 'Thực phẩm' | 'Quần áo' | 'Mỹ phẩm' | 'Đồ điện tử' | 'Khác';
 export type Carrier = 'EMS' | 'DHL' | 'Sagawa';
 export type EmployeeRole = 'Admin' | 'Sale' | 'Kho';
@@ -57,8 +57,7 @@ export interface Employee {
 
 export const STATUS_LABELS: Record<LeadStatus, string> = {
   lead_moi: 'Lead mới',
-  dang_cham_soc: 'Đang chăm sóc',
-  cho_xac_nhan: 'Chờ xác nhận',
+  cho_xac_nhan: 'Đang chăm sóc',
   da_chot: 'Đã chốt đơn',
   van_chuyen_noi_dia: 'Vận chuyển nội địa',
   dang_bay: 'Đang bay',
@@ -67,7 +66,6 @@ export const STATUS_LABELS: Record<LeadStatus, string> = {
 
 export const STATUS_COLORS: Record<LeadStatus, string> = {
   lead_moi: 'bg-status-new',
-  dang_cham_soc: 'bg-status-care',
   cho_xac_nhan: 'bg-status-pending',
   da_chot: 'bg-status-confirmed',
   van_chuyen_noi_dia: 'bg-status-domestic',
@@ -84,8 +82,7 @@ export const SOURCE_ABBR: Record<LeadSource, string> = {
 };
 
 const nextStatus: Record<LeadStatus, LeadStatus | null> = {
-  lead_moi: 'dang_cham_soc',
-  dang_cham_soc: 'cho_xac_nhan',
+  lead_moi: 'cho_xac_nhan',
   cho_xac_nhan: 'da_chot',
   da_chot: 'van_chuyen_noi_dia',
   van_chuyen_noi_dia: 'dang_bay',
