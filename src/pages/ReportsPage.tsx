@@ -49,19 +49,15 @@ export default function ReportsPage() {
   const [sourceMonth, setSourceMonth] = useState('all');
   const [sourceYear, setSourceYear] = useState('2026');
   
-  const [salesMonth, setSalesMonth] = useState('all');
-  const [salesYear, setSalesYear] = useState('all');
+  const [salesYear, setSalesYear] = useState('2026');
   
   const currentSourceData = sourceMonth === 'all' ? sourceDataAll : 
                             sourceMonth === '3' ? sourceDataThisMonth : 
                             sourceDataLastMonth;
 
   const currentMonthlyData = monthlyData.filter(m => {
-    const monthStr = salesMonth === 'all' ? null : `T${salesMonth.padStart(2, '0')}`;
     const yearStr = salesYear === 'all' ? null : `/${salesYear.slice(-2)}`;
-    const matchesMonth = monthStr ? m.month.startsWith(monthStr) : true;
-    const matchesYear = yearStr ? m.month.endsWith(yearStr) : true;
-    return matchesMonth && matchesYear;
+    return yearStr ? m.month.endsWith(yearStr) : true;
   });
 
   return (
@@ -132,19 +128,8 @@ export default function ReportsPage() {
             <CardTitle className="text-base font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <span>Doanh số & Chi tiêu 12 tháng gần nhất</span>
               <div className="flex items-center gap-2">
-                <Select value={salesMonth} onValueChange={setSalesMonth}>
-                  <SelectTrigger className="h-8 w-[120px] text-xs">
-                    <SelectValue placeholder="Chọn tháng" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tất cả tháng</SelectItem>
-                    {[...Array(12)].map((_, i) => (
-                       <SelectItem key={i+1} value={(i+1).toString()}>Tháng {i+1}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
                 <Select value={salesYear} onValueChange={setSalesYear}>
-                  <SelectTrigger className="h-8 w-[100px] text-xs">
+                  <SelectTrigger className="h-8 w-[120px] text-xs">
                     <SelectValue placeholder="Chọn năm" />
                   </SelectTrigger>
                   <SelectContent>
