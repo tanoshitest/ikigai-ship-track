@@ -46,6 +46,7 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
   const [tempInfo, setTempInfo] = useState({
     senderName: currentLead.senderName,
     senderPhone: currentLead.senderPhone,
+    senderAddress: currentLead.senderAddress || '',
     receiverName: currentLead.receiverName,
     receiverAddress: currentLead.receiverAddress,
     receiverPhone: currentLead.receiverPhone,
@@ -180,10 +181,12 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                 <div className="space-y-2 mt-1">
                   <Input size="sm" className="h-7 text-xs" value={tempInfo.senderName} onChange={(e) => setTempInfo({...tempInfo, senderName: e.target.value})} placeholder="Tên người gửi" />
                   <Input size="sm" className="h-7 text-xs" value={tempInfo.senderPhone} onChange={(e) => setTempInfo({...tempInfo, senderPhone: e.target.value})} placeholder="SĐT người gửi" />
+                  <Input size="sm" className="h-7 text-xs" value={tempInfo.senderAddress} onChange={(e) => setTempInfo({...tempInfo, senderAddress: e.target.value})} placeholder="Địa chỉ gửi" />
                 </div>
               ) : (
                 <>
                   <p className="font-medium text-sm">{currentLead.senderName}</p>
+                  <p className="text-xs text-muted-foreground">{currentLead.senderAddress || 'N/A'}</p>
                   <p className="text-xs text-muted-foreground">{currentLead.senderPhone}</p>
                 </>
               )}
@@ -315,15 +318,15 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                           <div className="grid grid-cols-3 gap-1.5">
                             <Input 
                               placeholder="D" className="h-8 p-1 text-center font-bold" type="number" 
-                              value={pkg.dimL || ''} onChange={(e) => updatePackage(idx, { dimL: parseFloat(e.target.value) || 0 })} 
+                              value={pkg.dimL || 0} onChange={(e) => updatePackage(idx, { dimL: parseFloat(e.target.value) || 0 })} 
                             />
                             <Input 
                               placeholder="R" className="h-8 p-1 text-center font-bold" type="number" 
-                              value={pkg.dimW || ''} onChange={(e) => updatePackage(idx, { dimW: parseFloat(e.target.value) || 0 })} 
+                              value={pkg.dimW || 0} onChange={(e) => updatePackage(idx, { dimW: parseFloat(e.target.value) || 0 })} 
                             />
                             <Input 
                               placeholder="C" className="h-8 p-1 text-center font-bold" type="number" 
-                              value={pkg.dimH || ''} onChange={(e) => updatePackage(idx, { dimH: parseFloat(e.target.value) || 0 })} 
+                              value={pkg.dimH || 0} onChange={(e) => updatePackage(idx, { dimH: parseFloat(e.target.value) || 0 })} 
                             />
                           </div>
                           {pkg.volWeight > 0 && (
