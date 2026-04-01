@@ -18,7 +18,7 @@ function KanbanColumn({ status, leads, onCardClick }: { status: LeadStatus; lead
   return (
     <div
       ref={setNodeRef}
-      className={`flex min-w-[240px] flex-col rounded-lg border bg-secondary/50 transition-colors ${isOver ? 'ring-2 ring-accent' : ''}`}
+      className={`flex flex-1 min-w-[160px] flex-col rounded-lg border bg-secondary/50 transition-colors ${isOver ? 'ring-2 ring-accent' : ''}`}
     >
       <div className="flex items-center justify-between border-b px-3 py-2.5">
         <div className="flex items-center gap-2">
@@ -111,7 +111,7 @@ export default function LeadManagementPage() {
       </div>
 
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <div className="flex gap-3 overflow-x-auto pb-4">
+        <div className="flex gap-2">
           {COLUMNS.map((status) => (
             <KanbanColumn
               key={status}

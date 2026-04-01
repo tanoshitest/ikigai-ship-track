@@ -282,6 +282,25 @@ export const initialLeads: Lead[] = [
       { status: 'hoan_thanh', date: '2026-03-11' }
     ] 
   },
+  // Sự cố
+  { id: '17', code: 'IKG-ZL-260308-017', status: 'su_co', source: 'Zalo', senderName: 'Đinh Hoàng Nam', senderPhone: '0909123456', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Fujita Kana', receiverAddress: 'Tokyo, Koto-ku, 3-5-8', receiverPhone: '080-1122-3344', itemType: 'Thực phẩm', weightKg: 8, dimL: 45, dimW: 35, dimH: 30, totalFee: 935000, carrier: 'EMS', trackingCode: 'EMS7766554433', shipDate: '2026-03-20', createdAt: '2026-03-08', assignedTo: 'Trần Thị Mai',
+    statusHistory: [
+      { status: 'cho_xac_nhan', date: '2026-03-08', note: 'Tiếp nhận từ Zalo' },
+      { status: 'lead_moi', date: '2026-03-09', note: 'Khách xác nhận chốt đơn' },
+      { status: 'van_chuyen_noi_dia', date: '2026-03-10', note: 'Đã giao hàng cho xe nội địa' },
+      { status: 'dang_bay', date: '2026-03-20', note: 'Chuyến bay EMS HAN-NRT' },
+      { status: 'su_co', date: '2026-03-22', note: 'LỖI: Hải quan Nhật tạm giữ kiện hàng vì thiếu hoá đơn thực phẩm (FSSC). XỬ LÝ: Đã yêu cầu khách bổ sung chứng từ qua email, dự kiến giải quyết trong 3 ngày làm việc' }
+    ]
+  },
+  { id: '18', code: 'IKG-FB-260309-018', status: 'su_co', source: 'Facebook', senderName: 'Trương Thị Vân', senderPhone: '0918234567', senderAddress: 'Hà Nội, Việt Nam', receiverName: 'Okamoto Ryo', receiverAddress: 'Osaka, Sumiyoshi-ku, 2-4-6', receiverPhone: '090-5566-7788', itemType: 'Mỹ phẩm', weightKg: 5, dimL: 35, dimW: 25, dimH: 20, totalFee: 655000, carrier: 'DHL', trackingCode: 'DHL8899001122', shipDate: '2026-03-18', createdAt: '2026-03-09', assignedTo: 'Trần Thị Mai',
+    statusHistory: [
+      { status: 'cho_xac_nhan', date: '2026-03-09', note: 'Inbox từ Fanpage Facebook' },
+      { status: 'lead_moi', date: '2026-03-10', note: 'Thanh toán qua MoMo' },
+      { status: 'van_chuyen_noi_dia', date: '2026-03-12' },
+      { status: 'dang_bay', date: '2026-03-18', note: 'DHL chuyến HAN-KIX' },
+      { status: 'su_co', date: '2026-03-21', note: 'LỖI: Mỹ phẩm bị trả về do thừa thể tích cho phép của DHL Japan (quy định max 3kg mỹ phẩm). XỬ LÝ: Liên hệ DHL xin miễn ngoại lệ, song song chuẩn bị phương án gửi lại bằng EMS tách 2 kiện' }
+    ]
+  },
 ];
 
 export const initialCustomers: Customer[] = [
