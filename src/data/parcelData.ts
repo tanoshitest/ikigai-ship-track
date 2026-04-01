@@ -1,22 +1,24 @@
 import { initialEmployees } from './mockData';
 
-export type ParcelStatus = 'chua_nhan' | 'da_nhan' | 'chuan_bi_xong' | 'dang_van_chuyen' | 'hoan_thanh';
+export type ParcelStatus = 'chua_nhan' | 'da_nhan' | 'noi_dia' | 'dang_bay' | 'su_co' | 'hoan_thanh';
 export type Carrier = 'EMS' | 'DHL' | 'Sagawa';
 
 export const PARCEL_STATUS_LABELS: Record<ParcelStatus, string> = {
   chua_nhan: 'Chưa nhận hàng',
   da_nhan: 'Đã nhận hàng',
-  chuan_bi_xong: 'Chuẩn bị xong',
-  dang_van_chuyen: 'Đang vận chuyển',
+  noi_dia: 'Đang vận chuyển nội địa',
+  dang_bay: 'Đang bay',
+  su_co: 'Sự cố',
   hoan_thanh: 'Hoàn thành',
 };
 
 export const PARCEL_STATUS_COLORS: Record<ParcelStatus, string> = {
-  chua_nhan: 'bg-muted-foreground',
-  da_nhan: 'bg-status-new',
-  chuan_bi_xong: 'bg-status-pending',
-  dang_van_chuyen: 'bg-status-confirmed',
-  hoan_thanh: 'bg-status-shipping',
+  chua_nhan: 'bg-slate-400',
+  da_nhan: 'bg-blue-500',
+  noi_dia: 'bg-emerald-500',
+  dang_bay: 'bg-sky-500',
+  su_co: 'bg-red-500',
+  hoan_thanh: 'bg-purple-500',
 };
 
 export interface ParcelStatusChange {
@@ -47,7 +49,7 @@ export interface Parcel {
 
 const employees = initialEmployees.filter(e => e.active).map(e => e.name);
 const itemTypes = ['Thực phẩm', 'Quần áo', 'Mỹ phẩm', 'Đồ điện tử', 'Khác'];
-const statuses: ParcelStatus[] = ['chua_nhan', 'da_nhan', 'chuan_bi_xong', 'dang_van_chuyen', 'hoan_thanh'];
+const statuses: ParcelStatus[] = ['chua_nhan', 'da_nhan', 'noi_dia', 'dang_bay', 'hoan_thanh'];
 const carriers: Carrier[] = ['EMS', 'DHL', 'Sagawa'];
 const sources = ['FB', 'ZL', 'TT', 'WEB', 'K'];
 
