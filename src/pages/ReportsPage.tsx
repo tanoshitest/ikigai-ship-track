@@ -93,7 +93,6 @@ export default function ReportsPage() {
                     <SelectValue placeholder="Chọn năm" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Tất cả năm</SelectItem>
                     <SelectItem value="2026">Năm 2026</SelectItem>
                     <SelectItem value="2025">Năm 2025</SelectItem>
                   </SelectContent>
@@ -133,7 +132,6 @@ export default function ReportsPage() {
                     <SelectValue placeholder="Chọn năm" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Tất cả năm</SelectItem>
                     <SelectItem value="2026">Năm 2026</SelectItem>
                     <SelectItem value="2025">Năm 2025</SelectItem>
                   </SelectContent>
