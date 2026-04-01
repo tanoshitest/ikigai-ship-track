@@ -30,9 +30,18 @@ export default function ReportsPage() {
   const [salesYear, setSalesYear] = useState('2026');
   
   const cplData = sources.map(src => {
-    const leadsCount = initialLeads.filter(l => l.source === src).length;
+    const leadsCount = initialLeads.filter(l => {
+      const matchesMonth = sourceMonth === 'all' ? true : l.createdAt.split('-')[1] === sourceMonth.padStart(2, '0');
+      const matchesYear = sourceYear === 'all' ? true : l.createdAt.startsWith(sourceYear);
+      return l.source === src && matchesMonth && matchesYear;
+    }).length;
+
     const adsSpend = initialExpenses
-      .filter(e => e.category === 'Marketing' && e.leadSource === src)
+      .filter(e => {
+        const matchesMonth = sourceMonth === 'all' ? true : e.date.split('-')[1] === sourceMonth.padStart(2, '0');
+        const matchesYear = sourceYear === 'all' ? true : e.date.startsWith(sourceYear);
+        return e.category === 'Marketing' && e.leadSource === src && matchesMonth && matchesYear;
+      })
       .reduce((sum, e) => sum + e.amount, 0);
     
     return {
@@ -44,9 +53,18 @@ export default function ReportsPage() {
   });
 
   const cpaData = sources.map(src => {
-    const successfulLeadsCount = initialLeads.filter(l => l.source === src && l.status === 'hoan_thanh').length;
+    const successfulLeadsCount = initialLeads.filter(l => {
+      const matchesMonth = sourceMonth === 'all' ? true : l.createdAt.split('-')[1] === sourceMonth.padStart(2, '0');
+      const matchesYear = sourceYear === 'all' ? true : l.createdAt.startsWith(sourceYear);
+      return l.source === src && l.status === 'hoan_thanh' && matchesMonth && matchesYear;
+    }).length;
+
     const adsSpend = initialExpenses
-      .filter(e => e.category === 'Marketing' && e.leadSource === src)
+      .filter(e => {
+        const matchesMonth = sourceMonth === 'all' ? true : e.date.split('-')[1] === sourceMonth.padStart(2, '0');
+        const matchesYear = sourceYear === 'all' ? true : e.date.startsWith(sourceYear);
+        return e.category === 'Marketing' && e.leadSource === src && matchesMonth && matchesYear;
+      })
       .reduce((sum, e) => sum + e.amount, 0);
     
     return {
@@ -141,9 +159,33 @@ export default function ReportsPage() {
       <TabsContent value="cpl" className="space-y-4">
         <Card className="border-none shadow-md overflow-hidden mt-2">
           <CardHeader className="bg-slate-900 text-white p-4">
-             <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
-               Phân tích chỉ số CPL chi tiết
-               <Badge className="bg-orange-500 hover:bg-orange-600 border-none text-[10px]">Real-time</Badge>
+             <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center justify-between">
+               <div className="flex items-center gap-2">
+                 Phân tích chỉ số CPL chi tiết
+                 <Badge className="bg-orange-500 hover:bg-orange-600 border-none text-[10px]">Real-time</Badge>
+               </div>
+               <div className="flex items-center gap-2">
+                <Select value={sourceMonth} onValueChange={setSourceMonth}>
+                  <SelectTrigger className="h-7 w-[110px] text-[10px] bg-white/10 border-white/20 text-white">
+                    <SelectValue placeholder="Tháng" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả tháng</SelectItem>
+                    {[...Array(12)].map((_, i) => (
+                       <SelectItem key={i+1} value={(i+1).toString()}>Tháng {i+1}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={sourceYear} onValueChange={setSourceYear}>
+                  <SelectTrigger className="h-7 w-[90px] text-[10px] bg-white/10 border-white/20 text-white">
+                    <SelectValue placeholder="Năm" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="2026">Năm 2026</SelectItem>
+                    <SelectItem value="2025">Năm 2025</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
              </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -193,6 +235,28 @@ export default function ReportsPage() {
                  Phân tích chỉ số CPA (Chi phí / Đơn thành công)
                  <Badge className="bg-sky-500 hover:bg-sky-600 border-none text-[10px]">Conversion Focus</Badge>
                </div>
+               <div className="flex items-center gap-2">
+                <Select value={sourceMonth} onValueChange={setSourceMonth}>
+                  <SelectTrigger className="h-7 w-[110px] text-[10px] bg-white/10 border-white/20 text-white">
+                    <SelectValue placeholder="Tháng" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả tháng</SelectItem>
+                    {[...Array(12)].map((_, i) => (
+                       <SelectItem key={i+1} value={(i+1).toString()}>Tháng {i+1}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={sourceYear} onValueChange={setSourceYear}>
+                  <SelectTrigger className="h-7 w-[90px] text-[10px] bg-white/10 border-white/20 text-white">
+                    <SelectValue placeholder="Năm" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="2026">Năm 2026</SelectItem>
+                    <SelectItem value="2025">Năm 2025</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
              </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
