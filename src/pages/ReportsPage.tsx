@@ -1,15 +1,33 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { formatVND } from '@/data/mockData';
+import { useState } from 'react';
 
-const sourceData = [
+const sourceDataAll = [
   { source: 'Facebook', leads: 156, prospecting: 45, closed: 82, completed: 29, revenue: 245000000 },
   { source: 'Zalo', leads: 98, prospecting: 28, closed: 52, completed: 18, revenue: 156000000 },
   { source: 'TikTok', leads: 74, prospecting: 22, closed: 38, completed: 14, revenue: 112000000 },
   { source: 'Website', leads: 42, prospecting: 12, closed: 24, completed: 6, revenue: 68000000 },
   { source: 'Khác', leads: 25, prospecting: 5, closed: 15, completed: 5, revenue: 35000000 },
+];
+
+const sourceDataThisMonth = [
+  { source: 'Facebook', leads: 85, prospecting: 25, closed: 45, completed: 15, revenue: 135000000 },
+  { source: 'Zalo', leads: 55, prospecting: 15, closed: 30, completed: 10, revenue: 85000000 },
+  { source: 'TikTok', leads: 40, prospecting: 12, closed: 20, completed: 8, revenue: 58000000 },
+  { source: 'Website', leads: 22, prospecting: 8, closed: 10, completed: 4, revenue: 32000000 },
+  { source: 'Khác', leads: 15, prospecting: 3, closed: 10, completed: 2, revenue: 18000000 },
+];
+
+const sourceDataLastMonth = [
+  { source: 'Facebook', leads: 71, prospecting: 20, closed: 37, completed: 14, revenue: 110000000 },
+  { source: 'Zalo', leads: 43, prospecting: 13, closed: 22, completed: 8, revenue: 71000000 },
+  { source: 'TikTok', leads: 34, prospecting: 10, closed: 18, completed: 6, revenue: 54000000 },
+  { source: 'Website', leads: 20, prospecting: 4, closed: 14, completed: 2, revenue: 36000000 },
+  { source: 'Khác', leads: 10, prospecting: 2, closed: 5, completed: 3, revenue: 17000000 },
 ];
 
 const monthlyData = [
@@ -28,6 +46,12 @@ const monthlyData = [
 ];
 
 export default function ReportsPage() {
+  const [sourceMonth, setSourceMonth] = useState('all');
+  
+  const currentSourceData = sourceMonth === 'this_month' ? sourceDataThisMonth : 
+                            sourceMonth === 'last_month' ? sourceDataLastMonth : 
+                            sourceDataAll;
+
   return (
     <Tabs defaultValue="source" className="space-y-4">
       <TabsList>
@@ -40,13 +64,27 @@ export default function ReportsPage() {
         <Card className="border-none shadow-md">
           <CardHeader>
             <CardTitle className="text-base font-bold flex items-center justify-between">
-              Phân tích Lead chi tiết theo nguồn
-              <Badge variant="outline" className="text-[10px] font-mono">Bản cập nhật mới</Badge>
+              <div className="flex items-center gap-2">
+                Phân tích Lead chi tiết theo nguồn
+                <Badge variant="outline" className="text-[10px] font-mono">Bản cập nhật mới</Badge>
+              </div>
+              <div className="w-[180px]">
+                <Select value={sourceMonth} onValueChange={setSourceMonth}>
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue placeholder="Chọn thời gian" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả thời gian</SelectItem>
+                    <SelectItem value="this_month">Tháng này</SelectItem>
+                    <SelectItem value="last_month">Tháng trước</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={350}>
-              <BarChart data={sourceData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <BarChart data={currentSourceData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
                 <XAxis dataKey="source" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 500 }} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
@@ -78,7 +116,7 @@ export default function ReportsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {sourceData.map((s) => (
+                  {currentSourceData.map((s) => (
                     <tr key={s.source} className="border-b hover:bg-muted/30 transition-colors">
                       <td className="p-4 font-bold text-slate-700 underline decoration-accent/30 underline-offset-4">{s.source}</td>
                       <td className="p-4 text-center font-semibold text-slate-600">{s.leads}</td>
