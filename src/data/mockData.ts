@@ -16,6 +16,7 @@ export interface PackageDetail {
   shippingFee: number;
   surcharge: number;
   total: number;
+  images?: string[];
 }
 
 export interface Lead {

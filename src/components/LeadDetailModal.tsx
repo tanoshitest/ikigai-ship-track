@@ -12,7 +12,7 @@ import { Lead, STATUS_LABELS, STATUS_COLORS, formatVND, getNextStatus, calcShipp
 import { useStore } from '@/store/useStore';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Package, AlertCircle, CreditCard, ChevronRight } from 'lucide-react';
+import { CalendarIcon, Package, AlertCircle, CreditCard, ChevronRight, Camera, X, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -67,6 +67,33 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
     pkg.total = pkg.shippingFee + pkg.boxFee + pkg.surcharge;
     
     updated[idx] = pkg;
+    setLocalPackages(updated);
+  };
+
+  const handleImageUpload = (pkgIdx: number, file: File) => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        const updated = [...localPackages];
+        const pkg = { ...updated[pkgIdx] };
+        const imgs = pkg.images || [];
+        if (imgs.length < 3) {
+          pkg.images = [...imgs, base64];
+          updated[pkgIdx] = pkg;
+          setLocalPackages(updated);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = (pkgIdx: number, imgIdx: number) => {
+    const updated = [...localPackages];
+    const pkg = { ...updated[pkgIdx] };
+    const imgs = pkg.images || [];
+    pkg.images = imgs.filter((_, i) => i !== imgIdx);
+    updated[pkgIdx] = pkg;
     setLocalPackages(updated);
   };
 
@@ -273,6 +300,44 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                               onCheckedChange={(checked) => updatePackage(idx, { hasPackingFee: !!checked })}
                             />
                           </div>
+                        </div>
+                      </div>
+
+                      {/* Image Upload Grid */}
+                      <div className="pt-2 border-t mt-2">
+                        <Label className="text-[10px] uppercase font-bold text-muted-foreground mb-2 block">Ảnh kiện hàng (Tối đa 3 ảnh)</Label>
+                        <div className="flex gap-3">
+                          {[0, 1, 2].map((slotIdx) => {
+                            const img = pkg.images?.[slotIdx];
+                            return (
+                              <div key={slotIdx} className="relative w-16 h-16 rounded-md border-2 border-dashed border-muted-foreground/20 flex items-center justify-center bg-muted/30 overflow-hidden group">
+                                {img ? (
+                                  <>
+                                    <img src={img} alt={`Package ${idx+1} slot ${slotIdx}`} className="w-full h-full object-cover" />
+                                    <button 
+                                      onClick={() => removeImage(idx, slotIdx)}
+                                      className="absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
+                                      <X className="w-3 h-3" />
+                                    </button>
+                                  </>
+                                ) : (
+                                  <label className="cursor-pointer w-full h-full flex items-center justify-center hover:bg-muted/50 transition-colors">
+                                    <Plus className="w-4 h-4 text-muted-foreground/50" />
+                                    <input 
+                                      type="file" 
+                                      accept="image/*" 
+                                      className="hidden" 
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) handleImageUpload(idx, file);
+                                      }}
+                                    />
+                                  </label>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                     </div>
