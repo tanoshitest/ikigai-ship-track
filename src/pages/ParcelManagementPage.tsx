@@ -117,10 +117,10 @@ export default function ParcelManagementPage() {
   };
 
   const SortHeader = ({ label, sortKeyName }: { label: string; sortKeyName: SortKey }) => (
-    <TableHead className="cursor-pointer select-none whitespace-nowrap" onClick={() => toggleSort(sortKeyName)}>
+    <TableHead className="cursor-pointer select-none whitespace-nowrap px-2 py-2 text-xs" onClick={() => toggleSort(sortKeyName)}>
       <div className="flex items-center gap-1">
         {label}
-        <ArrowUpDown size={14} className="text-muted-foreground" />
+        <ArrowUpDown size={12} className="text-muted-foreground" />
       </div>
     </TableHead>
   );
