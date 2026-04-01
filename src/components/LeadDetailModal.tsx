@@ -114,7 +114,7 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
 
   return (
     <Dialog open onOpenChange={() => onClose()}>
-      <DialogContent className={cn("p-5 overflow-y-auto max-h-[90vh]", isShipping ? "max-w-5xl" : "max-w-4xl")}>
+      <DialogContent className={cn("p-8 overflow-y-auto max-h-[95vh]", "max-w-6xl")}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             <span className="font-mono text-sm">{currentLead.code}</span>
@@ -145,7 +145,7 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
           </div>
 
           {/* Main content */}
-          <div className={cn("grid gap-4", isShipping ? "grid-cols-3" : isWarehouse ? "grid-cols-[1fr_1.5fr]" : "grid-cols-1")}>
+          <div className={cn("grid gap-6", isShipping ? "grid-cols-3" : isWarehouse ? "grid-cols-[1.2fr_1fr]" : "grid-cols-1")}>
             
             {/* Warehouse update Form */}
             {isWarehouse && (
@@ -156,7 +156,7 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                     Nhập thông tin thực tế
                   </h3>
                   <div>
-                    <Label className="text-xs">Cân nặng thực tế (kg)</Label>
+                    <Label className="text-xs mb-1.5 block">Cân nặng thực tế (kg)</Label>
                     <Input 
                       className="h-8 text-sm focus-visible:ring-primary" 
                       type="number" 
@@ -165,9 +165,9 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                     />
                   </div>
                   <div className="grid grid-cols-3 gap-2">
-                    <div><Label className="text-xs">Dài (cm)</Label><Input className="h-8 text-sm" type="number" value={actualL} onChange={(e) => setActualL(parseFloat(e.target.value) || 0)} /></div>
-                    <div><Label className="text-xs">Rộng (cm)</Label><Input className="h-8 text-sm" type="number" value={actualW} onChange={(e) => setActualW(parseFloat(e.target.value) || 0)} /></div>
-                    <div><Label className="text-xs">Cao (cm)</Label><Input className="h-8 text-sm" type="number" value={actualH} onChange={(e) => setActualH(parseFloat(e.target.value) || 0)} /></div>
+                    <div><Label className="text-xs mb-1.5 block">Dài (cm)</Label><Input className="h-8 text-sm" type="number" value={actualL} onChange={(e) => setActualL(parseFloat(e.target.value) || 0)} /></div>
+                    <div><Label className="text-xs mb-1.5 block">Rộng (cm)</Label><Input className="h-8 text-sm" type="number" value={actualW} onChange={(e) => setActualW(parseFloat(e.target.value) || 0)} /></div>
+                    <div><Label className="text-xs mb-1.5 block">Cao (cm)</Label><Input className="h-8 text-sm" type="number" value={actualH} onChange={(e) => setActualH(parseFloat(e.target.value) || 0)} /></div>
                   </div>
                   
                   {calcResult.isVolumetric && (
