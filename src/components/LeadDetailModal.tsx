@@ -563,30 +563,41 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
               <h3 className="font-bold text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Lịch sử trạng thái</h3>
               <div className="space-y-1.5 border-l-2 border-muted pl-4 ml-1">
                 {currentLead.statusHistory.map((h, i) => (
-                  <div key={i} className="relative">
-                    <div className="absolute -left-[21px] top-1.5 w-2 h-2 rounded-full bg-muted-foreground/30 border-2 border-background" />
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-[10px] text-muted-foreground font-mono uppercase">{h.date}</span>
-                      <div className="flex flex-col gap-1.5 mt-1 border-t border-muted/30 pt-1.5">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <Badge variant="outline" className="text-[10px] px-1 py-0 h-4">{STATUS_LABELS[h.status]}</Badge>
-                          {h.note && !h.note.includes('LỖI:') && (
-                            <span className="text-[11px] text-muted-foreground">— {h.note}</span>
-                          )}
-                        </div>
-                        {h.note && h.note.includes('LỖI:') && (
-                          <div className="bg-red-50/50 p-2 rounded-md border border-red-100/50 text-[11px] space-y-1 mt-0.5">
-                            <p className="text-red-700 font-semibold flex gap-1.5">
-                              <span className="opacity-70">Phát sinh lỗi:</span>
-                              {h.note.split('XỬ LÝ:')[0].replace('LỖI:', '').trim()}
-                            </p>
-                            <p className="text-blue-700 font-semibold flex gap-1.5 border-t border-red-100/30 pt-1">
-                              <span className="opacity-70">Hướng xử lý:</span>
-                              {h.note.split('XỬ LÝ:')[1]?.trim() || 'Chưa có'}
-                            </p>
-                          </div>
+                  <div key={i} className="relative pb-6 last:pb-2">
+                    {/* The bullet line */}
+                    <div className="absolute -left-[21px] top-1.5 w-2 h-2 rounded-full bg-muted-foreground/30 border-2 border-background z-10" />
+                    
+                    <div className="flex flex-col gap-1">
+                      {/* Date Header */}
+                      <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-tight">{h.date}</span>
+                      
+                      {/* Status & Regular Note line */}
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 h-5 font-bold whitespace-nowrap", STATUS_COLORS[h.status], "text-primary-foreground border-none")}>
+                          {STATUS_LABELS[h.status]}
+                        </Badge>
+                        {h.note && !h.note.includes('LỖI:') && (
+                          <span className="text-[11px] text-muted-foreground leading-none">— {h.note}</span>
                         )}
                       </div>
+
+                      {/* Incident Details Section (Split into lines if it's an error) */}
+                      {h.note && h.note.includes('LỖI:') && (
+                        <div className="mt-2 bg-red-50/70 p-2.5 rounded-lg border border-red-100 shadow-sm text-[11px] space-y-2">
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-red-800 font-bold uppercase text-[9px] tracking-wider opacity-70">Phát sinh lỗi</span>
+                            <p className="text-red-700 leading-relaxed font-medium">
+                              {h.note.split('XỬ LÝ:')[0].replace('LỖI:', '').trim()}
+                            </p>
+                          </div>
+                          <div className="flex flex-col gap-0.5 border-t border-red-200/50 pt-2">
+                            <span className="text-blue-800 font-bold uppercase text-[9px] tracking-wider opacity-70">Hướng xử lý</span>
+                            <p className="text-blue-700 leading-relaxed font-medium">
+                              {h.note.split('XỬ LÝ:')[1]?.trim() || 'Đang xử lý'}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
