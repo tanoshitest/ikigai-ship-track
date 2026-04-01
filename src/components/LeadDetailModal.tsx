@@ -42,6 +42,16 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
   const isShipping = currentLead.status === 'dang_bay';
   const isWarehouse = currentLead.status === 'lead_moi';
 
+  const [isEditingInfo, setIsEditingInfo] = useState(false);
+  const [tempInfo, setTempInfo] = useState({
+    senderName: currentLead.senderName,
+    senderPhone: currentLead.senderPhone,
+    receiverName: currentLead.receiverName,
+    receiverAddress: currentLead.receiverAddress,
+    receiverPhone: currentLead.receiverPhone,
+    itemType: currentLead.itemType,
+  });
+
   // Initial split logic (only if localPackages is empty)
   useEffect(() => {
     if (localPackages.length === 0) {
@@ -144,6 +154,20 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                 {isPaidLocal ? "Đã thanh toán" : "Chưa thanh toán"}
               </Badge>
             )}
+            <div className="flex-1" />
+            <Button 
+              variant={isEditingInfo ? "default" : "outline"} 
+              size="sm" 
+              className="h-8 text-xs gap-2"
+              onClick={() => {
+                if (isEditingInfo) {
+                  updateLead(currentLead.id, tempInfo);
+                }
+                setIsEditingInfo(!isEditingInfo);
+              }}
+            >
+              {isEditingInfo ? "Lưu thay đổi" : "Cập nhật thông tin"}
+            </Button>
           </DialogTitle>
         </DialogHeader>
 
@@ -152,19 +176,45 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
           <div className="grid grid-cols-2 gap-4 mb-3 border-b pb-3">
             <div>
               <span className="text-xs text-muted-foreground">Người gửi</span>
-              <p className="font-medium text-sm">{currentLead.senderName}</p>
-              <p className="text-xs text-muted-foreground">{currentLead.senderPhone}</p>
+              {isEditingInfo ? (
+                <div className="space-y-2 mt-1">
+                  <Input size="sm" className="h-7 text-xs" value={tempInfo.senderName} onChange={(e) => setTempInfo({...tempInfo, senderName: e.target.value})} placeholder="Tên người gửi" />
+                  <Input size="sm" className="h-7 text-xs" value={tempInfo.senderPhone} onChange={(e) => setTempInfo({...tempInfo, senderPhone: e.target.value})} placeholder="SĐT người gửi" />
+                </div>
+              ) : (
+                <>
+                  <p className="font-medium text-sm">{currentLead.senderName}</p>
+                  <p className="text-xs text-muted-foreground">{currentLead.senderPhone}</p>
+                </>
+              )}
             </div>
             <div>
               <span className="text-xs text-muted-foreground">Người nhận</span>
-              <p className="font-medium text-sm">{currentLead.receiverName}</p>
-              <p className="text-xs text-muted-foreground">{currentLead.receiverAddress}</p>
-              <p className="text-xs text-muted-foreground">{currentLead.receiverPhone}</p>
+              {isEditingInfo ? (
+                <div className="space-y-2 mt-1">
+                  <Input size="sm" className="h-7 text-xs" value={tempInfo.receiverName} onChange={(e) => setTempInfo({...tempInfo, receiverName: e.target.value})} placeholder="Tên người nhận" />
+                  <Input size="sm" className="h-7 text-xs" value={tempInfo.receiverPhone} onChange={(e) => setTempInfo({...tempInfo, receiverPhone: e.target.value})} placeholder="SĐT người nhận" />
+                  <Input size="sm" className="h-7 text-xs" value={tempInfo.receiverAddress} onChange={(e) => setTempInfo({...tempInfo, receiverAddress: e.target.value})} placeholder="Địa chỉ nhận" />
+                </div>
+              ) : (
+                <>
+                  <p className="font-medium text-sm">{currentLead.receiverName}</p>
+                  <p className="text-xs text-muted-foreground">{currentLead.receiverAddress}</p>
+                  <p className="text-xs text-muted-foreground">{currentLead.receiverPhone}</p>
+                </>
+              )}
             </div>
           </div>
 
-          <div className="flex gap-6 text-xs mb-3 bg-muted/30 p-2 rounded">
-            <span><span className="text-muted-foreground">Loại hàng:</span> {currentLead.itemType}</span>
+          <div className="flex gap-6 text-xs mb-3 bg-muted/30 p-2 rounded items-center">
+            <span className="flex items-center gap-2">
+              <span className="text-muted-foreground">Loại hàng:</span> 
+              {isEditingInfo ? (
+                <Input size="sm" className="h-6 text-xs w-32" value={tempInfo.itemType} onChange={(e) => setTempInfo({...tempInfo, itemType: e.target.value as any})} />
+              ) : (
+                currentLead.itemType
+              )}
+            </span>
           </div>
 
           {/* Main content */}
