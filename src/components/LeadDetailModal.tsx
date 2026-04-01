@@ -39,6 +39,8 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
   const [issueSolution, setIssueSolution] = useState(currentLead.issueSolution || '');
 
   const nextStatus = getNextStatus(currentLead.status);
+  const isShipping = currentLead.status === 'dang_bay';
+  const isWarehouse = currentLead.status === 'lead_moi';
 
   // Initial split logic (only if localPackages is empty)
   useEffect(() => {
@@ -72,17 +74,21 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
     return localPackages.reduce((sum, p) => sum + p.total, 0);
   }, [localPackages]);
 
-  const handleWarehouseUpdate = () => {
-    updateLead(currentLead.id, {
-      actualWeightKg: actualWeight, 
-      packages: localPackages,
-      totalFee: totalFeeValue,
-    });
-  };
+  // Auto-save effect
+  useEffect(() => {
+    if (isWarehouse) {
+      updateLead(currentLead.id, {
+        actualWeightKg: actualWeight, 
+        packages: localPackages,
+        totalFee: totalFeeValue,
+      });
+    }
+  }, [actualWeight, localPackages, totalFeeValue, currentLead.id, isWarehouse, updateLead]);
 
   const handlePayment = () => {
-    setIsPaidLocal(true);
-    updateLead(currentLead.id, { isPaid: true });
+    const newVal = !isPaidLocal;
+    setIsPaidLocal(newVal);
+    updateLead(currentLead.id, { isPaid: newVal });
   };
 
   const handleAdvanceStatus = () => {
@@ -98,8 +104,6 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
     updateLeadStatus(currentLead.id, nextStatus);
   };
 
-  const isShipping = currentLead.status === 'dang_bay';
-  const isWarehouse = currentLead.status === 'lead_moi';
 
   return (
     <Dialog open onOpenChange={() => onClose()}>
@@ -163,11 +167,6 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                     </div>
                   </div>
 
-                  <div className="pt-2">
-                    <Button size="lg" className="w-full text-sm font-bold" onClick={handleWarehouseUpdate}>
-                      Lưu thông tin & Tính toán
-                    </Button>
-                  </div>
                 </div>
 
                 <div className="rounded-lg border p-4 bg-primary/5 border-primary/20 space-y-3">
