@@ -537,7 +537,7 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                             { 
                               status: currentLead.status, 
                               date: now, 
-                              note: `PHÁT SINH: ${issueReason} - ${issueDesc}` 
+                              note: `Phát sinh lỗi: ${issueReason} (${issueDesc}). Hướng xử lý: ${issueSolution}` 
                             }
                           ];
                           updateLead(currentLead.id, { 
