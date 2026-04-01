@@ -12,9 +12,11 @@ import { Lead, STATUS_LABELS, STATUS_COLORS, formatVND, getNextStatus, calcShipp
 import { useStore } from '@/store/useStore';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Package, AlertCircle, CreditCard, ChevronRight, Camera, X, Plus } from 'lucide-react';
+import { CalendarIcon, Package, AlertCircle, CreditCard, ChevronRight, Camera, X, Plus, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { LeadReceipt } from './LeadReceipt';
+import { useRef } from 'react';
 
 export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose: () => void }) {
   const leads = useStore((s) => s.leads);
@@ -55,6 +57,12 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
     assignedTo: currentLead.assignedTo || '',
     itemType: currentLead.itemType,
   });
+
+  const receiptRef = useRef<HTMLDivElement>(null);
+  
+  const handlePrint = () => {
+    window.print();
+  };
 
   // Initial split logic (only if localPackages is empty)
   useEffect(() => {
@@ -358,6 +366,15 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                       </div>
                     </div>
                   </div>
+
+                  <Button 
+                    variant="outline" 
+                    className="w-full h-12 border-2 border-slate-300 font-bold group hover:border-slate-900 transition-all gap-2"
+                    onClick={handlePrint}
+                  >
+                    <FileText className="w-5 h-5 text-slate-400 group-hover:text-slate-900" />
+                    XUẤT PDF HÓA ĐƠN
+                  </Button>
                 </div>
               </div>
             )}
@@ -653,6 +670,11 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
               <ChevronRight className="w-5 h-5 ml-1" />
             </Button>
           )}
+        </div>
+        
+        {/* Hidden receipt for printing */}
+        <div className="hidden">
+           <LeadReceipt ref={receiptRef} lead={currentLead} />
         </div>
       </DialogContent>
     </Dialog>
