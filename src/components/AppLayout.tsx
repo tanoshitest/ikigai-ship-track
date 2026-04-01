@@ -48,8 +48,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className={cn("flex h-16 items-center px-4", collapsed ? "justify-center" : "justify-between px-6")}>
-          {!collapsed && <span className="text-xl font-bold tracking-wider">🌸 IKIGAI</span>}
-          {collapsed && <span className="text-xl">🌸</span>}
+          {!collapsed && <span className="text-xl font-bold tracking-wider">IKIGAI TRACKING</span>}
+          {collapsed && <span className="text-sm font-bold">IK</span>}
           <button className="lg:hidden" onClick={() => setSidebarOpen(false)}>
             <X size={20} />
           </button>
