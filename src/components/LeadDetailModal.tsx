@@ -50,6 +50,8 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
     receiverName: currentLead.receiverName,
     receiverAddress: currentLead.receiverAddress,
     receiverPhone: currentLead.receiverPhone,
+    source: currentLead.source || 'Facebook',
+    notes: currentLead.notes || '',
     itemType: currentLead.itemType,
   });
 
@@ -209,15 +211,59 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
             </div>
           </div>
 
-          <div className="flex gap-6 text-xs mb-3 bg-muted/30 p-2 rounded items-center">
-            <span className="flex items-center gap-2">
-              <span className="text-muted-foreground">Loại hàng:</span> 
+          <div className="flex flex-col gap-3 mb-4 bg-muted/20 p-3 rounded-lg border">
+            <div className="flex items-center gap-6 text-xs">
+              <span className="flex items-center gap-2">
+                <span className="text-muted-foreground font-semibold">Nguồn lead:</span>
+                {isEditingInfo ? (
+                  <Select 
+                    value={tempInfo.source} 
+                    onValueChange={(val) => setTempInfo({...tempInfo, source: val as any})}
+                  >
+                    <SelectTrigger className="h-7 w-32 border-none bg-background shadow-sm text-xs px-2">
+                      <SelectValue placeholder="Nguồn" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Facebook">Facebook</SelectItem>
+                      <SelectItem value="Zalo">Zalo</SelectItem>
+                      <SelectItem value="TikTok">TikTok</SelectItem>
+                      <SelectItem value="Website">Website</SelectItem>
+                      <SelectItem value="Khác">Khác</SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Badge variant="secondary" className="h-5 text-[10px] px-1.5 font-medium uppercase">{currentLead.source}</Badge>
+                )}
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="text-muted-foreground font-semibold">Loại hàng:</span> 
+                {isEditingInfo ? (
+                  <Input 
+                    size="sm" className="h-7 text-xs w-32 bg-background border-none shadow-sm" 
+                    value={tempInfo.itemType} 
+                    onChange={(e) => setTempInfo({...tempInfo, itemType: e.target.value as any})} 
+                  />
+                ) : (
+                  currentLead.itemType
+                )}
+              </span>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <span className="text-muted-foreground text-xs font-semibold">Ghi chú:</span>
               {isEditingInfo ? (
-                <Input size="sm" className="h-6 text-xs w-32" value={tempInfo.itemType} onChange={(e) => setTempInfo({...tempInfo, itemType: e.target.value as any})} />
+                <Textarea 
+                  className="text-xs min-h-[60px] bg-background border-none shadow-sm resize-none" 
+                  value={tempInfo.notes} 
+                  onChange={(e) => setTempInfo({...tempInfo, notes: e.target.value})} 
+                  placeholder="Nhập ghi chú cho đơn hàng..."
+                />
               ) : (
-                currentLead.itemType
+                <p className="text-xs text-muted-foreground/90 italic leading-relaxed">
+                  {currentLead.notes || 'Không có ghi chú.'}
+                </p>
               )}
-            </span>
+            </div>
           </div>
 
           {/* Main content */}
