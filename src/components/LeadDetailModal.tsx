@@ -454,19 +454,6 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                         </Button>
                       </div>
                     </div>
-                    <div>
-                      <Label className="text-[10px] uppercase font-bold text-muted-foreground mb-1.5 block">Phí Shipper thực tế (VND)</Label>
-                      <Input 
-                        className="h-9 text-base font-bold text-amber-600 focus-visible:ring-amber-500 bg-amber-50/30" 
-                        type="number" 
-                        value={shipperFeeLocal || 0} 
-                        onChange={(e) => {
-                          const val = parseInt(e.target.value) || 0;
-                          setShipperFeeLocal(val);
-                        }} 
-                        placeholder="0"
-                      />
-                    </div>
                   </div>
                 </div>
 
