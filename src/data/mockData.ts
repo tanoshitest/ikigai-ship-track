@@ -59,6 +59,7 @@ export interface Lead {
   notes?: string;
   assignedTo?: string;
   statusHistory: { status: LeadStatus; date: string; note?: string }[];
+  agreedToRisks?: boolean;
 }
 
 export interface Customer {

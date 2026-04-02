@@ -27,6 +27,7 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
   const currentLead = leads.find((l) => l.id === lead.id) || lead;
 
   const [isPaidLocal, setIsPaidLocal] = useState(currentLead.isPaid || false);
+  const [agreedToRisksLocal, setAgreedToRisksLocal] = useState(currentLead.agreedToRisks || false);
   const [shipperFeeLocal, setShipperFeeLocal] = useState(currentLead.shipperFee || 0);
   const [actualWeight, setActualWeight] = useState(currentLead.actualWeightKg || currentLead.weightKg);
   
@@ -196,6 +197,11 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
     updateLead(currentLead.id, { isPaid: newVal });
   };
 
+  const handleAgreedToRisks = (checked: boolean) => {
+    setAgreedToRisksLocal(checked);
+    updateLead(currentLead.id, { agreedToRisks: checked });
+  };
+
   const handleAdvanceStatus = () => {
     if (!nextStatus) return;
     if (currentLead.status === 'da_chot_don' && !isPaidLocal) return; // Payment check
@@ -345,6 +351,20 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
               )}
             </div>
            </div>
+          
+          <div className="flex items-center gap-2 mb-6 ml-1">
+            <Checkbox 
+              id="agreed-risks" 
+              checked={agreedToRisksLocal} 
+              onCheckedChange={handleAgreedToRisks} 
+            />
+            <Label 
+              htmlFor="agreed-risks" 
+              className="text-xs font-semibold cursor-pointer text-slate-700 uppercase tracking-widest"
+            >
+              Khách hàng đồng ý rủi ro vận chuyển
+            </Label>
+          </div>
 
           {/* Sale forms for `lead_moi` and `dang_cham_soc` */}
           {(isNewLead || isPreparing) && (
