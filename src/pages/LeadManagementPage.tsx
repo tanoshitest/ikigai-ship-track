@@ -8,10 +8,12 @@ import { Input } from '@/components/ui/input';
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { useDroppable } from '@dnd-kit/core';
 import { useDraggable } from '@dnd-kit/core';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AddLeadModal from '@/components/AddLeadModal';
 import LeadDetailModal from '@/components/LeadDetailModal';
 
-const COLUMNS: LeadStatus[] = ['lead_moi', 'dang_cham_soc', 'da_chot_don', 'van_chuyen_noi_dia', 'dang_bay', 'su_co', 'hoan_thanh'];
+const ROUND1_COLUMNS: LeadStatus[] = ['lead_moi'];
+const ROUND2_COLUMNS: LeadStatus[] = ['dang_cham_soc', 'da_chot_don', 'van_chuyen_noi_dia', 'dang_bay', 'su_co', 'hoan_thanh'];
 
 function KanbanColumn({ status, leads, onCardClick }: { status: LeadStatus; leads: Lead[]; onCardClick: (l: Lead) => void }) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
@@ -110,26 +112,46 @@ export default function LeadManagementPage() {
         </Button>
       </div>
 
-      <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <div className="flex gap-2">
-          {COLUMNS.map((status) => (
-            <KanbanColumn
-              key={status}
-              status={status}
-              leads={filteredLeads.filter((l) => l.status === status)}
-              onCardClick={setDetailLead}
-            />
-          ))}
-        </div>
-        <DragOverlay>
-          {activeLead && (
-            <div className="w-[240px] rounded-md border bg-card p-3 shadow-lg">
-              <p className="font-mono text-xs text-muted-foreground">{activeLead.code}</p>
-              <p className="mt-1 text-sm font-medium">{activeLead.senderName}</p>
+      <Tabs defaultValue="round1" className="w-full">
+        <TabsList className="mb-4 bg-muted/50 w-full justify-start rounded-lg h-12 p-1">
+          <TabsTrigger value="round1" className="font-bold text-sm uppercase tracking-wider h-full px-8 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all">Round 1 (Tư vấn)</TabsTrigger>
+          <TabsTrigger value="round2" className="font-bold text-sm uppercase tracking-wider h-full px-8 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-md transition-all">Round 2 (Vận hành)</TabsTrigger>
+        </TabsList>
+        <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+          <TabsContent value="round1" className="mt-0 outline-none">
+            <div className="flex gap-2">
+              {ROUND1_COLUMNS.map((status) => (
+                <KanbanColumn
+                  key={status}
+                  status={status}
+                  leads={filteredLeads.filter((l) => l.status === status)}
+                  onCardClick={setDetailLead}
+                />
+              ))}
             </div>
-          )}
-        </DragOverlay>
-      </DndContext>
+          </TabsContent>
+          <TabsContent value="round2" className="mt-0 outline-none overflow-x-auto pb-4">
+            <div className="flex gap-2">
+              {ROUND2_COLUMNS.map((status) => (
+                <KanbanColumn
+                  key={status}
+                  status={status}
+                  leads={filteredLeads.filter((l) => l.status === status)}
+                  onCardClick={setDetailLead}
+                />
+              ))}
+            </div>
+          </TabsContent>
+          <DragOverlay>
+            {activeLead && (
+              <div className="w-[240px] rounded-md border bg-card p-3 shadow-lg">
+                <p className="font-mono text-xs text-muted-foreground">{activeLead.code}</p>
+                <p className="mt-1 text-sm font-medium">{activeLead.senderName}</p>
+              </div>
+            )}
+          </DragOverlay>
+        </DndContext>
+      </Tabs>
 
       <AddLeadModal open={addOpen} onClose={() => setAddOpen(false)} />
       {detailLead && (
