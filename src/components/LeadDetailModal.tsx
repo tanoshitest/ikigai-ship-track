@@ -470,34 +470,7 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                   </div>
                 </div>
 
-                <div className="rounded-lg border p-4 bg-emerald-50/30 border-emerald-500/20 space-y-4">
-                  <div>
-                    <p className="text-[10px] text-emerald-600 uppercase font-black tracking-widest mb-1">Dự tính Lãi/Lỗ đơn hàng</p>
-                    <div className="flex justify-between items-baseline">
-                       <p className="text-2xl font-black text-emerald-700">
-                         {formatVND(totalFeeValue - (shipperFeeLocal || 0) - (Number(incidentCost) || 0))}
-                       </p>
-                       <Badge className="bg-emerald-500 text-[10px] border-none font-bold">Lãi dự kiến</Badge>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2 pt-2 border-t border-emerald-500/10">
-                    <div className="flex justify-between text-[11px] font-medium">
-                      <span className="text-muted-foreground">Doanh thu khách:</span>
-                      <span className="text-emerald-700">{formatVND(totalFeeValue)}</span>
-                    </div>
-                    <div className="flex justify-between text-[11px] font-medium">
-                      <span className="text-muted-foreground">Phí Shipper:</span>
-                      <span className="text-rose-600">-{formatVND(shipperFeeLocal || 0)}</span>
-                    </div>
-                    {Number(incidentCost) > 0 && (
-                      <div className="flex justify-between text-[11px] font-medium">
-                        <span className="text-muted-foreground">Chi phí sự cố:</span>
-                        <span className="text-rose-600">-{formatVND(Number(incidentCost))}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
+
 
                 {/* Progress actions */}
                 <div className="space-y-3 pt-2">
