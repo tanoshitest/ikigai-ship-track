@@ -1,5 +1,5 @@
 export type LeadSource = 'Facebook' | 'Zalo' | 'TikTok' | 'Website' | 'Khác';
-export type LeadStatus = 'cho_xac_nhan' | 'lead_moi' | 'van_chuyen_noi_dia' | 'dang_bay' | 'su_co' | 'hoan_thanh';
+export type LeadStatus = 'lead_moi' | 'dang_cham_soc' | 'da_chot_don' | 'van_chuyen_noi_dia' | 'dang_bay' | 'su_co' | 'hoan_thanh';
 export type ItemType = 'Thực phẩm' | 'Quần áo' | 'Mỹ phẩm' | 'Đồ điện tử' | 'Khác';
 export type Carrier = 'EMS' | 'DHL' | 'Sagawa';
 export type EmployeeRole = 'Admin' | 'Sale' | 'Kho';
@@ -20,6 +20,9 @@ export interface PackageDetail {
 }
 
 export interface Lead {
+  consultStatus?: 'Chưa liên hệ' | 'Đã liên hệ' | 'Đã gọi lần 1' | 'Đã gọi lần 2' | 'Ngừng chăm sóc';
+  collectStatus?: 'Đợi gửi hàng' | 'Đang gom đơn';
+  saleNotes?: string;
   id: string;
   code: string;
   status: LeadStatus;
@@ -101,8 +104,9 @@ export interface StoreState {
 }
 
 export const STATUS_LABELS: Record<LeadStatus, string> = {
-  cho_xac_nhan: 'Lead mới - đang chăm sóc',
-  lead_moi: 'Đã chốt đơn',
+  lead_moi: 'Lead mới',
+  dang_cham_soc: 'Đang chăm sóc',
+  da_chot_don: 'Đã chốt đơn',
   van_chuyen_noi_dia: 'Vận chuyển nội địa',
   dang_bay: 'Đang bay',
   su_co: 'Sự cố',
@@ -110,8 +114,9 @@ export const STATUS_LABELS: Record<LeadStatus, string> = {
 };
 
 export const STATUS_COLORS: Record<LeadStatus, string> = {
-  cho_xac_nhan: 'bg-orange-500',
-  lead_moi: 'bg-blue-500',
+  lead_moi: 'bg-orange-500',
+  dang_cham_soc: 'bg-amber-500',
+  da_chot_don: 'bg-blue-500',
   van_chuyen_noi_dia: 'bg-emerald-500',
   dang_bay: 'bg-sky-500',
   su_co: 'bg-red-500',
@@ -145,8 +150,9 @@ export const EXPENSE_CATEGORIES = [
 ];
 
 const nextStatus: Record<LeadStatus, LeadStatus | null> = {
-  cho_xac_nhan: 'lead_moi',
-  lead_moi: 'van_chuyen_noi_dia',
+  lead_moi: 'dang_cham_soc',
+  dang_cham_soc: 'da_chot_don',
+  da_chot_don: 'van_chuyen_noi_dia',
   van_chuyen_noi_dia: 'dang_bay',
   dang_bay: 'hoan_thanh',
   su_co: 'hoan_thanh',
@@ -269,14 +275,14 @@ export function generateCode(index: number): string {
 // Mock leads
 export const initialLeads: Lead[] = [
   // Đang chăm sóc
-  { id: '4', code: 'IKG-WEB-260320-004', status: 'cho_xac_nhan', source: 'Website', senderName: 'Phạm Đức Dũng', senderPhone: '0934567890', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Nakamura Hana', receiverAddress: 'Fukuoka, Hakata-ku, 2-3-4', receiverPhone: '080-3333-4444', itemType: 'Đồ điện tử', weightKg: 8, dimL: 60, dimW: 40, dimH: 30, totalFee: 935000, createdAt: '2026-03-20', assignedTo: 'Trần Thị Mai', statusHistory: [{ status: 'cho_xac_nhan', date: '2026-03-22' }] },
-  { id: '5', code: 'IKG-FB-260321-005', status: 'cho_xac_nhan', source: 'Facebook', senderName: 'Hoàng Thị Em', senderPhone: '0945678901', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Suzuki Ren', receiverAddress: 'Sapporo, Chuo-ku, 5-6-7', receiverPhone: '090-5555-6666', itemType: 'Thực phẩm', weightKg: 12, dimL: 50, dimW: 40, dimH: 35, totalFee: 1395000, createdAt: '2026-03-21', assignedTo: 'Trần Thị Mai', statusHistory: [{ status: 'cho_xac_nhan', date: '2026-03-23' }] },
-  { id: '6', code: 'IKG-ZL-260322-006', status: 'cho_xac_nhan', source: 'Zalo', senderName: 'Vũ Quốc Phong', senderPhone: '0956789012', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Watanabe Mei', receiverAddress: 'Kobe, Nada-ku, 8-9-10', receiverPhone: '070-7777-8888', itemType: 'Khác', weightKg: 6, dimL: 45, dimW: 35, dimH: 25, totalFee: 705000, createdAt: '2026-03-22', assignedTo: 'Trần Thị Mai', statusHistory: [{ status: 'cho_xac_nhan', date: '2026-03-24' }] },
+  { id: '4', code: 'IKG-WEB-260320-004', status: 'lead_moi', source: 'Website', senderName: 'Phạm Đức Dũng', senderPhone: '0934567890', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Nakamura Hana', receiverAddress: 'Fukuoka, Hakata-ku, 2-3-4', receiverPhone: '080-3333-4444', itemType: 'Đồ điện tử', weightKg: 8, dimL: 60, dimW: 40, dimH: 30, totalFee: 935000, createdAt: '2026-03-20', assignedTo: 'Trần Thị Mai', statusHistory: [{ status: 'lead_moi', date: '2026-03-22' }] },
+  { id: '5', code: 'IKG-FB-260321-005', status: 'lead_moi', source: 'Facebook', senderName: 'Hoàng Thị Em', senderPhone: '0945678901', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Suzuki Ren', receiverAddress: 'Sapporo, Chuo-ku, 5-6-7', receiverPhone: '090-5555-6666', itemType: 'Thực phẩm', weightKg: 12, dimL: 50, dimW: 40, dimH: 35, totalFee: 1395000, createdAt: '2026-03-21', assignedTo: 'Trần Thị Mai', statusHistory: [{ status: 'lead_moi', date: '2026-03-23' }] },
+  { id: '6', code: 'IKG-ZL-260322-006', status: 'lead_moi', source: 'Zalo', senderName: 'Vũ Quốc Phong', senderPhone: '0956789012', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Watanabe Mei', receiverAddress: 'Kobe, Nada-ku, 8-9-10', receiverPhone: '070-7777-8888', itemType: 'Khác', weightKg: 6, dimL: 45, dimW: 35, dimH: 25, totalFee: 705000, createdAt: '2026-03-22', assignedTo: 'Trần Thị Mai', statusHistory: [{ status: 'lead_moi', date: '2026-03-24' }] },
   
   // Lead mới
-  { id: '1', code: 'IKG-FB-260325-001', status: 'lead_moi', source: 'Facebook', senderName: 'Nguyễn Văn An', senderPhone: '0901234567', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Tanaka Yuki', receiverAddress: 'Tokyo, Shinjuku-ku, 1-2-3', receiverPhone: '080-1234-5678', itemType: 'Thực phẩm', weightKg: 5, dimL: 40, dimW: 30, dimH: 20, totalFee: 590000, createdAt: '2026-03-25', assignedTo: 'Trần Thị Mai', statusHistory: [{ status: 'lead_moi', date: '2026-03-25' }] },
-  { id: '2', code: 'IKG-ZL-260326-002', status: 'lead_moi', source: 'Zalo', senderName: 'Trần Thị Bình', senderPhone: '0912345678', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Sato Kenji', receiverAddress: 'Osaka, Namba, 4-5-6', receiverPhone: '090-8765-4321', itemType: 'Quần áo', weightKg: 3, dimL: 50, dimW: 40, dimH: 30, totalFee: 345000, createdAt: '2026-03-26', assignedTo: 'Trần Thị Mai', statusHistory: [{ status: 'lead_moi', date: '2026-03-26' }] },
-  { id: '3', code: 'IKG-TT-260327-003', status: 'lead_moi', source: 'TikTok', senderName: 'Lê Minh Châu', senderPhone: '0923456789', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Yamamoto Aoi', receiverAddress: 'Nagoya, Chikusa-ku, 7-8-9', receiverPhone: '070-1111-2222', itemType: 'Mỹ phẩm', weightKg: 2, dimL: 30, dimW: 20, dimH: 15, totalFee: 230000, createdAt: '2026-03-27', assignedTo: 'Trần Thị Mai', statusHistory: [{ status: 'lead_moi', date: '2026-03-27' }] },
+  { id: '1', code: 'IKG-FB-260325-001', status: 'da_chot_don', source: 'Facebook', senderName: 'Nguyễn Văn An', senderPhone: '0901234567', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Tanaka Yuki', receiverAddress: 'Tokyo, Shinjuku-ku, 1-2-3', receiverPhone: '080-1234-5678', itemType: 'Thực phẩm', weightKg: 5, dimL: 40, dimW: 30, dimH: 20, totalFee: 590000, createdAt: '2026-03-25', assignedTo: 'Trần Thị Mai', statusHistory: [{ status: 'da_chot_don', date: '2026-03-25' }] },
+  { id: '2', code: 'IKG-ZL-260326-002', status: 'da_chot_don', source: 'Zalo', senderName: 'Trần Thị Bình', senderPhone: '0912345678', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Sato Kenji', receiverAddress: 'Osaka, Namba, 4-5-6', receiverPhone: '090-8765-4321', itemType: 'Quần áo', weightKg: 3, dimL: 50, dimW: 40, dimH: 30, totalFee: 345000, createdAt: '2026-03-26', assignedTo: 'Trần Thị Mai', statusHistory: [{ status: 'da_chot_don', date: '2026-03-26' }] },
+  { id: '3', code: 'IKG-TT-260327-003', status: 'da_chot_don', source: 'TikTok', senderName: 'Lê Minh Châu', senderPhone: '0923456789', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Yamamoto Aoi', receiverAddress: 'Nagoya, Chikusa-ku, 7-8-9', receiverPhone: '070-1111-2222', itemType: 'Mỹ phẩm', weightKg: 2, dimL: 30, dimW: 20, dimH: 15, totalFee: 230000, createdAt: '2026-03-27', assignedTo: 'Trần Thị Mai', statusHistory: [{ status: 'da_chot_don', date: '2026-03-27' }] },
   
   // Vận chuyển nội địa
   { id: '7', code: 'IKG-TT-260315-007', status: 'van_chuyen_noi_dia', source: 'TikTok', senderName: 'Đặng Văn Giang', senderPhone: '0967890123', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Ito Sota', receiverAddress: 'Yokohama, Nishi-ku, 1-1-1', receiverPhone: '080-9999-0000', itemType: 'Quần áo', weightKg: 10, dimL: 55, dimW: 45, dimH: 30, totalFee: 1165000, createdAt: '2026-03-15', assignedTo: 'Trần Thị Mai', statusHistory: [{ status: 'van_chuyen_noi_dia', date: '2026-03-19' }] },
@@ -291,9 +297,9 @@ export const initialLeads: Lead[] = [
   // Hoàn thành
   { id: '13', code: 'IKG-TT-260301-013', status: 'hoan_thanh', source: 'TikTok', senderName: 'Đỗ Thị Ngọc', senderPhone: '0923456780', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Kimura Daiki', receiverAddress: 'Tokyo, Shibuya-ku, 9-9-9', receiverPhone: '080-6767-8989', itemType: 'Thực phẩm', weightKg: 6, dimL: 40, dimW: 30, dimH: 25, totalFee: 705000, carrier: 'EMS', trackingCode: 'EMS1111222233', shipDate: '2026-03-03', createdAt: '2026-03-01', assignedTo: 'Trần Thị Mai', 
     statusHistory: [
-      { status: 'cho_xac_nhan', date: '2026-03-01', note: 'Tiếp nhận yêu cầu từ TikTok' },
-      { status: 'lead_moi', date: '2026-03-02', note: 'Khách xác nhận chốt đơn' },
-      { status: 'lead_moi', date: '2026-03-02', note: 'LỖI: Thiếu ảnh CMND mặt sau. XỬ LÝ: Đã gọi khách bổ sung qua Zalo' },
+      { status: 'lead_moi', date: '2026-03-01', note: 'Tiếp nhận yêu cầu từ TikTok' },
+      { status: 'da_chot_don', date: '2026-03-02', note: 'Khách xác nhận chốt đơn' },
+      { status: 'da_chot_don', date: '2026-03-02', note: 'LỖI: Thiếu ảnh CMND mặt sau. XỬ LÝ: Đã gọi khách bổ sung qua Zalo' },
       { status: 'van_chuyen_noi_dia', date: '2026-03-03', note: 'Đã nhận hàng tại kho Nhật' },
       { status: 'dang_bay', date: '2026-03-05', note: 'Chuyến bay bay số hiệu NH832' },
       { status: 'hoan_thanh', date: '2026-03-08', note: 'Giao hàng thành công' }
@@ -301,8 +307,8 @@ export const initialLeads: Lead[] = [
   },
   { id: '14', code: 'IKG-WEB-260302-014', status: 'hoan_thanh', source: 'Website', senderName: 'Trịnh Văn Phú', senderPhone: '0934567891', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Shimizu Yuna', receiverAddress: 'Osaka, Tennoji-ku, 6-6-6', receiverPhone: '090-4545-6767', itemType: 'Mỹ phẩm', weightKg: 3, dimL: 30, dimW: 20, dimH: 15, totalFee: 345000, carrier: 'DHL', trackingCode: 'DHL4444555566', shipDate: '2026-03-04', createdAt: '2026-03-02', assignedTo: 'Trần Thị Mai', 
     statusHistory: [
-      { status: 'cho_xac_nhan', date: '2026-03-02', note: 'Đơn từ landing page' },
-      { status: 'lead_moi', date: '2026-03-03', note: 'Khách thanh toán qua Vietcombank' },
+      { status: 'lead_moi', date: '2026-03-02', note: 'Đơn từ landing page' },
+      { status: 'da_chot_don', date: '2026-03-03', note: 'Khách thanh toán qua Vietcombank' },
       { status: 'van_chuyen_noi_dia', date: '2026-03-04', note: 'Đang gom hàng nội địa' },
       { status: 'dang_bay', date: '2026-03-06' },
       { status: 'hoan_thanh', date: '2026-03-09' }
@@ -310,8 +316,8 @@ export const initialLeads: Lead[] = [
   },
   { id: '15', code: 'IKG-K-260303-015', status: 'hoan_thanh', source: 'Khác', senderName: 'Cao Thị Quỳnh', senderPhone: '0945678902', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Honda Taro', receiverAddress: 'Nagoya, Nakamura-ku, 8-8-8', receiverPhone: '070-8989-0101', itemType: 'Quần áo', weightKg: 11, dimL: 55, dimW: 45, dimH: 35, totalFee: 1280000, carrier: 'Sagawa', trackingCode: 'SGW7777888899', shipDate: '2026-03-05', createdAt: '2026-03-03', assignedTo: 'Trần Thị Mai', 
     statusHistory: [
-      { status: 'cho_xac_nhan', date: '2026-03-03', note: 'Khách quen giới thiệu' },
-      { status: 'lead_moi', date: '2026-03-04' },
+      { status: 'lead_moi', date: '2026-03-03', note: 'Khách quen giới thiệu' },
+      { status: 'da_chot_don', date: '2026-03-04' },
       { status: 'van_chuyen_noi_dia', date: '2026-03-05' },
       { status: 'dang_bay', date: '2026-03-07' },
       { status: 'hoan_thanh', date: '2026-03-10' }
@@ -319,8 +325,8 @@ export const initialLeads: Lead[] = [
   },
   { id: '16', code: 'IKG-FB-260304-016', status: 'hoan_thanh', source: 'Facebook', senderName: 'Lê Thị Ry', senderPhone: '0956789013', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Matsuda Ken', receiverAddress: 'Sapporo, Toyohira-ku, 1-3-5', receiverPhone: '080-0202-0303', itemType: 'Đồ điện tử', weightKg: 5, dimL: 45, dimW: 30, dimH: 20, totalFee: 590000, carrier: 'EMS', trackingCode: 'EMS3333444455', shipDate: '2026-03-06', createdAt: '2026-03-04', assignedTo: 'Trần Thị Mai', 
     statusHistory: [
-      { status: 'cho_xac_nhan', date: '2026-03-04', note: 'Inbox từ Fanpage' },
-      { status: 'lead_moi', date: '2026-03-05' },
+      { status: 'lead_moi', date: '2026-03-04', note: 'Inbox từ Fanpage' },
+      { status: 'da_chot_don', date: '2026-03-05' },
       { status: 'van_chuyen_noi_dia', date: '2026-03-06' },
       { status: 'dang_bay', date: '2026-03-08' },
       { status: 'hoan_thanh', date: '2026-03-11' }
@@ -329,8 +335,8 @@ export const initialLeads: Lead[] = [
   // Sự cố
   { id: '17', code: 'IKG-ZL-260308-017', status: 'su_co', source: 'Zalo', senderName: 'Đinh Hoàng Nam', senderPhone: '0909123456', senderAddress: 'Hồ Chí Minh, Việt Nam', receiverName: 'Fujita Kana', receiverAddress: 'Tokyo, Koto-ku, 3-5-8', receiverPhone: '080-1122-3344', itemType: 'Thực phẩm', weightKg: 8, dimL: 45, dimW: 35, dimH: 30, totalFee: 935000, carrier: 'EMS', trackingCode: 'EMS7766554433', shipDate: '2026-03-20', createdAt: '2026-03-08', assignedTo: 'Trần Thị Mai',
     statusHistory: [
-      { status: 'cho_xac_nhan', date: '2026-03-08', note: 'Tiếp nhận từ Zalo' },
-      { status: 'lead_moi', date: '2026-03-09', note: 'Khách xác nhận chốt đơn' },
+      { status: 'lead_moi', date: '2026-03-08', note: 'Tiếp nhận từ Zalo' },
+      { status: 'da_chot_don', date: '2026-03-09', note: 'Khách xác nhận chốt đơn' },
       { status: 'van_chuyen_noi_dia', date: '2026-03-10', note: 'Đã giao hàng cho xe nội địa' },
       { status: 'dang_bay', date: '2026-03-20', note: 'Chuyến bay EMS HAN-NRT' },
       { status: 'su_co', date: '2026-03-22', note: 'LỖI: Hải quan Nhật tạm giữ kiện hàng vì thiếu hoá đơn thực phẩm (FSSC). XỬ LÝ: Đã yêu cầu khách bổ sung chứng từ qua email, dự kiến giải quyết trong 3 ngày làm việc' }
@@ -338,8 +344,8 @@ export const initialLeads: Lead[] = [
   },
   { id: '18', code: 'IKG-FB-260309-018', status: 'su_co', source: 'Facebook', senderName: 'Trương Thị Vân', senderPhone: '0918234567', senderAddress: 'Hà Nội, Việt Nam', receiverName: 'Okamoto Ryo', receiverAddress: 'Osaka, Sumiyoshi-ku, 2-4-6', receiverPhone: '090-5566-7788', itemType: 'Mỹ phẩm', weightKg: 5, dimL: 35, dimW: 25, dimH: 20, totalFee: 655000, carrier: 'DHL', trackingCode: 'DHL8899001122', shipDate: '2026-03-18', createdAt: '2026-03-09', assignedTo: 'Trần Thị Mai',
     statusHistory: [
-      { status: 'cho_xac_nhan', date: '2026-03-09', note: 'Inbox từ Fanpage Facebook' },
-      { status: 'lead_moi', date: '2026-03-10', note: 'Thanh toán qua MoMo' },
+      { status: 'lead_moi', date: '2026-03-09', note: 'Inbox từ Fanpage Facebook' },
+      { status: 'da_chot_don', date: '2026-03-10', note: 'Thanh toán qua MoMo' },
       { status: 'van_chuyen_noi_dia', date: '2026-03-12' },
       { status: 'dang_bay', date: '2026-03-18', note: 'DHL chuyến HAN-KIX' },
       { status: 'su_co', date: '2026-03-21', note: 'LỖI: Mỹ phẩm bị trả về do thừa thể tích cho phép của DHL Japan (quy định max 3kg mỹ phẩm). XỬ LÝ: Liên hệ DHL xin miễn ngoại lệ, song song chuẩn bị phương án gửi lại bằng EMS tách 2 kiện' }

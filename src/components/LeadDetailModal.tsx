@@ -50,7 +50,9 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
 
   const nextStatus = getNextStatus(currentLead.status);
   const isShipping = currentLead.status === 'dang_bay';
-  const isWarehouse = currentLead.status === 'lead_moi' || currentLead.status === 'cho_xac_nhan';
+  const isNewLead = currentLead.status === 'lead_moi';
+  const isPreparing = currentLead.status === 'dang_cham_soc';
+  const isWarehouse = currentLead.status === 'da_chot_don';
 
   const [isEditingInfo, setIsEditingInfo] = useState(false);
   const [tempInfo, setTempInfo] = useState({
@@ -62,8 +64,11 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
     receiverPhone: currentLead.receiverPhone,
     source: currentLead.source || 'Facebook',
     notes: currentLead.notes || '',
+    saleNotes: currentLead.saleNotes || '',
     assignedTo: currentLead.assignedTo || '',
     itemType: currentLead.itemType,
+    consultStatus: currentLead.consultStatus || 'Chưa liên hệ',
+    collectStatus: currentLead.collectStatus || 'Đợi gửi hàng'
   });
 
   const targetRef = useRef<HTMLDivElement>(null);
@@ -193,7 +198,7 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
 
   const handleAdvanceStatus = () => {
     if (!nextStatus) return;
-    if (currentLead.status === 'lead_moi' && !isPaidLocal) return; // Payment check
+    if (currentLead.status === 'da_chot_don' && !isPaidLocal) return; // Payment check
 
     if (currentLead.status === 'dang_bay') {
       updateLead(currentLead.id, { carrier, trackingCode, shipDate: shipDate?.toISOString().slice(0, 10) });
@@ -219,7 +224,7 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
           <DialogTitle className="flex items-center gap-3">
             <span className="font-mono text-sm">{currentLead.code}</span>
             <Badge className={`${STATUS_COLORS[currentLead.status]} text-primary-foreground text-xs`}>{STATUS_LABELS[currentLead.status]}</Badge>
-            {(currentLead.status === 'lead_moi' || currentLead.status === 'van_chuyen_noi_dia') && (
+            {(currentLead.status === 'da_chot_don' || currentLead.status === 'van_chuyen_noi_dia') && (
               <Badge variant={isPaidLocal ? "default" : "outline"} className={cn(isPaidLocal ? "bg-green-500" : "text-amber-600 border-amber-600")}>
                 {isPaidLocal ? "Đã thanh toán" : "Chưa thanh toán"}
               </Badge>
@@ -339,10 +344,65 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                 </p>
               )}
             </div>
-          </div>
+           </div>
+
+          {/* Sale forms for `lead_moi` and `dang_cham_soc` */}
+          {(isNewLead || isPreparing) && (
+            <div className="rounded-lg border p-4 bg-muted/10 mb-6 space-y-4">
+              <h3 className="font-bold text-xs flex items-center gap-2 border-b pb-2 tracking-widest uppercase">
+                {isNewLead ? 'Tình trạng Tư Vấn' : 'Tình trạng Gom hàng'}
+              </h3>
+              
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-[10px] text-muted-foreground uppercase font-bold">State</Label>
+                  {isNewLead && (
+                    <Select value={tempInfo.consultStatus} onValueChange={(v: any) => { setTempInfo({...tempInfo, consultStatus: v}); updateLead(currentLead.id, {consultStatus: v}); }}>
+                      <SelectTrigger className="h-8 text-xs bg-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Chưa liên hệ">Chưa liên hệ</SelectItem>
+                        <SelectItem value="Đã liên hệ">Đã liên hệ</SelectItem>
+                        <SelectItem value="Đã gọi lần 1">Đã gọi lần 1</SelectItem>
+                        <SelectItem value="Đã gọi lần 2">Đã gọi lần 2</SelectItem>
+                        <SelectItem value="Ngừng chăm sóc">Ngừng chăm sóc</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                  {isPreparing && (
+                    <Select value={tempInfo.collectStatus} onValueChange={(v: any) => { setTempInfo({...tempInfo, collectStatus: v}); updateLead(currentLead.id, {collectStatus: v}); }}>
+                      <SelectTrigger className="h-8 text-xs bg-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Đợi gửi hàng">Đợi gửi hàng</SelectItem>
+                        <SelectItem value="Đang gom đơn">Đang gom đơn</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+                
+                <div className="space-y-2">
+                   <Label className="text-[10px] text-muted-foreground uppercase font-bold">Ghi chú Sale nội bộ</Label>
+                   <Textarea 
+                     className="text-xs min-h-[60px] bg-white" 
+                     placeholder="Ghi chú thêm về trạng thái này..." 
+                     value={tempInfo.saleNotes}
+                     onChange={(e) => {
+                       setTempInfo({...tempInfo, saleNotes: e.target.value});
+                     }}
+                     onBlur={(e) => {
+                       updateLead(currentLead.id, {saleNotes: e.target.value});
+                     }}
+                   />
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Main content */}
-          <div className={cn("grid gap-6", isShipping ? "grid-cols-3" : isWarehouse ? "grid-cols-[1.2fr_1.8fr]" : "grid-cols-1")}>
+          <div className={cn("grid gap-6", isShipping ? "grid-cols-3" : isWarehouse ? "grid-cols-[1.2fr_1.8fr]" : isNewLead || isPreparing ? "grid-cols-[1.2fr_1.8fr]" : "grid-cols-1")}>
             
             {/* Warehouse update Form */}
             {isWarehouse && (
@@ -852,7 +912,9 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
               )}
             >
               {isWarehouse && !isPaidLocal && <AlertCircle className="w-4 h-4" />}
-              Chuyển sang "{STATUS_LABELS[nextStatus]}"
+              {isNewLead && 'Khách đồng ý, chuyển sang "Đang chăm sóc"'}
+              {isPreparing && 'Khách đã gửi đủ hàng, chuyển sang "Kho chốt đơn"'}
+              {!isNewLead && !isPreparing && `Chuyển sang "${STATUS_LABELS[nextStatus]}"`}
               <ChevronRight className="w-5 h-5 ml-1" />
             </Button>
           )}
