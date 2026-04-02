@@ -129,11 +129,17 @@ export const LeadReceipt = React.forwardRef<HTMLDivElement, LeadReceiptProps>(({
       {/* Summary Footer Section */}
       <div className="grid grid-cols-[1fr_2fr] gap-10 mt-auto border-t-4 border-slate-900 pt-8">
         <div>
-          <div className="bg-slate-100 p-4 rounded border-l-4 border-slate-400">
-            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Ghi chú vận phẩm</h4>
-            <p className="text-xs italic leading-relaxed text-slate-600 font-medium font-serif">
-              "{lead.itemType} {lead.notes ? `| ${lead.notes}` : ''}"
-            </p>
+          <div className="bg-slate-100 p-4 rounded border-l-4 border-slate-400 flex flex-col h-full justify-between">
+            <div>
+              <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Ghi chú vận phẩm</h4>
+              <p className="text-xs italic leading-relaxed text-slate-600 font-medium font-serif">
+                "{lead.itemType} {lead.notes ? `| ${lead.notes}` : ''}"
+              </p>
+            </div>
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-700 mt-3 pt-3 border-t border-slate-200/60">
+              <span className="font-mono text-lg leading-none">{lead.agreedToRisks ? '☑' : '☐'}</span>
+              <span className="uppercase tracking-wider text-[10px]">Khách chấp nhận rủi ro</span>
+            </div>
           </div>
         </div>
         
