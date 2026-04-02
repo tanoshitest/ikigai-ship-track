@@ -97,6 +97,8 @@ export default function ReportsPage() {
         month: `T${m.padStart(2, '0')}/${salesYear.slice(-2)}`,
         revenue,
         cost: totalCost,
+        expenseAmount: otherExpenses + shipperFees,
+        incidentAmount: incidentCost,
         profit,
         orders: monthLeads.length,
         incidentRate: monthLeads.length > 0 ? Math.round((monthLeads.filter(l => l.hasIssue).length / monthLeads.length) * 100) : 0
@@ -302,7 +304,8 @@ export default function ReportsPage() {
                   formatter={(v: number) => formatVND(v)}
                 />
                 <Bar dataKey="revenue" fill="#f97316" name="Doanh thu" radius={[4, 4, 0, 0]} barSize={20} />
-                <Bar dataKey="cost" fill="#94a3b8" name="Chi tiêu + Lỗi" radius={[4, 4, 0, 0]} barSize={20} />
+                <Bar dataKey="expenseAmount" fill="#94a3b8" name="Chi tiêu" radius={[4, 4, 0, 0]} barSize={20} />
+                <Bar dataKey="incidentAmount" fill="#ef4444" name="Chi phí lỗi" radius={[4, 4, 0, 0]} barSize={20} />
                 <Bar dataKey="profit" fill="#10b981" name="Lợi nhuận" radius={[4, 4, 0, 0]} barSize={20} />
               </BarChart>
             </ResponsiveContainer>
@@ -318,7 +321,8 @@ export default function ReportsPage() {
                     <th className="p-4">Tháng</th>
                     <th className="p-4 text-center">Số đơn</th>
                     <th className="p-4 text-center">% Sự cố</th>
-                    <th className="p-4 text-right">Chi tiêu + Lỗi</th>
+                    <th className="p-4 text-right">Chi tiêu</th>
+                    <th className="p-4 text-right">Chi phí lỗi</th>
                     <th className="p-4 text-right">Doanh thu</th>
                     <th className="p-4 text-right">Lợi nhuận thực</th>
                   </tr>
@@ -333,7 +337,8 @@ export default function ReportsPage() {
                           {m.incidentRate}%
                         </Badge>
                       </td>
-                      <td className="p-4 text-right font-medium text-slate-500">{formatVND(m.cost)}</td>
+                      <td className="p-4 text-right font-medium text-slate-500">{formatVND(m.expenseAmount)}</td>
+                      <td className="p-4 text-right font-medium text-red-500">{formatVND(m.incidentAmount)}</td>
                       <td className="p-4 text-right font-bold text-slate-800">{formatVND(m.revenue)}</td>
                       <td className="p-4 text-right font-black text-primary">{formatVND(m.profit)}</td>
                     </tr>
