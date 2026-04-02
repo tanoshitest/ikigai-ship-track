@@ -101,7 +101,7 @@ export default function ReportsPage() {
         orders: monthLeads.length,
         incidentRate: monthLeads.length > 0 ? Math.round((monthLeads.filter(l => l.hasIssue).length / monthLeads.length) * 100) : 0
       };
-    }).filter(d => d.revenue > 0 || d.cost > 0);
+    });
   }, [leads, expenses, salesYear, salesMonth]);
 
   return (
