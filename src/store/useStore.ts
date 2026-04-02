@@ -12,6 +12,8 @@ interface AppState {
     maxKgPerPkg: number;
     boxFees: { min: number; max: number; fee: number }[];
     monthlySalesKPI: number;
+    consultStatuses: string[];
+    collectStatuses: string[];
   };
   updateSettings: (updates: Partial<AppState['settings']>) => void;
   addLead: (lead: Omit<Lead, 'id' | 'code' | 'status' | 'totalFee' | 'createdAt' | 'statusHistory'> & { source: Lead['source'] }) => void;
@@ -44,6 +46,8 @@ export const useStore = create<AppState>((set, get) => ({
       { min: 25, max: 30, fee: 30000 },
     ],
     monthlySalesKPI: 500000000,
+    consultStatuses: ['Chưa liên hệ', 'Đã liên hệ', 'Đã gọi lần 1', 'Đã gọi lần 2', 'Ngừng chăm sóc'],
+    collectStatuses: ['Đợi gửi hàng', 'Đang gom đơn'],
   },
   updateSettings: (updates) => {
     set((s) => ({ settings: { ...s.settings, ...updates } }));
@@ -58,10 +62,10 @@ export const useStore = create<AppState>((set, get) => ({
       ...data,
       id: String(counter),
       code,
-      status: 'cho_xac_nhan',
+      status: 'lead_moi',
       totalFee: fee.total,
       createdAt: now,
-      statusHistory: [{ status: 'cho_xac_nhan', date: now }],
+      statusHistory: [{ status: 'lead_moi', date: now }],
     };
     set({ leads: [...state.leads, newLead], leadCounter: counter + 1 });
   },

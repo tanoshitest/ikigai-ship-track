@@ -360,11 +360,9 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Chưa liên hệ">Chưa liên hệ</SelectItem>
-                        <SelectItem value="Đã liên hệ">Đã liên hệ</SelectItem>
-                        <SelectItem value="Đã gọi lần 1">Đã gọi lần 1</SelectItem>
-                        <SelectItem value="Đã gọi lần 2">Đã gọi lần 2</SelectItem>
-                        <SelectItem value="Ngừng chăm sóc">Ngừng chăm sóc</SelectItem>
+                        {settings.consultStatuses?.map((status) => (
+                          <SelectItem key={status} value={status}>{status}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   )}
@@ -374,8 +372,9 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Đợi gửi hàng">Đợi gửi hàng</SelectItem>
-                        <SelectItem value="Đang gom đơn">Đang gom đơn</SelectItem>
+                        {settings.collectStatuses?.map((status) => (
+                          <SelectItem key={status} value={status}>{status}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   )}

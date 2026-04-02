@@ -64,6 +64,7 @@ function KanbanCard({ lead, onClick }: { lead: Lead; onClick: () => void }) {
 
 export default function LeadManagementPage() {
   const leads = useStore((s) => s.leads);
+  const settings = useStore((s) => s.settings);
   const moveLead = useStore((s) => s.moveLead);
   const [addOpen, setAddOpen] = useState(false);
   const [detailLead, setDetailLead] = useState<Lead | null>(null);
@@ -130,11 +131,9 @@ export default function LeadManagementPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tất cả</SelectItem>
-                  <SelectItem value="Chưa liên hệ">Chưa liên hệ</SelectItem>
-                  <SelectItem value="Đã liên hệ">Đã liên hệ</SelectItem>
-                  <SelectItem value="Đã gọi lần 1">Đã gọi lần 1</SelectItem>
-                  <SelectItem value="Đã gọi lần 2">Đã gọi lần 2</SelectItem>
-                  <SelectItem value="Ngừng chăm sóc">Ngừng chăm sóc</SelectItem>
+                  {settings.consultStatuses?.map((status) => (
+                    <SelectItem key={status} value={status}>{status}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
