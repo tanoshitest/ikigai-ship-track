@@ -58,7 +58,6 @@ function KanbanCard({ lead, onClick }: { lead: Lead; onClick: () => void }) {
         <span>{lead.weightKg} kg</span>
         <span className="font-medium">{formatVND(lead.totalFee)}</span>
       </div>
-      <Badge variant="outline" className="mt-2 text-xs">{lead.source}</Badge>
     </div>
   );
 }

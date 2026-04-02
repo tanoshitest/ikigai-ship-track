@@ -66,25 +66,16 @@ export default function AddLeadModal({ open, onClose }: { open: boolean; onClose
         <DialogHeader><DialogTitle>Thêm Lead mới</DialogTitle></DialogHeader>
 
         <div className="space-y-4 mt-2">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Nguồn lead</Label>
-              <Select value={form.source} onValueChange={(v) => set('source', v)}>
-                <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
-                <SelectContent>{SOURCES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Sale chăm sóc</Label>
-              <Select value={form.assignedTo} onValueChange={(v) => set('assignedTo', v)}>
-                <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Chọn nhân viên" /></SelectTrigger>
-                <SelectContent>
-                  {salesStaff.map((e) => (
-                    <SelectItem key={e.id} value={e.name}>{e.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold">Sale chăm sóc</Label>
+            <Select value={form.assignedTo} onValueChange={(v) => set('assignedTo', v)}>
+              <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Chọn nhân viên" /></SelectTrigger>
+              <SelectContent>
+                {salesStaff.map((e) => (
+                  <SelectItem key={e.id} value={e.name}>{e.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-1.5">

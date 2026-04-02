@@ -289,28 +289,6 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
 
           <div className="grid grid-cols-2 gap-4 py-3 border-b mb-6 bg-slate-50/50 p-3 rounded-lg">
             <div className="flex flex-col gap-2">
-              <span className="flex items-center gap-2">
-                <span className="text-muted-foreground font-semibold">Nguồn Lead:</span> 
-                {isEditingInfo ? (
-                  <Select 
-                    value={tempInfo.source} 
-                    onValueChange={(val) => setTempInfo({...tempInfo, source: val as any})}
-                  >
-                    <SelectTrigger className="h-7 w-32 border-none bg-background shadow-sm text-xs px-2">
-                      <SelectValue placeholder="Chọn nguồn" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Facebook">Facebook</SelectItem>
-                      <SelectItem value="Zalo">Zalo</SelectItem>
-                      <SelectItem value="TikTok">TikTok</SelectItem>
-                      <SelectItem value="Website">Website</SelectItem>
-                      <SelectItem value="Khác">Khác</SelectItem>
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <Badge variant="outline" className="text-[10px] uppercase font-bold">{currentLead.source}</Badge>
-                )}
-              </span>
               <span className="flex items-center gap-2 text-xs">
                 <span className="text-muted-foreground font-semibold">Sale chăm sóc:</span>
                 {isEditingInfo ? (
