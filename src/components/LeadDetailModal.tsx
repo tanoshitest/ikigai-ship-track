@@ -12,7 +12,7 @@ import { Lead, STATUS_LABELS, STATUS_COLORS, formatVND, getNextStatus, calcShipp
 import { useStore } from '@/store/useStore';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Package, AlertCircle, CreditCard, ChevronRight, Camera, X, Plus, FileText, Download } from 'lucide-react';
+import { CalendarIcon, Package, AlertCircle, CreditCard, ChevronRight, Camera, X, Plus, FileText, Download, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { LeadReceipt } from './LeadReceipt';
@@ -141,6 +141,30 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
   const totalFeeValue = useMemo(() => {
     return localPackages.reduce((sum, p) => sum + p.total, 0);
   }, [localPackages]);
+
+  const addNewPackage = () => {
+    const defaultPackage: PackageDetail = {
+      weight: 0,
+      dimL: 0,
+      dimW: 0,
+      dimH: 0,
+      volWeight: 0,
+      chargeWeight: 0,
+      hasPackingFee: true,
+      boxFee: 0,
+      shippingFee: 0,
+      surcharge: settings.surchargePerPkg,
+      total: settings.surchargePerPkg,
+      images: [],
+    };
+    setLocalPackages([...localPackages, defaultPackage]);
+  };
+
+  const removePackage = (idx: number) => {
+    if (confirm('Bạn có chắc chắn muốn xoá kiện hàng này?')) {
+      setLocalPackages(localPackages.filter((_, i) => i !== idx));
+    }
+  };
 
   // Auto-save effect
   useEffect(() => {
@@ -406,7 +430,18 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
             {/* Package Breakdown List */}
             {isWarehouse && (
               <div className="rounded-lg border p-4 space-y-4 bg-muted/10">
-                <h3 className="font-bold text-xs uppercase tracking-wider text-muted-foreground">Chi tiết từng kiện ({localPackages.length})</h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-muted-foreground">Chi tiết từng kiện ({localPackages.length})</h3>
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    className="h-7 px-2 text-primary hover:bg-primary/10 gap-1 font-bold text-[10px] uppercase"
+                    onClick={addNewPackage}
+                  >
+                    <Plus className="w-3 h-3" />
+                    Thêm kiện
+                  </Button>
+                </div>
                 <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
                   {localPackages.map((pkg, idx) => (
                     <div key={idx} className="bg-card border rounded-lg p-4 shadow-sm relative overflow-hidden">
@@ -426,7 +461,15 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                             <span className="text-[10px] text-muted-foreground italic">(Tính theo: {pkg.chargeWeight === pkg.weight ? 'Cân nặng' : 'Quy đổi'})</span>
                           </div>
                         </div>
-                        <div className="text-right">
+                        <div className="text-right flex flex-col items-end gap-1">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-6 w-6 text-muted-foreground hover:text-red-500 hover:bg-red-50"
+                            onClick={() => removePackage(idx)}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
                           <p className="text-lg font-black text-primary tracking-tight">{formatVND(pkg.total)}</p>
                         </div>
                       </div>
