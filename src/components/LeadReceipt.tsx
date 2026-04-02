@@ -61,9 +61,10 @@ export const LeadReceipt = React.forwardRef<HTMLDivElement, LeadReceiptProps>(({
             <tr className="bg-slate-900 text-white border-b-2 border-slate-900">
               <th className="p-3 text-center text-[10px] font-black uppercase tracking-wider w-12">STT</th>
               <th className="p-3 text-left text-[10px] font-black uppercase tracking-wider">Nội dung chi tiết</th>
-              <th className="p-3 text-center text-[10px] font-black uppercase tracking-wider w-32">Trọng lượng</th>
-              <th className="p-3 text-right text-[10px] font-black uppercase tracking-wider w-32">Đơn giá</th>
-              <th className="p-3 text-right text-[10px] font-black uppercase tracking-wider w-40">Thành tiền</th>
+              <th className="p-3 text-center text-[10px] font-black uppercase tracking-wider w-24">Trọng lượng</th>
+              <th className="p-3 text-center text-[10px] font-black uppercase tracking-wider w-24">Quy đổi</th>
+              <th className="p-3 text-right text-[10px] font-black uppercase tracking-wider w-28">Đơn giá</th>
+              <th className="p-3 text-right text-[10px] font-black uppercase tracking-wider w-32">Thành tiền</th>
             </tr>
           </thead>
           <tbody>
@@ -71,30 +72,38 @@ export const LeadReceipt = React.forwardRef<HTMLDivElement, LeadReceiptProps>(({
               const price = getTierPrice(pkg.chargeWeight);
               const formattedPrice = new Intl.NumberFormat('vi-VN').format(price);
               const formattedShipping = new Intl.NumberFormat('vi-VN').format(pkg.shippingFee);
+              const isVolumetric = pkg.volWeight > pkg.weight;
               
               return (
                 <React.Fragment key={idx}>
                   <tr className="border-b border-slate-100 group">
                     <td className="p-4 text-center font-bold text-slate-800">{idx + 1}</td>
                     <td className="p-4">
-                      <span className="font-black text-slate-800">Phí vận chuyển kiện #{idx + 1}</span>
-                      {pkg.dimL > 0 && (
-                        <div className="text-[9px] text-slate-400 font-mono mt-1 flex gap-2">
-                          <span>KÍCH THƯỚC: {pkg.dimL}x{pkg.dimW}x{pkg.dimH} CM</span>
-                          <span>|</span>
-                          <span>QUY ĐỔI: {pkg.volWeight} KG</span>
-                        </div>
+                      <div className="flex flex-col">
+                        <span className="font-black text-slate-800 uppercase text-[12px]">Phí vận chuyển kiện #{idx + 1}</span>
+                        {pkg.dimL > 0 && (
+                          <span className="text-[10px] text-slate-500 font-bold mt-1">
+                            Kích thước thùng: {pkg.dimL}x{pkg.dimW}x{pkg.dimH} cm
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="p-4 text-center font-bold tabular-nums text-slate-700">{pkg.weight} kg</td>
+                    <td className="p-4 text-center font-bold tabular-nums text-slate-700 transition-colors">
+                      {isVolumetric ? (
+                        <span className="text-orange-600">{pkg.volWeight} kg</span>
+                      ) : (
+                        <span className="text-slate-300">--</span>
                       )}
                     </td>
-                    <td className="p-4 text-center font-black tabular-nums">{pkg.chargeWeight} kg</td>
                     <td className="p-4 text-right font-medium tabular-nums text-slate-500">{formattedPrice}</td>
                     <td className="p-4 text-right font-black tabular-nums">{formattedShipping}</td>
                   </tr>
                   
                   {pkg.hasPackingFee && (
-                    <tr className="bg-slate-50 border-b border-white text-[11px] text-slate-600">
+                    <tr className="bg-slate-50/50 border-b border-white text-[10px] text-slate-500">
                       <td />
-                      <td className="p-2 px-4 italic" colSpan={3}>+ Phí đóng gói tiêu chuẩn (Thùng carton, vật dụng bảo quản)</td>
+                      <td className="p-2 px-4 italic" colSpan={4}>+ Phí đóng gói tiêu chuẩn (Thùng carton, vật dụng bảo quản)</td>
                       <td className="p-2 px-4 text-right font-bold tabular-nums">
                         {new Intl.NumberFormat('vi-VN').format(getBoxFee(pkg.chargeWeight))}
                       </td>
@@ -102,9 +111,9 @@ export const LeadReceipt = React.forwardRef<HTMLDivElement, LeadReceiptProps>(({
                   )}
                   
                   {pkg.surcharge > 0 && (
-                    <tr className="bg-slate-50 border-b border-white text-[11px] text-slate-600">
+                    <tr className="bg-slate-50/50 border-b border-white text-[10px] text-slate-500">
                       <td />
-                      <td className="p-2 px-4 italic" colSpan={3}>+ Surcharge / Phí tách thùng, xử lý phát sinh</td>
+                      <td className="p-2 px-4 italic" colSpan={4}>+ Surcharge / Phí tách thùng, xử lý phát sinh</td>
                       <td className="p-2 px-4 text-right font-bold tabular-nums">
                         {new Intl.NumberFormat('vi-VN').format(pkg.surcharge)}
                       </td>
