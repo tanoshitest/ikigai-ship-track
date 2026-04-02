@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Lead, Employee, Customer, LeadStatus, initialLeads, initialCustomers, initialEmployees, generateCode, calcShippingFee } from '@/data/mockData';
+import { Lead, Employee, Customer, Expense, LeadStatus, initialLeads, initialCustomers, initialEmployees, initialExpenses, generateCode, calcShippingFee } from '@/data/mockData';
 
 interface AppState {
   leads: Lead[];
@@ -19,12 +19,16 @@ interface AppState {
   moveLead: (id: string, newStatus: LeadStatus) => void;
   updateLead: (id: string, updates: Partial<Lead>) => void;
   addEmployee: (emp: Omit<Employee, 'id' | 'ordersHandled'>) => void;
+  expenses: Expense[];
+  addExpense: (exp: Omit<Expense, 'id'>) => void;
+  deleteExpense: (id: string) => void;
 }
 
 export const useStore = create<AppState>((set, get) => ({
   leads: initialLeads,
   customers: initialCustomers,
   employees: initialEmployees,
+  expenses: initialExpenses,
   leadCounter: 100, // Boosted to avoid any collisions with mock data
   settings: {
     shippingTiers: [
@@ -87,6 +91,16 @@ export const useStore = create<AppState>((set, get) => ({
   addEmployee: (emp) => {
     set((s) => ({
       employees: [...s.employees, { ...emp, id: `e${s.employees.length + 1}`, ordersHandled: 0 }],
+    }));
+  },
+  addExpense: (exp) => {
+    set((s) => ({
+      expenses: [{ ...exp, id: Math.random().toString(36).substring(2, 9) }, ...s.expenses],
+    }));
+  },
+  deleteExpense: (id) => {
+    set((s) => ({
+      expenses: s.expenses.filter((e) => e.id !== id),
     }));
   },
 }));

@@ -49,6 +49,9 @@ export interface Lead {
   issueReason?: string;
   issueDesc?: string;
   issueSolution?: string;
+  incidentPlan?: 'den_tien' | 'ho_tro_don' | 'noi_bo' | 'khac';
+  incidentCost?: number;
+  shipperFee?: number;
   createdAt: string;
   notes?: string;
   assignedTo?: string;
@@ -84,6 +87,19 @@ export interface Expense {
   leadSource?: LeadSource;
 }
 
+export interface StoreState {
+  leads: Lead[];
+  customers: Customer[];
+  employees: Employee[];
+  expenses: Expense[];
+  leadCounter: number;
+  addLead: (lead: Omit<Lead, 'id' | 'code' | 'createdAt' | 'statusHistory'>) => void;
+  updateLead: (id: string, updates: Partial<Lead>) => void;
+  addEmployee: (emp: Omit<Employee, 'id' | 'ordersHandled'>) => void;
+  addExpense: (exp: Omit<Expense, 'id'>) => void;
+  deleteExpense: (id: string) => void;
+}
+
 export const STATUS_LABELS: Record<LeadStatus, string> = {
   cho_xac_nhan: 'Lead mới - đang chăm sóc',
   lead_moi: 'Đã chốt đơn',
@@ -109,6 +125,24 @@ export const SOURCE_ABBR: Record<LeadSource, string> = {
   Website: 'WEB',
   Khác: 'K',
 };
+
+export const INCIDENT_PLANS = [
+  { value: 'den_tien', label: 'Đền tiền cho khách' },
+  { value: 'ho_tro_don', label: 'Hỗ trợ lại đơn' },
+  { value: 'noi_bo', label: 'Xử lý nội bộ' },
+  { value: 'khac', label: 'Khác' },
+];
+
+export const EXPENSE_CATEGORIES = [
+  'Nhân viên part-time',
+  'Phí shipper',
+  'Chi phí phát sinh (lỗi đơn)',
+  'Vận chuyển nội địa',
+  'Marketing',
+  'Cước phí đối tác',
+  'Văn phòng phẩm',
+  'Khác'
+];
 
 const nextStatus: Record<LeadStatus, LeadStatus | null> = {
   cho_xac_nhan: 'lead_moi',
@@ -183,7 +217,7 @@ export function calcShippingFee(
   surchargePerPkg = 40000, 
   maxKgPerPkg = 30
 ) {
-  const volWeight = (dimL * dimW * dimH) / 6000; // Divisor updated to 6000
+  const volWeight = Math.ceil((dimL * dimW * dimH) / 6000); // Rounded up to next integer
   const chargeWeight = Math.max(weightKg, volWeight);
   const isVolumetric = volWeight > weightKg;
 
@@ -214,7 +248,7 @@ export function calcShippingFee(
 
   return {
     weightKg,
-    volWeight: Math.round(volWeight * 100) / 100,
+    volWeight: volWeight,
     chargeWeight: Math.round(chargeWeight * 100) / 100,
     isVolumetric,
     packages,
@@ -324,7 +358,6 @@ export const initialEmployees: Employee[] = [
 ];
 
 export const initialExpenses: Expense[] = [
-  { id: '1', date: '2026-03-25', category: 'Lương nhân viên', amount: 45000000, description: 'Lương tháng 3/2026' },
   { id: '2', date: '2026-03-22', category: 'Vận chuyển nội địa', amount: 12500000, description: 'Phí vận chuyển từ kho đến sân bay' },
   { id: '3', date: '2026-03-15', category: 'Marketing', amount: 8000000, description: 'Chạy quảng cáo Facebook Ads', leadSource: 'Facebook' },
   { id: '4', date: '2026-03-10', category: 'Marketing', amount: 4500000, description: 'Quảng cáo TikTok tháng 3', leadSource: 'TikTok' },

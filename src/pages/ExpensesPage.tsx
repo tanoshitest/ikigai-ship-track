@@ -1,25 +1,20 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Plus } from 'lucide-react';
-import { formatVND, initialExpenses, LeadSource } from '@/data/mockData';
+import { Plus, Trash2 } from 'lucide-react';
+import { formatVND, EXPENSE_CATEGORIES, LeadSource } from '@/data/mockData';
+import { useStore } from '@/store/useStore';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 
-const mockExpenses = [
-  { id: '1', date: '2026-03-25', category: 'Lương nhân viên', amount: 45000000, description: 'Lương tháng 3/2026' },
-  { id: '2', date: '2026-03-22', category: 'Vận chuyển nội địa', amount: 12500000, description: 'Phí vận chuyển từ kho đến sân bay' },
-  { id: '3', date: '2026-03-15', category: 'Marketing', amount: 8000000, description: 'Chạy quảng cáo Facebook Ads' },
-  { id: '4', date: '2026-03-10', category: 'Văn phòng phẩm', amount: 1500000, description: 'Mua giấy in và băng dính' },
-  { id: '5', date: '2026-03-05', category: 'Cước phí đối tác', amount: 56000000, description: 'Phí gửi EMS đợt 1 tháng 3' },
-];
-
 export default function ExpensesPage() {
-  const [expenses, setExpenses] = useState(mockExpenses);
+  const expenses = useStore((s) => s.expenses);
+  const addExpense = useStore((s) => s.addExpense);
+  const deleteExpense = useStore((s) => s.deleteExpense);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   const [filterMonth, setFilterMonth] = useState('all');
@@ -28,33 +23,37 @@ export default function ExpensesPage() {
   // States for new expense form
   const [newExpense, setNewExpense] = useState({
     date: new Date().toISOString().split('T')[0],
-    category: 'Marketing',
+    category: EXPENSE_CATEGORIES[0],
     amount: '',
     description: '',
-    leadSource: undefined as LeadSource | undefined
+    leadSource: undefined as LeadSource | undefined,
+    hours: '',
+    rate: ''
   });
 
   const handleAddExpense = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newExpense.amount || !newExpense.description) {
-      toast.error("Vui lòng điền đầy đủ thông tin");
-      return;
-    }
+    const finalAmount = newExpense.category === 'Nhân viên part-time' 
+      ? Number(newExpense.hours) * Number(newExpense.rate)
+      : parseInt(newExpense.amount);
 
-    const newEntry = {
-      id: Math.random().toString(36).substring(2, 9),
-      ...newExpense,
-      amount: parseInt(newExpense.amount)
-    };
+    addExpense({
+      date: newExpense.date,
+      category: newExpense.category,
+      amount: finalAmount,
+      description: newExpense.description,
+      leadSource: newExpense.leadSource
+    });
 
-    setExpenses([newEntry, ...expenses]);
     setIsDialogOpen(false);
     setNewExpense({
       date: new Date().toISOString().split('T')[0],
-      category: 'Marketing',
+      category: EXPENSE_CATEGORIES[0],
       amount: '',
       description: '',
-      leadSource: undefined
+      leadSource: undefined,
+      hours: '',
+      rate: ''
     });
     toast.success("Đã thêm khoản chi mới");
   };
@@ -123,24 +122,48 @@ export default function ExpensesPage() {
                     <SelectValue placeholder="Chọn danh mục" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Lương nhân viên">Lương nhân viên</SelectItem>
-                    <SelectItem value="Vận chuyển nội địa">Vận chuyển nội địa</SelectItem>
-                    <SelectItem value="Marketing">Marketing</SelectItem>
-                    <SelectItem value="Văn phòng phẩm">Văn phòng phẩm</SelectItem>
-                    <SelectItem value="Cước phí đối tác">Cước phí đối tác</SelectItem>
+                    {EXPENSE_CATEGORIES.map(cat => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="amount">Số tiền (VNĐ)</Label>
-                <Input 
-                  id="amount" 
-                  type="number" 
-                  placeholder="Ví dụ: 500000" 
-                  value={newExpense.amount} 
-                  onChange={(e) => setNewExpense({...newExpense, amount: e.target.value})} 
-                />
-              </div>
+              {newExpense.category === 'Nhân viên part-time' ? (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label>Số giờ làm</Label>
+                    <Input 
+                      type="number" 
+                      placeholder="VD: 40" 
+                      value={newExpense.hours} 
+                      onChange={(e) => setNewExpense({...newExpense, hours: e.target.value})} 
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>Lương/giờ (VNĐ)</Label>
+                    <Input 
+                      type="number" 
+                      placeholder="VD: 25000" 
+                      value={newExpense.rate} 
+                      onChange={(e) => setNewExpense({...newExpense, rate: e.target.value})} 
+                    />
+                  </div>
+                  <div className="col-span-2 text-xs font-bold text-primary">
+                    Thành tiền: {formatVND(Number(newExpense.hours) * Number(newExpense.rate))}
+                  </div>
+                </div>
+              ) : (
+                <div className="grid gap-2">
+                  <Label htmlFor="amount">Số tiền (VNĐ)</Label>
+                  <Input 
+                    id="amount" 
+                    type="number" 
+                    placeholder="Ví dụ: 500000" 
+                    value={newExpense.amount} 
+                    onChange={(e) => setNewExpense({...newExpense, amount: e.target.value})} 
+                  />
+                </div>
+              )}
               {newExpense.category === 'Marketing' && (
                 <div className="grid gap-2">
                   <Label htmlFor="leadSource">Nguồn Lead (Chỉ cho Marketing)</Label>
@@ -196,6 +219,7 @@ export default function ExpensesPage() {
                   <th className="p-4 font-medium">Danh mục</th>
                   <th className="p-4 font-medium">Mô tả chi tiết</th>
                   <th className="p-4 font-medium text-right">Số tiền (VNĐ)</th>
+                  <th className="p-4 font-medium text-right w-10">Thao tác</th>
                 </tr>
               </thead>
               <tbody>
@@ -215,6 +239,18 @@ export default function ExpensesPage() {
                     <td className="p-4 text-slate-500">{expense.description}</td>
                     <td className="p-4 text-right font-bold tracking-tight text-slate-700">
                       {expense.amount.toLocaleString()}
+                    </td>
+                    <td className="p-4 text-right">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 text-muted-foreground hover:text-red-500"
+                        onClick={() => {
+                          if (confirm('Xác nhận xoá khoản chi này?')) deleteExpense(expense.id);
+                        }}
+                      >
+                        <Trash2 size={14} />
+                      </Button>
                     </td>
                   </tr>
                 ))}

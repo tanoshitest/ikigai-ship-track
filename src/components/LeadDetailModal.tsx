@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Lead, STATUS_LABELS, STATUS_COLORS, formatVND, getNextStatus, calcShippingFee, Carrier, PackageDetail, getBoxFee, getTierPrice } from '@/data/mockData';
+import { Lead, STATUS_LABELS, STATUS_COLORS, formatVND, getNextStatus, calcShippingFee, Carrier, PackageDetail, getBoxFee, getTierPrice, INCIDENT_PLANS } from '@/data/mockData';
 import { useStore } from '@/store/useStore';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -16,7 +16,6 @@ import { CalendarIcon, Package, AlertCircle, CreditCard, ChevronRight, Camera, X
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { LeadReceipt } from './LeadReceipt';
-import { useRef, useState } from 'react';
 import generatePDF, { Resolution, Margin } from 'react-to-pdf';
 
 export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose: () => void }) {
@@ -27,11 +26,12 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
 
   const currentLead = leads.find((l) => l.id === lead.id) || lead;
 
+  const [isPaidLocal, setIsPaidLocal] = useState(currentLead.isPaid || false);
+  const [shipperFeeLocal, setShipperFeeLocal] = useState(currentLead.shipperFee || 0);
   const [actualWeight, setActualWeight] = useState(currentLead.actualWeightKg || currentLead.weightKg);
   
   // Local packages state for granular editing
   const [localPackages, setLocalPackages] = useState<PackageDetail[]>(currentLead.packages || []);
-  const [isPaidLocal, setIsPaidLocal] = useState(currentLead.isPaid || false);
 
   const [carrier, setCarrier] = useState<Carrier>(currentLead.carrier || 'EMS');
   const [trackingCode, setTrackingCode] = useState(currentLead.trackingCode || '');
@@ -40,10 +40,12 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
   const [issueReason, setIssueReason] = useState(currentLead.issueReason || '');
   const [issueDesc, setIssueDesc] = useState(currentLead.issueDesc || '');
   const [issueSolution, setIssueSolution] = useState(currentLead.issueSolution || '');
+  const [incidentPlan, setIncidentPlan] = useState<Lead['incidentPlan']>(currentLead.incidentPlan);
+  const [incidentCost, setIncidentCost] = useState<number>(currentLead.incidentCost || 0);
 
   const nextStatus = getNextStatus(currentLead.status);
   const isShipping = currentLead.status === 'dang_bay';
-  const isWarehouse = currentLead.status === 'lead_moi';
+  const isWarehouse = currentLead.status === 'lead_moi' || currentLead.status === 'cho_xac_nhan';
 
   const [isEditingInfo, setIsEditingInfo] = useState(false);
   const [tempInfo, setTempInfo] = useState({
@@ -97,8 +99,8 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
     const pkg = { ...updated[idx], ...updates };
     
     // Recalculate dimensions and charge weight
-    const volWeight = (pkg.dimL * pkg.dimW * pkg.dimH) / 6000;
-    pkg.volWeight = Math.round(volWeight * 100) / 100;
+    const volWeight = Math.ceil((pkg.dimL * pkg.dimW * pkg.dimH) / 6000);
+    pkg.volWeight = volWeight;
     pkg.chargeWeight = Math.max(pkg.weight, pkg.volWeight);
     
     // Recalculate fees
@@ -173,9 +175,10 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
         actualWeightKg: actualWeight, 
         packages: localPackages,
         totalFee: totalFeeValue,
+        shipperFee: shipperFeeLocal,
       });
     }
-  }, [actualWeight, localPackages, totalFeeValue, currentLead.id, isWarehouse, updateLead]);
+  }, [actualWeight, localPackages, totalFeeValue, shipperFeeLocal, currentLead.id, isWarehouse, updateLead]);
 
   const handlePayment = () => {
     const newVal = !isPaidLocal;
@@ -191,7 +194,14 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
       updateLead(currentLead.id, { carrier, trackingCode, shipDate: shipDate?.toISOString().slice(0, 10) });
     }
     if (hasIssue) {
-      updateLead(currentLead.id, { hasIssue, issueReason, issueDesc, issueSolution });
+      updateLead(currentLead.id, { 
+        hasIssue, 
+        issueReason, 
+        issueDesc, 
+        issueSolution,
+        incidentPlan,
+        incidentCost: Number(incidentCost)
+      });
     }
     updateLeadStatus(currentLead.id, nextStatus);
   };
@@ -204,7 +214,7 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
           <DialogTitle className="flex items-center gap-3">
             <span className="font-mono text-sm">{currentLead.code}</span>
             <Badge className={`${STATUS_COLORS[currentLead.status]} text-primary-foreground text-xs`}>{STATUS_LABELS[currentLead.status]}</Badge>
-            {currentLead.status === 'lead_moi' && (
+            {(currentLead.status === 'lead_moi' || currentLead.status === 'van_chuyen_noi_dia') && (
               <Badge variant={isPaidLocal ? "default" : "outline"} className={cn(isPaidLocal ? "bg-green-500" : "text-amber-600 border-amber-600")}>
                 {isPaidLocal ? "Đã thanh toán" : "Chưa thanh toán"}
               </Badge>
@@ -238,11 +248,10 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                   <Input className="h-7 text-xs" value={tempInfo.senderAddress} onChange={(e) => setTempInfo({...tempInfo, senderAddress: e.target.value})} placeholder="Địa chỉ gửi" />
                 </div>
               ) : (
-                <>
-                  <p className="font-medium text-sm">{currentLead.senderName}</p>
-                  <p className="text-xs text-muted-foreground">{currentLead.senderAddress || 'N/A'}</p>
-                  <p className="text-xs text-muted-foreground">{currentLead.senderPhone}</p>
-                </>
+                <div className="mt-1">
+                  <p className="font-bold text-slate-900">{currentLead.senderName}</p>
+                  <p className="text-xs text-muted-foreground">{currentLead.senderPhone} | {currentLead.senderAddress || 'N/A'}</p>
+                </div>
               )}
             </div>
             <div>
@@ -254,26 +263,25 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                   <Input className="h-7 text-xs" value={tempInfo.receiverAddress} onChange={(e) => setTempInfo({...tempInfo, receiverAddress: e.target.value})} placeholder="Địa chỉ nhận" />
                 </div>
               ) : (
-                <>
-                  <p className="font-medium text-sm">{currentLead.receiverName}</p>
-                  <p className="text-xs text-muted-foreground">{currentLead.receiverAddress}</p>
-                  <p className="text-xs text-muted-foreground">{currentLead.receiverPhone}</p>
-                </>
+                <div className="mt-1">
+                  <p className="font-bold text-slate-900">{currentLead.receiverName}</p>
+                  <p className="text-xs text-muted-foreground">{currentLead.receiverPhone} | {currentLead.receiverAddress}</p>
+                </div>
               )}
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 mb-4 bg-muted/20 p-3 rounded-lg border">
-            <div className="flex items-center gap-6 text-xs">
+          <div className="grid grid-cols-2 gap-4 py-3 border-b mb-6 bg-slate-50/50 p-3 rounded-lg">
+            <div className="flex flex-col gap-2">
               <span className="flex items-center gap-2">
-                <span className="text-muted-foreground font-semibold">Nguồn lead:</span>
+                <span className="text-muted-foreground font-semibold">Nguồn Lead:</span> 
                 {isEditingInfo ? (
                   <Select 
                     value={tempInfo.source} 
                     onValueChange={(val) => setTempInfo({...tempInfo, source: val as any})}
                   >
                     <SelectTrigger className="h-7 w-32 border-none bg-background shadow-sm text-xs px-2">
-                      <SelectValue placeholder="Nguồn" />
+                      <SelectValue placeholder="Chọn nguồn" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Facebook">Facebook</SelectItem>
@@ -284,10 +292,10 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                     </SelectContent>
                   </Select>
                 ) : (
-                  <Badge variant="secondary" className="h-5 text-[10px] px-1.5 font-medium uppercase">{currentLead.source}</Badge>
+                  <Badge variant="outline" className="text-[10px] uppercase font-bold">{currentLead.source}</Badge>
                 )}
               </span>
-              <span className="flex items-center gap-2">
+              <span className="flex items-center gap-2 text-xs">
                 <span className="text-muted-foreground font-semibold">Sale chăm sóc:</span>
                 {isEditingInfo ? (
                   <Select 
@@ -310,20 +318,7 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                   <span className="font-medium">{currentLead.assignedTo}</span>
                 )}
               </span>
-              <span className="flex items-center gap-2">
-                <span className="text-muted-foreground font-semibold">Loại hàng:</span> 
-                {isEditingInfo ? (
-                  <Input 
-                    className="h-7 text-xs w-32 bg-background border-none shadow-sm" 
-                    value={tempInfo.itemType} 
-                    onChange={(e) => setTempInfo({...tempInfo, itemType: e.target.value as any})} 
-                  />
-                ) : (
-                  currentLead.itemType
-                )}
-              </span>
             </div>
-
             <div className="flex flex-col gap-1.5">
               <span className="text-muted-foreground text-xs font-semibold">Ghi chú:</span>
               {isEditingInfo ? (
@@ -346,67 +341,98 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
             
             {/* Warehouse update Form */}
             {isWarehouse && (
-              <div className="space-y-3">
-                <div className="rounded-lg border p-3 space-y-4 bg-card">
-                  <h3 className="font-bold text-xs flex items-center gap-2 border-b pb-2">
+              <div className="space-y-6">
+                <div className="rounded-lg border p-4 bg-muted/20 space-y-4">
+                  <h3 className="font-bold text-xs flex items-center gap-2 border-b pb-2 text-primary/70 uppercase tracking-widest">
                     <Package className="w-3.5 h-3.5" />
-                    Cập nhật tổng trọng lượng
+                    Kho cập nhật
                   </h3>
-                  <div>
-                    <Label className="text-xs mb-1.5 block">Tổng cân nặng thực tế (kg)</Label>
-                    <div className="flex gap-2">
+                  <div className="space-y-4 pt-2">
+                    <div>
+                      <Label className="text-[10px] uppercase font-bold text-muted-foreground mb-1.5 block">Cân nặng thực tế (kg)</Label>
+                      <div className="flex gap-2">
+                        <Input 
+                          className="h-9 text-base font-bold focus-visible:ring-primary bg-background" 
+                          type="number" 
+                          value={actualWeight} 
+                          onChange={(e) => setActualWeight(parseFloat(e.target.value) || 0)} 
+                        />
+                        <Button 
+                          onClick={() => {
+                            const result = calcShippingFee(actualWeight, 0, 0, 0, 0, 0, settings.surchargePerPkg, settings.maxKgPerPkg);
+                            setLocalPackages(result.packages);
+                          }} 
+                          variant="secondary"
+                          className="h-9 text-[10px] font-bold"
+                        >
+                          TÁCH KIỆN LẠI
+                        </Button>
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-[10px] uppercase font-bold text-muted-foreground mb-1.5 block">Phí Shipper thực tế (VND)</Label>
                       <Input 
-                        className="h-10 text-base font-bold focus-visible:ring-primary" 
+                        className="h-9 text-base font-bold text-amber-600 focus-visible:ring-amber-500 bg-amber-50/30" 
                         type="number" 
-                        value={actualWeight} 
-                        onChange={(e) => setActualWeight(parseFloat(e.target.value) || 0)} 
+                        value={shipperFeeLocal || 0} 
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value) || 0;
+                          setShipperFeeLocal(val);
+                        }} 
+                        placeholder="0"
                       />
-                      <Button onClick={() => {
-                        const result = calcShippingFee(actualWeight, 0, 0, 0, 0, 0, settings.surchargePerPkg, settings.maxKgPerPkg);
-                        setLocalPackages(result.packages);
-                      }} variant="secondary">Reset & Split</Button>
                     </div>
                   </div>
-
                 </div>
 
-                <div className="rounded-lg border p-4 bg-primary/5 border-primary/20 space-y-3">
-                  <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Tổng cộng đơn hàng</p>
-                  <p className="text-3xl font-black text-primary">{formatVND(totalFeeValue)}</p>
-                  <div className="space-y-1.5 py-2 border-y border-primary/10">
-                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-2">Chi tiết từng kiện:</p>
-                    {localPackages.map((pkg, idx) => (
-                      <div key={idx} className="flex justify-between text-xs font-medium">
-                        <span className="text-muted-foreground">Kiện {idx + 1} ({pkg.chargeWeight}kg):</span>
-                        <span>{formatVND(pkg.total)}</span>
-                      </div>
-                    ))}
+                <div className="rounded-lg border p-4 bg-emerald-50/30 border-emerald-500/20 space-y-4">
+                  <div>
+                    <p className="text-[10px] text-emerald-600 uppercase font-black tracking-widest mb-1">Dự tính Lãi/Lỗ đơn hàng</p>
+                    <div className="flex justify-between items-baseline">
+                       <p className="text-2xl font-black text-emerald-700">
+                         {formatVND(totalFeeValue - (shipperFeeLocal || 0) - (Number(incidentCost) || 0))}
+                       </p>
+                       <Badge className="bg-emerald-500 text-[10px] border-none font-bold">Lãi dự kiến</Badge>
+                    </div>
                   </div>
-                  <p className="text-xs text-muted-foreground italic text-right pt-1">Tổng cộng {localPackages.length} kiện hàng</p>
                   
-                  <div className="pt-2">
+                  <div className="space-y-2 pt-2 border-t border-emerald-500/10">
+                    <div className="flex justify-between text-[11px] font-medium">
+                      <span className="text-muted-foreground">Doanh thu khách:</span>
+                      <span className="text-emerald-700">{formatVND(totalFeeValue)}</span>
+                    </div>
+                    <div className="flex justify-between text-[11px] font-medium">
+                      <span className="text-muted-foreground">Phí Shipper:</span>
+                      <span className="text-rose-600">-{formatVND(shipperFeeLocal || 0)}</span>
+                    </div>
+                    {Number(incidentCost) > 0 && (
+                      <div className="flex justify-between text-[11px] font-medium">
+                        <span className="text-muted-foreground">Chi phí sự cố:</span>
+                        <span className="text-rose-600">-{formatVND(Number(incidentCost))}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Progress actions */}
+                <div className="space-y-3 pt-2">
+                  <div className={cn(
+                    "flex items-center gap-3 p-4 rounded-xl border-2 transition-all cursor-pointer",
+                    isPaidLocal ? "bg-green-50 border-green-500 text-green-700" : "bg-muted border-transparent text-muted-foreground hover:bg-muted/80"
+                  )} onClick={handlePayment}>
                     <div className={cn(
-                      "flex items-center gap-3 p-4 rounded-xl border-2 transition-all cursor-pointer",
-                      isPaidLocal ? "bg-green-50 border-green-500 text-green-700" : "bg-muted border-transparent text-muted-foreground hover:bg-muted/80"
-                    )} onClick={() => {
-                      const newVal = !isPaidLocal;
-                      setIsPaidLocal(newVal);
-                      updateLead(currentLead.id, { isPaid: newVal });
-                    }}>
-                      <div className={cn(
-                        "w-6 h-6 rounded flex items-center justify-center border-2 transition-all",
-                        isPaidLocal ? "bg-green-500 border-green-500" : "bg-white border-muted-foreground/30"
-                      )}>
-                        {isPaidLocal && <CreditCard className="w-4 h-4 text-white" />}
-                      </div>
-                      <div>
-                        <p className={cn("text-sm font-bold uppercase", isPaidLocal ? "text-green-700" : "text-muted-foreground")}>
-                          Đã thanh toán
-                        </p>
-                        <p className="text-[10px] opacity-70">
-                          {isPaidLocal ? "Đã xác nhận thanh toán thành công" : "Tick vào đây nếu đã nhận thanh toán"}
-                        </p>
-                      </div>
+                      "w-6 h-6 rounded flex items-center justify-center border-2 transition-all",
+                      isPaidLocal ? "bg-green-500 border-green-500" : "bg-white border-muted-foreground/30"
+                    )}>
+                      {isPaidLocal && <CreditCard className="w-4 h-4 text-white" />}
+                    </div>
+                    <div>
+                      <p className={cn("text-sm font-bold uppercase", isPaidLocal ? "text-green-700" : "text-muted-foreground")}>
+                        Đã thanh toán
+                      </p>
+                      <p className="text-[10px] opacity-70">
+                        {isPaidLocal ? "Đã xác nhận thanh toán thành công" : "Tick vào đây nếu đã nhận thanh toán"}
+                      </p>
                     </div>
                   </div>
 
@@ -621,6 +647,28 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                           </SelectContent>
                         </Select>
                       </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <Label className="text-xs font-semibold">Phương án xử lý</Label>
+                          <Select value={incidentPlan} onValueChange={(v) => setIncidentPlan(v as any)}>
+                            <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Chọn" /></SelectTrigger>
+                            <SelectContent>
+                              {INCIDENT_PLANS.map(p => (
+                                <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label className="text-xs font-semibold">Chi phí (VNĐ)</Label>
+                          <Input 
+                            type="number" 
+                            className="h-8 text-sm" 
+                            value={incidentCost} 
+                            onChange={(e) => setIncidentCost(Number(e.target.value))} 
+                          />
+                        </div>
+                      </div>
                       <div><Label className="text-xs font-semibold">Mô tả</Label><Textarea className="text-xs h-12 resize-none" value={issueDesc} onChange={(e) => setIssueDesc(e.target.value)} /></div>
                       <div><Label className="text-xs font-semibold">Cách xử lý</Label><Textarea className="text-xs h-12 resize-none" value={issueSolution} onChange={(e) => setIssueSolution(e.target.value)} /></div>
                       <Button 
@@ -632,12 +680,13 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                           const isCurrentlyInFlight = currentLead.status === 'dang_bay';
                           const nextLeadStatus = isCurrentlyInFlight ? 'su_co' : currentLead.status;
                           
+                          const planLabel = INCIDENT_PLANS.find(p => p.value === incidentPlan)?.label || 'Chưa chọn';
                           const newHistory = [
                             ...currentLead.statusHistory,
                             { 
                               status: nextLeadStatus, 
                               date: now, 
-                              note: `LỖI: ${issueReason} (${issueDesc}). XỬ LÝ: ${issueSolution}` 
+                              note: `LỖI: ${issueReason} (${issueDesc}). PHƯƠNG ÁN: ${planLabel}. CHI PHÍ: ${formatVND(incidentCost)}. XỬ LÝ: ${issueSolution}` 
                             }
                           ];
                           updateLead(currentLead.id, { 
@@ -646,6 +695,8 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
                             issueReason, 
                             issueDesc, 
                             issueSolution,
+                            incidentPlan,
+                            incidentCost: Number(incidentCost),
                             statusHistory: newHistory
                           });
                         }}
