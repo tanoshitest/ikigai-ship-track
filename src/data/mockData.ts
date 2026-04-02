@@ -256,13 +256,14 @@ export function calcShippingFee(
   };
 }
 
-export function generateCode(source: LeadSource, index: number): string {
-  const abbr = SOURCE_ABBR[source];
+export function generateCode(index: number): string {
   const now = new Date();
-  const yy = String(now.getFullYear()).slice(2);
-  const mm = String(now.getMonth() + 1).padStart(2, '0');
-  const dd = String(now.getDate()).padStart(2, '0');
-  return `IKG-${abbr}-${yy}${mm}${dd}-${String(index).padStart(3, '0')}`;
+  const day = String(now.getDate()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const year = now.getFullYear();
+  const dateStr = `${day}${month}${year}`;
+  const stt = String(index).padStart(3, '0');
+  return `IKG-${dateStr}-${stt}`;
 }
 
 // Mock leads

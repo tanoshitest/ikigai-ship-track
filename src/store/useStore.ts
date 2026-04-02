@@ -51,7 +51,7 @@ export const useStore = create<AppState>((set, get) => ({
   addLead: (data) => {
     const state = get();
     const counter = state.leadCounter;
-    const code = generateCode(data.source, counter);
+    const code = generateCode(counter);
     const fee = calcShippingFee(data.weightKg, data.dimL, data.dimW, data.dimH, 0, 0, state.settings.surchargePerPkg, state.settings.maxKgPerPkg);
     const now = new Date().toISOString().slice(0, 10);
     const newLead: Lead = {
