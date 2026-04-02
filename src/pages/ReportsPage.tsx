@@ -15,6 +15,7 @@ export default function ReportsPage() {
   
   const [sourceMonth, setSourceMonth] = useState('all');
   const [sourceYear, setSourceYear] = useState('2026');
+  const [salesMonth, setSalesMonth] = useState('all');
   const [salesYear, setSalesYear] = useState('2026');
   
   const cplData = useMemo(() => sources.map(src => {
@@ -78,7 +79,9 @@ export default function ReportsPage() {
 
   const profitLossData = useMemo(() => {
     const months = [...Array(12)].map((_, i) => (i + 1).toString());
-    return months.map(m => {
+    const filteredMonths = salesMonth === 'all' ? months : [salesMonth];
+    
+    return filteredMonths.map(m => {
       const monthLeads = leads.filter(l => l.createdAt.split('-')[1] === m.padStart(2, '0') && l.createdAt.startsWith(salesYear));
       const monthExpenses = expenses.filter(e => e.date.split('-')[1] === m.padStart(2, '0') && e.date.startsWith(salesYear));
       
@@ -99,7 +102,7 @@ export default function ReportsPage() {
         incidentRate: monthLeads.length > 0 ? Math.round((monthLeads.filter(l => l.hasIssue).length / monthLeads.length) * 100) : 0
       };
     }).filter(d => d.revenue > 0 || d.cost > 0);
-  }, [leads, expenses, salesYear]);
+  }, [leads, expenses, salesYear, salesMonth]);
 
   return (
     <Tabs defaultValue="source" className="space-y-4">
@@ -265,14 +268,26 @@ export default function ReportsPage() {
         <Card className="border-none shadow-md font-bold">
           <CardHeader>
             <CardTitle className="text-base font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <span>Báo cáo Lãi/Lỗ thực tế năm {salesYear}</span>
-              <Select value={salesYear} onValueChange={setSalesYear}>
-                <SelectTrigger className="h-8 w-[100px] text-xs"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="2026">2026</SelectItem>
-                  <SelectItem value="2025">2025</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex items-center gap-2">
+                <Select value={salesMonth} onValueChange={setSalesMonth}>
+                  <SelectTrigger className="h-8 w-[120px] text-xs">
+                    <SelectValue placeholder="Chọn tháng" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả tháng</SelectItem>
+                    {[...Array(12)].map((_, i) => (
+                       <SelectItem key={i+1} value={(i+1).toString()}>Tháng {i+1}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={salesYear} onValueChange={setSalesYear}>
+                  <SelectTrigger className="h-8 w-[100px] text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="2026">2026</SelectItem>
+                    <SelectItem value="2025">2025</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
