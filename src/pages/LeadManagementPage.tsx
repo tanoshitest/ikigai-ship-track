@@ -9,6 +9,8 @@ import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, u
 import { useDroppable } from '@dnd-kit/core';
 import { useDraggable } from '@dnd-kit/core';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Filter } from 'lucide-react';
 import AddLeadModal from '@/components/AddLeadModal';
 import LeadDetailModal from '@/components/LeadDetailModal';
 
@@ -68,6 +70,7 @@ export default function LeadManagementPage() {
   const [detailLead, setDetailLead] = useState<Lead | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [consultFilter, setConsultFilter] = useState('all');
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
@@ -119,12 +122,29 @@ export default function LeadManagementPage() {
         </TabsList>
         <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           <TabsContent value="round1" className="mt-0 outline-none">
+            <div className="mb-4 flex items-center gap-2">
+              <Filter className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm font-semibold text-muted-foreground">Lọc theo Tư vấn:</span>
+              <Select value={consultFilter} onValueChange={setConsultFilter}>
+                <SelectTrigger className="w-[200px] h-9 bg-white">
+                  <SelectValue placeholder="Tất cả trạng thái" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tất cả</SelectItem>
+                  <SelectItem value="Chưa liên hệ">Chưa liên hệ</SelectItem>
+                  <SelectItem value="Đã liên hệ">Đã liên hệ</SelectItem>
+                  <SelectItem value="Đã gọi lần 1">Đã gọi lần 1</SelectItem>
+                  <SelectItem value="Đã gọi lần 2">Đã gọi lần 2</SelectItem>
+                  <SelectItem value="Ngừng chăm sóc">Ngừng chăm sóc</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="flex gap-2">
               {ROUND1_COLUMNS.map((status) => (
                 <KanbanColumn
                   key={status}
                   status={status}
-                  leads={filteredLeads.filter((l) => l.status === status)}
+                  leads={filteredLeads.filter((l) => l.status === status && (consultFilter === 'all' || l.consultStatus === consultFilter))}
                   onCardClick={setDetailLead}
                 />
               ))}
