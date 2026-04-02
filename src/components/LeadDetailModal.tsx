@@ -42,6 +42,11 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
   const [issueSolution, setIssueSolution] = useState(currentLead.issueSolution || '');
   const [incidentPlan, setIncidentPlan] = useState<Lead['incidentPlan']>(currentLead.incidentPlan);
   const [incidentCost, setIncidentCost] = useState<number>(currentLead.incidentCost || 0);
+  
+  // History editing states
+  const [editingHistoryIdx, setEditingHistoryIdx] = useState<number | null>(null);
+  const [tempIncidentError, setTempIncidentError] = useState('');
+  const [tempIncidentSolution, setTempIncidentSolution] = useState('');
 
   const nextStatus = getNextStatus(currentLead.status);
   const isShipping = currentLead.status === 'dang_bay';
@@ -735,19 +740,82 @@ export default function LeadDetailModal({ lead, onClose }: { lead: Lead; onClose
 
                       {/* Incident Details Section (Split into lines if it's an error) */}
                       {h.note && h.note.includes('LỖI:') && (
-                        <div className="mt-2 bg-red-50/70 p-2.5 rounded-lg border border-red-100 shadow-sm text-[11px] space-y-2">
-                          <div className="flex flex-col gap-0.5">
-                            <span className="text-red-800 font-bold uppercase text-[9px] tracking-wider opacity-70">Phát sinh lỗi</span>
-                            <p className="text-red-700 leading-relaxed font-medium">
-                              {h.note.split('XỬ LÝ:')[0].replace('LỖI:', '').trim()}
-                            </p>
-                          </div>
-                          <div className="flex flex-col gap-0.5 border-t border-red-200/50 pt-2">
-                            <span className="text-blue-800 font-bold uppercase text-[9px] tracking-wider opacity-70">Hướng xử lý</span>
-                            <p className="text-blue-700 leading-relaxed font-medium">
-                              {h.note.split('XỬ LÝ:')[1]?.trim() || 'Đang xử lý'}
-                            </p>
-                          </div>
+                        <div className="mt-2 bg-red-50/70 p-2.5 rounded-lg border border-red-100 shadow-sm text-[11px] space-y-2 relative group">
+                          {editingHistoryIdx === i ? (
+                            <div className="space-y-3">
+                              <div className="flex flex-col gap-1">
+                                <span className="text-red-800 font-bold uppercase text-[9px] tracking-wider opacity-70">Phát sinh lỗi</span>
+                                <Textarea 
+                                  className="text-[11px] min-h-[60px] bg-white border-red-200 focus-visible:ring-red-400" 
+                                  value={tempIncidentError} 
+                                  onChange={(e) => setTempIncidentError(e.target.value)} 
+                                />
+                              </div>
+                              <div className="flex flex-col gap-1">
+                                <span className="text-blue-800 font-bold uppercase text-[9px] tracking-wider opacity-70">Hướng xử lý</span>
+                                <Textarea 
+                                  className="text-[11px] min-h-[60px] bg-white border-blue-200 focus-visible:ring-blue-400" 
+                                  value={tempIncidentSolution} 
+                                  onChange={(e) => setTempIncidentSolution(e.target.value)} 
+                                />
+                              </div>
+                              <div className="flex gap-2 justify-end">
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  className="h-7 text-[10px] uppercase font-bold" 
+                                  onClick={() => setEditingHistoryIdx(null)}
+                                >
+                                  Hủy
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  className="h-7 text-[10px] uppercase font-bold bg-green-600 hover:bg-green-700" 
+                                  onClick={() => {
+                                    const newHistory = [...currentLead.statusHistory];
+                                    newHistory[i] = { 
+                                      ...h, 
+                                      note: `LỖI: ${tempIncidentError}. XỬ LÝ: ${tempIncidentSolution}` 
+                                    };
+                                    updateLead(currentLead.id, { 
+                                      statusHistory: newHistory,
+                                      // If it's the latest incident, update the lead's main fields too
+                                      issueDesc: i === currentLead.statusHistory.length - 1 ? tempIncidentError : currentLead.issueDesc,
+                                      issueSolution: i === currentLead.statusHistory.length - 1 ? tempIncidentSolution : currentLead.issueSolution
+                                    });
+                                    setEditingHistoryIdx(null);
+                                  }}
+                                >
+                                  Lưu
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <button 
+                                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 p-1 rounded-md border text-[9px] font-bold uppercase text-muted-foreground hover:text-primary"
+                                onClick={() => {
+                                  setEditingHistoryIdx(i);
+                                  setTempIncidentError(h.note!.split('XỬ LÝ:')[0].replace('LỖI:', '').trim());
+                                  setTempIncidentSolution(h.note!.split('XỬ LÝ:')[1]?.trim() || 'Đang xử lý');
+                                }}
+                              >
+                                Sửa
+                              </button>
+                              <div className="flex flex-col gap-0.5">
+                                <span className="text-red-800 font-bold uppercase text-[9px] tracking-wider opacity-70">Phát sinh lỗi</span>
+                                <p className="text-red-700 leading-relaxed font-medium">
+                                  {h.note.split('XỬ LÝ:')[0].replace('LỖI:', '').trim()}
+                                </p>
+                              </div>
+                              <div className="flex flex-col gap-0.5 border-t border-red-200/50 pt-2">
+                                <span className="text-blue-800 font-bold uppercase text-[9px] tracking-wider opacity-70">Hướng xử lý</span>
+                                <p className="text-blue-700 leading-relaxed font-medium">
+                                  {h.note.split('XỬ LÝ:')[1]?.trim() || 'Đang xử lý'}
+                                </p>
+                              </div>
+                            </>
+                          )}
                         </div>
                       )}
                     </div>
