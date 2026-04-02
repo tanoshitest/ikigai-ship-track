@@ -25,7 +25,7 @@ export const useStore = create<AppState>((set, get) => ({
   leads: initialLeads,
   customers: initialCustomers,
   employees: initialEmployees,
-  leadCounter: 17,
+  leadCounter: 100, // Boosted to avoid any collisions with mock data
   settings: {
     shippingTiers: [
       { min: 5, max: 10, price: 130000 },
@@ -54,10 +54,10 @@ export const useStore = create<AppState>((set, get) => ({
       ...data,
       id: String(counter),
       code,
-      status: 'cho_xac_nhan',
+      status: 'lead_moi', // Chốt đơn immediately as requested
       totalFee: fee.total,
       createdAt: now,
-      statusHistory: [{ status: 'cho_xac_nhan', date: now }],
+      statusHistory: [{ status: 'lead_moi', date: now }],
     };
     set({ leads: [...state.leads, newLead], leadCounter: counter + 1 });
   },
